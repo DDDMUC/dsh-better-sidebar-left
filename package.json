@@ -91,7 +91,7 @@
       "dsh-declutter": {
         "repo": "https://github.com/DDDMUC/dsh-declutter",
         "ref": "main",
-        "commit": "d50522335ffcae2063cd6f7ec31ca54adfe9d686",
+        "commit": "0ae7873dabdc39ddd26ff7a9ea58f04841c8b003",
         "version": "0.2.0"
       }
     },
