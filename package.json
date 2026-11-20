@@ -56,7 +56,8 @@
     "verify:vendor": "node tools/vendor.mjs --check",
     "verify:build": "node tools/build.mjs --check",
     "verify:manifest": "node tools/verify-manifest.mjs",
-    "link:local": "node tools/link-local.mjs"
+    "link:local": "node tools/link-local.mjs",
+    "push:github": "node tools/push-github.mjs"
   },
   "dependencies": {},
   "dsh": {
