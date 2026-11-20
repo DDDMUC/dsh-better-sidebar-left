@@ -1,0 +1,67 @@
+# dsh-session-studio bundle patch: five session plugins, ONE row in the plugin list.
+#
+# Self-contained: the plugin list shows exactly this package. The five components
+# are ordinary packages the studio composes, not profile bundles, so they have no
+# rows of their own and never appear in that list.
+#
+# Six rows are inserted here:
+#
+#   1. this package's own row. Its name is the BARE package name on purpose: the
+#      client-module scanner treats an exact package specifier as a package and
+#      resolves <name>/package.json for the dsh.client declaration. That is the
+#      row the single browser bundle (src/client.js, which carries the studio's
+#      own half and all five vendored component factories) is served for.
+#
+#   2-6. one row per component, named <this package>/<suffix>. Every one of
+#      those names resolves through package.json exports to src/shell.js, and the
+#      shell mounts the component package named in config.plugin. Two properties
+#      ride on that name, both load-bearing:
+#
+#        * the plugin list is a deduplicated set of package identities, and a
+#          subpath of this package resolves to this package's identity - so the
+#          five extra rows cost exactly zero extra rows in that list;
+#        * the client-module scanner accepts only an exact package specifier, so a
+#          subpath row never becomes a second browser source. The components'
+#          browser halves keep travelling inside this package's bundle, and the
+#          scanner's negative verdict for these specifiers is what keeps the boot
+#          graph from growing a second entry per component.
+#
+# The component host halves are NOT copied (unlike dsh-as-aistudio's vendored
+# host/ directory): src/shell.js imports the real component package, so the host
+# logic exists exactly once and runs where the component's own row would run it.
+# That is also what makes a missing component fail in isolation and read as
+# hostMounted: false - the studio can never offer a button whose host half is
+# absent.
+#
+# A component that is not installed is not fatal: its row fails on its own (the
+# Loader reports the missing module and the other entries still start), and
+# /api/dsh-session-studio/status reports hostMounted: false with the reason -
+# which is also what keeps its buttons off the page.
+- insert:
+    - id: dsh-session-studio
+      name: 'dsh-session-studio'
+- insert:
+    - id: dsh-session-studio-delete
+      name: 'dsh-session-studio/delete'
+      config:
+        plugin: 'dsh-delete-session'
+- insert:
+    - id: dsh-session-studio-relocate
+      name: 'dsh-session-studio/relocate'
+      config:
+        plugin: 'dsh-session-relocate'
+- insert:
+    - id: dsh-session-studio-rename
+      name: 'dsh-session-studio/rename'
+      config:
+        plugin: 'dsh-session-rename-dblclick'
+- insert:
+    - id: dsh-session-studio-counts
+      name: 'dsh-session-studio/counts'
+      config:
+        plugin: 'dsh-session-counts'
+- insert:
+    - id: dsh-session-studio-declutter
+      name: 'dsh-session-studio/declutter'
+      config:
+        plugin: 'dsh-declutter'
