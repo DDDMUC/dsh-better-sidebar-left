@@ -125,19 +125,18 @@ loopback 校验留在宿主侧。
 五个组件里只有 `dsh-declutter` 的侧栏半部会碰行显示；它用的是
 `data-dsh-sidebar-declutter` 一族属性，且它的样式表**只**以这些属性为选择器前提。
 
-## 5. 缺席：移走一个组件包会发生什么
+## 5. 缺席：现在什么才算缺席
 
-这是本包与 `dsh-as-aistudio` 的**刻意分歧**（见 §11）。宿主半部不复制，组件行 `import` 真实包。
-所以从 profile 的 `node_modules` 移走 `dsh-session-counts` 之后：
+本包**两半都 vendor**（浏览器半部 `src/vendor/*.js`，宿主半部 `src/vendor/host/*.js`），
+所以「组件包没装」不再是缺席 —— 运行时根本不碰组件包。能让一块功能消失的只有三件事：
 
-1. `dsh-better-sidebar-left/counts` 这一行 import 失败 —— **只有这一行失败**，另外四行照常启动；
-2. `/api/dsh-better-sidebar-left/status` 对它报 `hostMounted: false`、`hostReason: 'not-installed'`；
-3. 浏览器半部据此**不挂载**它，所以工作区计数不出现；
-4. 没有任何报错弹窗，也没有 `console.error` 刷屏（I5）。
+1. 本包没装 / 被禁用 → 六行都不存在，五个功能一起消失（这是整体回滚）；
+2. 某条组件行被停用（`dsh-better-sidebar-left/<后缀>`）→ 只有那一块消失，其余四个照常；
+3. 行在但没起来（vendored 文件损坏、组件 `apply` 抛错）→ 该行 fiber 变 failed，`/status` 报
+   `hostMounted: false` + 原因，浏览器半部据此**不挂载**它那一半。
 
-第 3 条是「不允许出现『按钮在、点了没反应』」的落点。反过来，如果宿主半部是 vendor 进来的副本，
-第 2、3 条都会失效：包没了、行还活着、按钮还在。
-
+第 3 条是「不允许出现『按钮在、点了没反应』」的落点。**移走组件包不在上表里**：代码已经在
+包内，移走它什么也不会发生（`/status` 里 `installed` 会变 false，`versionMatch` 变 null，仅此而已）。
 ## 6. 设置卡：为什么有的组件设置不见了
 
 组件把设置卡注册在槽位 key `<包名>#<行 id>` 上。聚合之后行 id 变成
@@ -188,16 +187,24 @@ loopback 校验留在宿主侧。
 （`(require) =>`、`function (require)`、`()`、`forward(require)` 简写、带/不带结尾分号）都显式处理，
 形状不匹配就 `exit 3`。`--check` 只验证不写盘，`test/sync.test.js` 用它保证不漂移。
 
-### D 宿主半部不复制（与 as-aistudio 的分歧）
-`dsh-as-aistudio` 把每个组件的宿主半部也 vendor 进 `src/vendor/host/`，好处是零安装依赖；
-代价是组件缺席时它依然报「已挂载」，按钮照样出现。本包反过来：`src/shell.js` `import` 真实包，
-宿主逻辑只有一份，缺席就是缺席（§5）。所以本包的 `src/vendor/host/` 是空的 —— 里面有一份
-README 说明为什么。
+### D 两半都 vendor，所以「装一个就够」
+`src/shell.js` 挂的是 `src/vendor/host/<id>.js`，不是组件包 —— profile 里只要本包一个，五个组件包
+不必安装。这是与「组件行 import 真实包」的取舍：
+
+- 收益：真正的一次安装；组件包缺失不影响功能；零运行时依赖；
+- 代价：组件修复要 `npm run vendor && npm run build` + 重发版本；「卸载组件 ⇒ 功能退场」
+  在这种架构下不成立（要靠停用组件行，见 §5）；组件自报的版本号由 vendor 时钉死
+  （`createRequire(import.meta.url)('../package.json').version` 被替换成字面量，否则那份拷贝
+  旁边没有 package.json，只会答 `0.0.0-unknown`）。
+
+`tools/vendor.mjs` 对宿主半部只做三处机械改写：相对模块改名搬运、版本钉死、平台包一律拒绝
+（今天五个宿主半部都不 import `@deepseek-ai/*`，哪天 import 了，构建会在这里失败而不是生成一份
+在运行时解析出第二个 `dsh-session` 实例的拷贝）。其余逐字节复制。
 
 ### E 缺席不致命
-任一组件没安装：该行单独失败（Loader 报缺模块，其它行照常启动），`/status` 报
-`hostMounted: false` + 原因；浏览器半部据此把对应按钮/装饰关掉。**不允许出现「按钮在、点了没反应」**。
-
+一条组件行启动失败只影响它自己：Loader 报错、其它四行照常启动、`/status` 报
+`hostMounted: false` + 原因；浏览器半部据此把对应按钮/装饰关掉。
+**不允许出现「按钮在、点了没反应」**。
 ### F 状态路由只回答那一个问题
 `GET /api/dsh-better-sidebar-left/status`：每个组件装没装、什么版本、它那一行**是不是真的活着** ——
 从 `ctx.loader.entries()` 和行 fiber 自己的状态读，不读自己记的「我挂上了」的乐观记录。

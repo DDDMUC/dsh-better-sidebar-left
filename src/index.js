@@ -6,7 +6,7 @@
 //
 // Two jobs:
 //
-//   1. describe how a component's HOST half is mounted - which is not done here.
+//      Each component has a row in cordis.patch.yml named
 //      Each component has a row in cordis.patch.yml named
 //      "dsh-better-sidebar-left/<suffix>" whose config.plugin names the component
 //      package; src/shell.js is what that row mounts, and it imports the real
@@ -31,7 +31,7 @@
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, resolve } from 'node:path'
-import { fileURLToPath, pathToFileURL } from 'node:url'
+import { fileURLToPath } from 'node:url'
 import { COMPONENTS, rowNameOf, PLUGIN_ID, PLUGIN_VERSION } from './components.js'
 
 export const name = PLUGIN_ID
@@ -133,46 +133,6 @@ function requirement(anchorFile) {
   }
 }
 
-/**
- * Import one component package from the profile, by absolute path.
- *
- * A plain import('dsh-delete-session') inside this package would be resolved from
- * THIS file's location, which for a "link:" install is a working tree outside the
- * profile - the component would not be found there. So the package is resolved
- * through the profile's own anchors first and only the resolved URL is imported;
- * the bare specifier stays as the fallback for the ordinary layout where the
- * plugin and the components share one node_modules.
- *
- * Module identity is deliberately NOT busted: importing the same package twice
- * returns the same namespace, which is what makes a row restart re-mount the
- * component rather than load a second copy of it.
- *
- * @param ctx - the row's context.
- * @param component - a manifest entry.
- * @returns the component module namespace.
- * @throws when the package is not installed, naming the package and the anchors.
- */
-export async function importComponent(ctx, component) {
-  const anchors = resolveAnchors(ctx)
-  let entry = null
-  try {
-    entry = requirement().resolve(component.package, { paths: anchors })
-  } catch {
-    entry = null
-  }
-  if (entry === null) {
-    try {
-      return await import(component.package)
-    } catch (error) {
-      const reason = String((error && error.message) || error)
-      throw new Error(
-        PLUGIN_ID + ': component ' + JSON.stringify(component.package) + ' is not installed (looked in: ' + anchors.join(', ') + '): ' + reason,
-        { cause: error },
-      )
-    }
-  }
-  return await import(pathToFileURL(entry).href)
-}
 
 /**
  * The version of the browser half this plugin actually RUNS.
@@ -305,7 +265,7 @@ export function hostStateOf(component, entries, installed) {
   }
   if (row.disabled) return { hostMounted: false, hostReason: 'disabled', hostRow: row.name }
   if (row.fiberState === 'active') return { hostMounted: true, hostReason: null, hostRow: row.name }
-  // A dead row whose package does not resolve is a missing dependency, whatever
+  // the fiber did: the shell's own import of it is the failure, and "not
   // the fiber did: the shell's own import of it is the failure, and "not
   // installed" is the actionable half of that answer.
   if (!installed) return { hostMounted: false, hostReason: 'not-installed', hostRow: row.name }

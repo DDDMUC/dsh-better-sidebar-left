@@ -74,10 +74,12 @@ test('the document keeps the two load-bearing rules about declutter', () => {
   }
 })
 
-test('the document records that host halves are not copied', () => {
+test('the document records that both halves are vendored', () => {
   const architecture = section('11. 自包含架构')
-  assert.ok(architecture.includes('宿主半部不复制'))
-  assert.ok(architecture.includes('src/vendor/host/'), 'the empty host directory must be explained')
+  assert.ok(architecture.includes('两半都 vendor'), 'the architecture must say that both halves are vendored')
+  assert.ok(architecture.includes('src/vendor/host/'), 'the vendored host directory must be named')
+  assert.ok(architecture.includes('装一个就够'), 'the one-install consequence must be stated')
+  assert.equal(architecture.includes('宿主半部不复制'), false, 'the old contract must be gone, not merely edited around')
 })
 
 test('every rule I1-I9 is present, in order', () => {

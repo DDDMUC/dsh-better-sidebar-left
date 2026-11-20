@@ -10,8 +10,9 @@
   每个的上游 commit 钉在 `package.json` 的 `dsh.vendorSources`，`npm run verify:manifest` 离线核对。
 - 单一行身份：`cordis.patch.yml` 插 1 行裸包名 + 5 行 `dsh-better-sidebar-left/<后缀>`；
   插件列表按包身份去重，所以五个组件不各自成行。
-- 浏览器半部逐字节 vendor；宿主半部不复制，由组件行 `import` 真实包 ——
-  这样组件缺席时它那一行真的会失败、`/status` 报 `hostMounted: false`，对应按钮不出现。
+- 两半都逐字节 vendor：浏览器半部在 `src/vendor/*.js`，宿主半部在 `src/vendor/host/*.js`。
+  所以 profile 里只装本包一个就够，五个组件包不用装（这与 as-aistudio 一致）。
+  代价：组件修复要重 vendor + 重发；移走组件包不会让功能消失。
 - `GET /api/dsh-better-sidebar-left/status`：每个组件装没装、什么版本、那一行是不是真的活着
   （读 Loader 行 fiber），并报 `versionMatch`（宿主半部与浏览器半部是否同版）。
 - 设置页：插件列表里本包那一行的配置页显示五个组件的实时状态与槽位占用表；

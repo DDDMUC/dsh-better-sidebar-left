@@ -7,12 +7,12 @@
 ```
 cordis.patch.yml    插 6 行：本包自己（裸包名）+ 五条 dsh-better-sidebar-left/<后缀> 组件行
 src/components.js   唯一 manifest：身份 / 槽位 / 路由 / DOM 归属
-src/index.js        宿主半侧：/api/dsh-better-sidebar-left/status + importComponent（解析 profile 里的真实包）
-src/shell.js        组件行的壳：读 config.plugin，import 真实包，ctx.plugin 挂上去
+src/index.js        宿主半侧：/api/dsh-better-sidebar-left/status（读 Loader 行 fiber）
+src/shell.js        组件行的壳：读 config.plugin，挂 src/vendor/host/<id>.js
 src/sidebar.js       本包自己的浏览器半侧（源，注册 id dsh-better-sidebar-left）
 src/vendor/*.js     五个组件的浏览器半部，由 tools/vendor.mjs 逐字剥离生成，DO NOT EDIT
 src/client.js       生成的单一大 bundle：本包浏览器半部 + 五个 vendored factory，DO NOT EDIT
-src/vendor/host/    保留目录，故意为空（见其中 README）
+src/vendor/host/    GENERATED：五个组件的宿主半部（含被搬过来的相对模块）
 ```
 
 三条不变量（改之前先读懂，测试都在盯）：
@@ -23,9 +23,10 @@ src/vendor/host/    保留目录，故意为空（见其中 README）
 2. **组件行的 name 必须是本包子路径。** 客户端模块扫描器只认精确包说明符，子路径会被跳过、
    且被缓存成「不是客户端包」——所以组件行永远不会变成第二份浏览器源。只有本包那一行（裸包名）
    带 `./client`，那份 bundle 里装着五个 factory。
-3. **宿主半侧不许回流，也不许复制。** 五个组件已由五条行挂载，宿主再 `ctx.plugin` 一次就是
-   同进程挂两遍、路由必冲突；而把宿主半部 vendor 进来会让「组件缺席」变成「功能还在」
-   （docs/INTEROP.md §5、§11）。`/status` 的 hostMounted 只从 `ctx.loader.entries()` 的行 fiber 读。
+3. **两半都 vendor，宿主半侧不许回流。** `src/shell.js` 挂 `src/vendor/host/<id>.js`，不 import
+   组件包 —— 这就是「装一个包就够」的实现方式。反过来说：本包的主机半侧**不许**再 `ctx.plugin`
+   挂一遍组件（同进程挂两遍、路由必冲突）；`/status` 的 hostMounted 只从 `ctx.loader.entries()`
+   的行 fiber 读（docs/INTEROP.md §5、§11-D）。
 
 ## 源从哪来
 
@@ -39,6 +40,7 @@ commit；`package.json` 的 `dsh.vendorSources` 是这张表的正本，`npm run
 | 组件仓库（五个检出） | `npm run vendor && npm run build` |
 | `src/sidebar.js` | `node tools/build.mjs` |
 | `src/index.js` / `src/shell.js` / `src/components.js` / `cordis.patch.yml` / `package.json` | 不用重建，重启宿主即生效 |
+| `tools/vendor.mjs` | `npm run vendor && node tools/build.mjs`（宿主半部也在它生成） |
 
 只想重建 bundle 时**别**用 `npm run build`：它会先从 GitHub 检出重取 vendor 副本。
 

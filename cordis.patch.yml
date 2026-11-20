@@ -26,17 +26,19 @@
 #          scanner's negative verdict for these specifiers is what keeps the boot
 #          graph from growing a second entry per component.
 #
-# The component host halves are NOT copied (unlike dsh-as-aistudio's vendored
-# host/ directory): src/shell.js imports the real component package, so the host
-# logic exists exactly once and runs where the component's own row would run it.
-# That is also what makes a missing component fail in isolation and read as
-# hostMounted: false - this plugin can never offer a button whose host half is
-# absent.
+# Both halves of every component are vendored into this package (tools/vendor.mjs),
+# so installing it installs nothing else: the profile needs exactly one package and
+# the five component packages do not have to be present at all. src/shell.js mounts
+# src/vendor/host/<id>.js, never the component package.
 #
-# A component that is not installed is not fatal: its row fails on its own (the
-# Loader reports the missing module and the other entries still start), and
-# /api/dsh-better-sidebar-left/status reports hostMounted: false with the reason -
-# which is also what keeps its buttons off the page.
+# That is also why a component's fix reaches this package only through a re-vendor
+# and a release - the copy here is the copy that runs. A component package that is
+# missing, outdated or newer changes nothing about what runs.
+#
+# A row that fails to start is not fatal: it fails on its own (the Loader reports the
+# reason and the other entries still start), and /api/dsh-better-sidebar-left/status
+# reports hostMounted: false with that reason - which is also what keeps its buttons
+# off the page.
 - insert:
     - id: dsh-better-sidebar-left
       name: 'dsh-better-sidebar-left'

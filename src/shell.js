@@ -1,12 +1,12 @@
 // dsh-better-sidebar-left - the component-row shell.
 //
 // One file, mounted once per component row in cordis.patch.yml. A Loader row
-// mounts whatever its "name" resolves to, so every component row is named
+// mounts whatever its name resolves to, so every component row is named
 // "dsh-better-sidebar-left/<suffix>" - package.json maps all five suffixes to THIS
-// file - and carries the real component package in config.plugin. The shell is
-// what turns that name into a mount:
+// file - and carries the component package in config.plugin. The shell is what
+// turns that name into a mount:
 //
-//     const namespace = await importComponent(ctx, component)   // the REAL package
+//     const namespace = await import('./vendor/host/' + component.id + '.js')
 //     await ctx.plugin(pluginOf(namespace))
 //
 // Why the row is a subpath of this package and not the component's own name:
@@ -19,19 +19,22 @@
 //     halves keep travelling inside this package's single bundle (src/client.js),
 //     served for this package's own row.
 //
-// Why the HOST half is imported from the component package instead of vendored
-// (this is where this package deliberately differs from dsh-as-aistudio, whose
-// src/vendor/host/ carries a copy of each component's host code):
+// Why the HOST half is vendored rather than imported from the component package
+// (this is what makes "install one package" true - the components do not have to
+// be installed at all):
 //
-//   * the host logic exists exactly once, and it is the copy the component's own
-//     release ships - a plugin that vendored it would keep running last month's
-//     routes after a component fix, which is a silent-drift machine;
-//   * uninstalling a component really removes its feature (docs/INTEROP.md
-//     section 5): its row's import fails, the row's fiber fails, /status reports
-//     hostMounted: false with reason "not-installed", and the browser half mounts
-//     nothing for it. A vendored copy would keep answering "mounted" for a
-//     package that is not installed at all - a button with nothing behind it,
-//     which is the one failure mode this package exists to prevent.
+//   * both halves of every component live inside this package, so the plugin list
+//     shows one row and the profile needs nothing else;
+//   * tools/vendor.mjs generates the copy byte for byte and stamps it with the
+//     component version, so what runs is exactly the component release it was
+//     vendored from - visible in src/vendor/versions.json and in /status.
+//
+// The price, stated plainly: a component fix reaches this package only through
+//   npm run vendor && npm run build && a new release
+// and uninstalling a component package changes nothing, because the code it would
+// have provided is already here. (The alternative - importing the real package -
+// buys per-component upgrades and a real absence contract, and costs a profile
+// dependency per component. docs/INTEROP.md section 11 has the trade-off.)
 //
 // The mount itself is the same one a standalone install does at runtime, with the
 // same shape judgement (pluginOf) and the same "one entry reports its failure,
@@ -43,7 +46,7 @@
 // The row config is read once per activation. Editing it in the plugin manager
 // restarts the entry, which runs this apply again with the new value.
 import { COMPONENTS, PLUGIN_ID } from './components.js'
-import { componentOf, importComponent, pluginOf } from './index.js'
+import { componentOf, pluginOf } from './index.js'
 
 /** Loader display name of this shell (all five rows share it). */
 export const name = PLUGIN_ID + '/component'
@@ -100,9 +103,9 @@ function messageOf(error) {
 }
 
 /**
- * Mount the component package the row's config names.
+ * Mount the component the row's config names, from the vendored copy.
  *
- * Every failure path throws with a message that names this plugin and the
+ * Every failure path throws with a message that names this package and the
  * offending specifier, so the Loader's own entry log is the whole diagnostic -
  * there is no second reporting channel to keep in sync.
  *
@@ -123,14 +126,16 @@ export async function apply(ctx, config) {
       PLUGIN_ID +
         ': component ' +
         JSON.stringify(spec) +
-        ' is not one of this plugin components (' +
+        ' is not one of this package components (' +
         COMPONENTS.map((entry) => entry.package).join(', ') +
         ')',
     )
   }
   let namespace
   try {
-    namespace = await importComponent(ctx, component)
+    // The host half is vendored beside this file (tools/vendor.mjs), so the
+    // component package does not have to be installed at all.
+    namespace = await import('./vendor/host/' + component.id + '.js')
   } catch (error) {
     throw new Error(
       PLUGIN_ID + ': component ' + JSON.stringify(spec) + ' could not be imported: ' + messageOf(error),
@@ -144,6 +149,6 @@ export async function apply(ctx, config) {
     )
   }
   // No config: a component's own settings belong to its own row when it is
-  // installed standalone, and this plugin has always mounted it with defaults.
+  // installed standalone, and this package has always mounted it with defaults.
   await ctx.plugin(plugin)
 }

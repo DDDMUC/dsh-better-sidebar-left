@@ -38,16 +38,20 @@ node tools/link-local.mjs --profile ~/.dsh/profiles/desktop
 
 ## 缺一个会怎样
 
-可以从 profile 里移走任意一个组件包，重启后：
+## 只装一个就够
 
-- 它那一行导入失败，**只有那一行失败**，其余四行照常启动；
-- `GET /api/dsh-better-sidebar-left/status` 对它报 `hostMounted: false`，并给原因
-  （`not-installed` / `row-missing` / `disabled` / `start-failed`）；
-- 浏览器半部据此**不挂载**它那一半，所以不会出现「按钮在、点了没反应」。
+五个组件的**两半都在本包里**：浏览器半部在 `src/vendor/*.js`，宿主半部在
+`src/vendor/host/*.js`，都由 `tools/vendor.mjs` 逐字节生成并盖版本戳。所以 profile 里只要装
+`dsh-better-sidebar-left` **一个包** —— 那五个组件包不用装，装了也不影响本包跑哪份代码
+（本包跑的是自己 vendor 的那份）。
 
-这条契约是设计的支点：宿主半部**不复制**，组件行 `import` 的是真实包。
-（`dsh-as-aistudio` 的做法相反，它把宿主半部也 vendor 进来 —— 代价是组件缺失时它依然
-报「已挂载」。两者的取舍写在 `docs/INTEROP.md` 第 11 节。）
+代价说清楚（这是与「组件行 import 真实包」那种做法的取舍，见 `docs/INTEROP.md` §11）：
+
+- 组件仓库修了 bug，要 `npm run vendor && npm run build` 再发一版本包，才会进到这里；
+- 移走组件包**不会**让功能消失（代码本来就在包里），所以「卸载组件 ⇒ 那块功能退场」在
+  这种架构下不成立；
+- 但五个组件行仍然可以**单独停用**：插件列表里本包一行，行列表里有六行，停用
+  `dsh-better-sidebar-left/declutter` 就只少收纳，其余四个照常。这才是这里的「独立开关」。
 
 ## 和独立安装的关系
 
@@ -99,11 +103,11 @@ commit/哪个版本」与「本地那份检出是不是真的干净地停在那�
 cordis.patch.yml     1 自身行 + 5 组件行（机制 A/B 的注释在文件里）
 src/components.js    唯一 manifest：五个组件的身份、槽位、路由、DOM 归属
 src/index.js         宿主半部：/api/dsh-better-sidebar-left/status + importComponent
-src/shell.js         组件行挂载器：读 config.plugin，import 真实包，ctx.plugin
+src/shell.js         组件行挂载器：读 config.plugin，挂 `src/vendor/host/<id>.js`
 src/sidebar.js        自身浏览器半部（源）
 src/client.js        GENERATED：plugin + 五个 vendored factory 的一个 bundle
 src/vendor/*.js      GENERATED：五个组件的浏览器半部
-src/vendor/host/     保留目录，故意为空（见其中 README）
+src/vendor/host/     GENERATED：五个组件的宿主半部（含相对模块）
 tools/vendor.mjs     逐字节生成 src/vendor/（--check）
 tools/build.mjs      合成 src/client.js（--check）
 docs/INTEROP.md      铁律、槽位表、缺席与隐藏归因、自包含架构

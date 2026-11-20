@@ -59,6 +59,20 @@ test('a stale vendored bundle fails the gate', () => {
   }
 })
 
+test('a stale host half fails the gate', () => {
+  const dir = scratch()
+  try {
+    const target = join(dir, 'src', 'vendor', 'host', 'dsh-declutter.logic.js')
+    assert.equal(existsSync(target), true, 'the host half must be vendored with its sibling module')
+    writeFileSync(target, '// hand-edited\nexport const RULES = []\n')
+    const result = run(join(dir, 'tools', 'vendor.mjs'), ['--check', '--workspace', STAGING], dir)
+    assert.equal(result.code, 1, 'a stale host half must fail the gate')
+    assert.match(result.stdout, /STALE/)
+  } finally {
+    rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('a stale generated bundle fails the gate', () => {
   const dir = scratch()
   try {

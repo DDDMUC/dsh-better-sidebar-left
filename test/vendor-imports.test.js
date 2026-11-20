@@ -4,7 +4,7 @@
 // page boot with the module loader reporting a missing module - silently, because
 // nothing else in this plugin would notice.
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { COMPONENTS } from '../src/components.js'
@@ -50,6 +50,27 @@ test('each vendored half is one factory expression', () => {
     const body = source.slice(at + marker.length).trimEnd()
     assert.ok(body.endsWith('}'), component.id + ': the factory body does not close')
     assert.equal(body.includes('__ModuleLoader__'), false, component.id + ': the wrapper was not replaced')
+  }
+})
+
+test('every relative import inside a vendored host half resolves to a shipped file', () => {
+  const dir = join(root, 'src', 'vendor', 'host')
+  const files = readdirSync(dir).filter((entry) => entry.endsWith('.js'))
+  assert.ok(files.length >= COMPONENTS.length, 'every component needs a host half')
+  for (const file of files) {
+    const source = readFileSync(join(dir, file), 'utf8')
+    for (const match of source.matchAll(/(?:from|import\s*\()\s*['"](\.[^'"]+)['"]/g)) {
+      const target = join(dir, match[1].slice(2))
+      assert.equal(existsSync(target), true, file + ' imports ' + match[1] + ', which is not shipped')
+    }
+  }
+})
+
+test('a vendored host half imports no platform package', () => {
+  const dir = join(root, 'src', 'vendor', 'host')
+  for (const file of readdirSync(dir).filter((entry) => entry.endsWith('.js'))) {
+    const source = readFileSync(join(dir, file), 'utf8')
+    assert.equal(/from '@deepseek-ai\//.test(source), false, file + ' imports a platform package')
   }
 })
 

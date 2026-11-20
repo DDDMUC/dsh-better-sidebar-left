@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { test } from 'node:test'
 import { COMPONENTS, COMPONENT_IDS, COMPONENT_ROW_NAMES, PLUGIN_ID, PLUGIN_VERSION, rowNameOf } from '../src/components.js'
 import { root } from './helpers.js'
@@ -40,7 +41,7 @@ test('every shipped path exists and is published', () => {
   for (const entry of manifest.files) {
     assert.equal(existsSync(join(root, entry)), true, 'files[] names a path that does not exist: ' + entry)
   }
-  for (const needed of ['src/index.js', 'src/shell.js', 'src/components.js', 'src/client.js', 'src/vendor/versions.json', 'cordis.patch.yml']) {
+  for (const needed of ['src/index.js', 'src/shell.js', 'src/components.js', 'src/client.js', 'src/vendor/versions.json', 'src/vendor/host', 'cordis.patch.yml']) {
     assert.ok(manifest.files.includes(needed), 'files[] is missing ' + needed)
   }
 })
@@ -110,7 +111,7 @@ test('the vendored version record covers exactly the components', () => {
   }
 })
 
-test('the host half reaches a component only through a resolved path', () => {
+test('the host halves are vendored, so nothing has to be installed beside this package', () => {
   for (const file of ['src/index.js', 'src/shell.js']) {
     const source = read(file)
     for (const component of COMPONENTS) {
@@ -121,7 +122,15 @@ test('the host half reaches a component only through a resolved path', () => {
       )
     }
   }
-  assert.ok(read('src/shell.js').includes('importComponent'), 'the shell mounts through importComponent')
+  const shell = read('src/shell.js')
+  assert.ok(shell.includes("import('./vendor/host/'"), 'the shell must mount the vendored copy')
+  assert.equal(shell.includes('importComponent'), false, 'the shell must not resolve component packages at runtime')
+  for (const component of COMPONENTS) {
+    const entry = join(root, 'src', 'vendor', 'host', component.id + '.js')
+    assert.equal(existsSync(entry), true, component.id + ': the vendored host half is missing')
+    const source = readFileSync(entry, 'utf8')
+    assert.ok(source.startsWith('// ' + component.id + ' host half'), component.id + ': the copy is not stamped')
+  }
 })
 
 test('every require a vendored factory makes is declared in the bundle inject list', () => {
