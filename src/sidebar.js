@@ -374,11 +374,11 @@ window.__ModuleLoader__.load({
     }
 
     /** This plugin page. Set by apply() so the panel never reaches for a global. */
-    let studioCtx = null
+    let ownCtx = null
 
     function currentLocale() {
       try {
-        const snapshot = studioCtx.locale.getLocale()
+        const snapshot = ownCtx.locale.getLocale()
         const active = snapshot && snapshot.active ? snapshot.active : null
         if (active === null || active === undefined) return 'zh'
         const id = typeof active === 'string' ? active : String(active.id || '')
@@ -445,7 +445,7 @@ window.__ModuleLoader__.load({
     // --- plugin -----------------------------------------------------------------
 
     function apply(ctx) {
-      studioCtx = ctx
+      ownCtx = ctx
       injectStyles()
       ctx.effect(() => ctx.locale.register(NS, { zh, en }), NS + ': dictionaries')
 
