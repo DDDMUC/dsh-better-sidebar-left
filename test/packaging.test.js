@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { COMPONENTS, COMPONENT_IDS, COMPONENT_ROW_NAMES, STUDIO_ID, STUDIO_VERSION, rowNameOf } from '../src/components.js'
+import { COMPONENTS, COMPONENT_IDS, COMPONENT_ROW_NAMES, PLUGIN_ID, PLUGIN_VERSION, rowNameOf } from '../src/components.js'
 import { root } from './helpers.js'
 
 const read = (relative) => readFileSync(join(root, relative), 'utf8')
@@ -29,10 +29,10 @@ test('the package declares the bundle and client contract', () => {
   assert.equal(manifest.dsh.client.immediately, true)
 })
 
-test('the studio version is one number in three places', () => {
-  assert.equal(manifest.version, STUDIO_VERSION)
-  assert.equal(read('src/components.js').includes("export const STUDIO_VERSION = '" + STUDIO_VERSION + "'"), true)
-  assert.equal(read('src/studio.js').includes("const PLUGIN_VERSION = '" + STUDIO_VERSION + "'"), true)
+test('this plugin version is one number in three places', () => {
+  assert.equal(manifest.version, PLUGIN_VERSION)
+  assert.equal(read('src/components.js').includes("export const PLUGIN_VERSION = '" + PLUGIN_VERSION + "'"), true)
+  assert.equal(read('src/sidebar.js').includes("const PLUGIN_VERSION = '" + PLUGIN_VERSION + "'"), true)
 })
 
 test('every shipped path exists and is published', () => {
@@ -45,13 +45,13 @@ test('every shipped path exists and is published', () => {
   }
 })
 
-test('the studio has no runtime dependencies', () => {
+test('this plugin has no runtime dependencies', () => {
   assert.deepEqual(manifest.dependencies ?? {}, {})
   for (const component of COMPONENTS) {
     assert.equal(
       (manifest.dependencies ?? {})[component.package],
       undefined,
-      component.package + ' must not be a runtime dependency: it is resolved from the profile, never installed by the studio',
+      component.package + ' must not be a runtime dependency: it is resolved from the profile, never installed by this plugin',
     )
   }
 })
@@ -65,15 +65,15 @@ test('the exports map sends every component suffix to the shell', () => {
   assert.equal(Object.keys(manifest.exports).length, 3 + COMPONENTS.length)
 })
 
-test('the patch inserts the studio row plus exactly one row per component', () => {
+test('the patch inserts this plugin row plus exactly one row per component', () => {
   const ids = [...patchBody.matchAll(/^\s*- id:\s*(\S+)\s*$/gm)].map((match) => match[1])
   const names = [...patchBody.matchAll(/^\s*name:\s*'([^']+)'\s*$/gm)].map((match) => match[1])
   assert.equal(ids.length, 1 + COMPONENTS.length)
   assert.equal(names.length, 1 + COMPONENTS.length)
-  assert.equal(ids[0], STUDIO_ID)
-  assert.equal(names[0], STUDIO_ID, 'the studio row must use the BARE package name')
+  assert.equal(ids[0], PLUGIN_ID)
+  assert.equal(names[0], PLUGIN_ID, 'this plugin row must use the BARE package name')
   assert.deepEqual(names.slice(1), COMPONENT_ROW_NAMES)
-  assert.deepEqual(ids.slice(1), COMPONENTS.map((component) => STUDIO_ID + '-' + component.suffix))
+  assert.deepEqual(ids.slice(1), COMPONENTS.map((component) => PLUGIN_ID + '-' + component.suffix))
 })
 
 test('no patch row is named after a component package', () => {
@@ -89,7 +89,7 @@ test('every component row names its package and resolves to the shell', () => {
   // The row name must be a subpath this package's exports really answer.
   for (const component of COMPONENTS) {
     const specifier = rowNameOf(component)
-    const suffix = './' + specifier.slice(STUDIO_ID.length + 1)
+    const suffix = './' + specifier.slice(PLUGIN_ID.length + 1)
     assert.equal(manifest.exports[suffix], './src/shell.js')
   }
 })
@@ -137,16 +137,16 @@ test('every require a vendored factory makes is declared in the bundle inject li
 })
 
 test('the browser half touches no web-only global', () => {
-  const source = read('src/studio.js')
+  const source = read('src/sidebar.js')
   for (const forbidden of ['window.__DSH_', 'process.env', 'require("node:', "require('node:"]) {
-    assert.equal(source.includes(forbidden), false, 'src/studio.js reaches for ' + forbidden)
+    assert.equal(source.includes(forbidden), false, 'src/sidebar.js reaches for ' + forbidden)
   }
 })
 
 test('the browser half fetches one relative route', () => {
-  const source = read('src/studio.js')
+  const source = read('src/sidebar.js')
   const routes = [...source.matchAll(/'\/api\/[^'\n]+'/g)].map((match) => match[0].slice(1, -1))
-  assert.deepEqual([...new Set(routes)], ['/api/dsh-session-studio/status'])
+  assert.deepEqual([...new Set(routes)], ['/api/dsh-better-sidebar-left/status'])
 })
 
 test('the host half imports nothing from the DSH SDK', () => {

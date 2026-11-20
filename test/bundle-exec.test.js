@@ -7,13 +7,13 @@ const bundle = loadBundle(readText('src/client.js'))
 const require_ = fakeRequire()
 const plugin = bundle.factory(require_)
 
-const MARKER = '__DSH_SESSION_STUDIO__'
+const MARKER = '__DSH_BETTER_SIDEBAR_LEFT__'
 const ALL = COMPONENTS.map((component) => component.id)
 
 function payload(overrides = {}) {
   return {
     ok: true,
-    plugin: 'dsh-session-studio',
+    plugin: 'dsh-better-sidebar-left',
     version: '0.1.0',
     components: COMPONENTS.map((component) => ({
       id: component.id,
@@ -38,9 +38,9 @@ async function withBundle(statusBody, body) {
   globalThis.fetch = (url) => {
     const target = String(url)
     requests.push(target)
-    // Only the studio's own route answers the status document; a component asking
-    // its own route must get a benign body, never the studio's payload.
-    const body = target.indexOf('/api/dsh-session-studio/status') === -1 ? { ok: true, rules: [] } : statusBody
+    // Only this plugin's own route answers the status document; a component asking
+    // its own route must get a benign body, never this plugin's payload.
+    const body = target.indexOf('/api/dsh-better-sidebar-left/status') === -1 ? { ok: true, rules: [] } : statusBody
     return Promise.resolve({ ok: true, json: () => Promise.resolve(body) })
   }
   const harness = fakeClientContext()
@@ -59,7 +59,7 @@ test('applying the bundle mounts all five components', async () => {
     assert.deepEqual(Object.keys(mounted), ALL)
     for (const id of ALL) assert.equal(mounted[id], true, id + ' did not mount: see its apply error above')
     assert.equal(requests.length, 1, 'the gate reads the status route once')
-    assert.equal(requests[0], '/api/dsh-session-studio/status')
+    assert.equal(requests[0], '/api/dsh-better-sidebar-left/status')
     assert.ok(harness.registered.length > 0, 'the mounted components registered slots')
   })
 })
@@ -69,7 +69,7 @@ test('the marker records what mounted, so a live check can read it', async () =>
     const marker = globalThis[MARKER]
     assert.equal(marker.version, '0.1.0')
     assert.deepEqual(marker.mounted, mounted)
-    assert.equal(marker.route, '/api/dsh-session-studio/status')
+    assert.equal(marker.route, '/api/dsh-better-sidebar-left/status')
     assert.deepEqual(marker.gate, ALL)
   })
 })
@@ -101,10 +101,10 @@ test('every gated-off component is the only thing missing', async () => {
   })
 })
 
-test('the studio own page is registered before the gate resolves', async () => {
+test('this plugin own page is registered before the gate resolves', async () => {
   await withBundle(payload(), async ({ harness }) => {
     const keys = harness.registered.map((entry) => entry.options.key).filter(Boolean)
-    assert.ok(keys.includes('dsh-session-studio#dsh-session-studio'), 'the studio row config must be claimed')
+    assert.ok(keys.includes('dsh-better-sidebar-left#dsh-better-sidebar-left'), 'this plugin row config must be claimed')
   })
 })
 
@@ -130,6 +130,6 @@ test('no vendored component is reached through a subpath require', async () => {
   }
   for (const specifier of seen) {
     assert.equal(specifier.startsWith('.'), false, 'the bundle required a relative module: ' + specifier)
-    assert.equal(specifier.includes('dsh-session-studio'), false, 'the bundle required itself: ' + specifier)
+    assert.equal(specifier.includes('dsh-better-sidebar-left'), false, 'the bundle required itself: ' + specifier)
   }
 })

@@ -1,14 +1,14 @@
-// dsh-session-studio - host half.
+// dsh-better-sidebar-left - host half.
 //
 // Self-contained: the plugin list shows ONE row (this package). The five
-// components are ordinary packages this studio composes, not profile bundles, so
+// components are ordinary packages this plugin composes, not profile bundles, so
 // they have no rows of their own and never appear there.
 //
 // Two jobs:
 //
 //   1. describe how a component's HOST half is mounted - which is not done here.
 //      Each component has a row in cordis.patch.yml named
-//      "dsh-session-studio/<suffix>" whose config.plugin names the component
+//      "dsh-better-sidebar-left/<suffix>" whose config.plugin names the component
 //      package; src/shell.js is what that row mounts, and it imports the real
 //      package (nothing is copied). The Loader therefore owns the row's lifetime
 //      and its failure, and pluginOf() is the shape judgement the shell shares
@@ -16,7 +16,7 @@
 //
 //   2. answer the only question this package exists to answer:
 //
-//        GET /api/dsh-session-studio/status
+//        GET /api/dsh-better-sidebar-left/status
 //
 //      For each component: is it installed, at which version, and is its row
 //      REALLY live - read from ctx.loader.entries() and the row fiber's own
@@ -32,11 +32,11 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { basename, dirname, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { COMPONENTS, rowNameOf, STUDIO_ID, STUDIO_VERSION } from './components.js'
+import { COMPONENTS, rowNameOf, PLUGIN_ID, PLUGIN_VERSION } from './components.js'
 
-export const name = STUDIO_ID
+export const name = PLUGIN_ID
 
-const ROUTE_PREFIX = '/api/dsh-session-studio'
+const ROUTE_PREFIX = '/api/dsh-better-sidebar-left'
 
 /**
  * The plugin callback inside a component module namespace, or null when the
@@ -141,7 +141,7 @@ function requirement(anchorFile) {
  * profile - the component would not be found there. So the package is resolved
  * through the profile's own anchors first and only the resolved URL is imported;
  * the bare specifier stays as the fallback for the ordinary layout where the
- * studio and the components share one node_modules.
+ * plugin and the components share one node_modules.
  *
  * Module identity is deliberately NOT busted: importing the same package twice
  * returns the same namespace, which is what makes a row restart re-mount the
@@ -166,7 +166,7 @@ export async function importComponent(ctx, component) {
     } catch (error) {
       const reason = String((error && error.message) || error)
       throw new Error(
-        STUDIO_ID + ': component ' + JSON.stringify(component.package) + ' is not installed (looked in: ' + anchors.join(', ') + '): ' + reason,
+        PLUGIN_ID + ': component ' + JSON.stringify(component.package) + ' is not installed (looked in: ' + anchors.join(', ') + '): ' + reason,
         { cause: error },
       )
     }
@@ -175,7 +175,7 @@ export async function importComponent(ctx, component) {
 }
 
 /**
- * The version of the browser half this studio actually RUNS.
+ * The version of the browser half this plugin actually RUNS.
  *
  * The browser halves are vendored here (tools/vendor.mjs writes
  * src/vendor/versions.json as it copies them), so the version on the page is the
@@ -285,10 +285,10 @@ export function loaderEntries(ctx) {
  * The loader's verdict on one component, with no optimism in it: the row has to
  * exist, be enabled, and have a fiber that reached 'active'.
  *
- * The row this studio inserts is named <package>/<suffix>; a component installed
- * standalone next to the studio answers under its own package name, and that row
+ * The row this plugin inserts is named <package>/<suffix>; a component installed
+ * standalone next to this plugin answers under its own package name, and that row
  * counts too (it mounts the same host half - see docs/INTEROP.md section 11 for
- * why the studio's own row is preferred when both exist).
+ * why this plugin's own row is preferred when both exist).
  *
  * @param component - a manifest entry.
  * @param entries - loaderEntries(ctx), or null when no loader is reachable.
@@ -329,7 +329,7 @@ export function statusOf(ctx) {
     const found = inspectPackage(component.package, anchors)
     const host = hostStateOf(component, entries, found.installed)
     // A component that still appears as its own profile row is a real
-    // configuration (a standalone install next to the studio). The loader merges
+    // configuration (a standalone install next to this plugin). The loader merges
     // rows by id, so this is informational, not an error.
     const rows = entries === null ? null : entries.filter((entry) => entry.name === component.package)
     const version = vendored[component.id] ?? found.version
@@ -356,8 +356,8 @@ export function statusOf(ctx) {
   const live = components.filter((component) => component.hostMounted === true)
   return {
     ok: true,
-    plugin: STUDIO_ID,
-    version: STUDIO_VERSION,
+    plugin: PLUGIN_ID,
+    version: PLUGIN_VERSION,
     dsh: dshVersion(),
     loaderVisible: entries !== null,
     components,

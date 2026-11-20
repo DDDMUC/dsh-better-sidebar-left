@@ -1,7 +1,7 @@
-// dsh-session-studio - the component manifest.
+// dsh-better-sidebar-left - the component manifest.
 //
 // One table, read by the host half, the browser half and the tests. It is the
-// single place that knows which plugins this studio composes, and the only place
+// single place that knows which plugins this plugin composes, and the only place
 // that has to change when a component is added or retired.
 //
 // A component is always an independent package with its own repo, its own
@@ -14,17 +14,17 @@
 // its config.plugin; src/shell.js is the file every one of those names resolves
 // to, and it imports the REAL package - the host half is never copied.
 //
-// "optional" is the honest word for a component: the studio boots with any
+// "optional" is the honest word for a component: this plugin boots with any
 // subset of them present (none, one, ... five), because every row the patch
 // inserts fails in isolation when its package is missing - one entry reports the
 // missing module, every other entry still starts (see @cordisjs/plugin-loader:
 // Entry#_init catches the import error and returns).
 
 /** This package. Kept in sync with package.json and the client half. */
-export const STUDIO_ID = 'dsh-session-studio'
+export const PLUGIN_ID = 'dsh-better-sidebar-left'
 
-/** Keep in sync with package.json and src/studio.js. */
-export const STUDIO_VERSION = '0.1.0'
+/** Keep in sync with package.json and src/sidebar.js. */
+export const PLUGIN_VERSION = '0.1.0'
 
 /**
  * The five components, in the order the user meets them in the sidebar.
@@ -39,7 +39,7 @@ export const STUDIO_VERSION = '0.1.0'
  * test could see from the client side.
  *
  * \`dom\` names the DOM this component owns. \`allocated\` is the namespace this
- * studio reserves for it (the interop table in docs/INTEROP.md section 2);
+ * plugin reserves for it (the interop table in docs/INTEROP.md section 2);
  * \`prefixes\` are the actual attribute/class prefixes the vendored code uses,
  * which are NOT renamed - I7 (feature freeze) outranks house style, and for
  * dsh-declutter they are load-bearing twice over (\`data-dsh-sidebar-declutter\`
@@ -195,17 +195,17 @@ export const COMPONENT_IDS = COMPONENTS.map((component) => component.id)
 /**
  * The bundle-patch row that mounts one component, in this package's namespace.
  * @param component - a manifest entry.
- * @returns the Loader row name, e.g. 'dsh-session-studio/counts'.
+ * @returns the Loader row name, e.g. 'dsh-better-sidebar-left/counts'.
  */
 export function rowNameOf(component) {
-  return STUDIO_ID + '/' + component.suffix
+  return PLUGIN_ID + '/' + component.suffix
 }
 
 /** Every component row name, in manifest order. */
 export const COMPONENT_ROW_NAMES = COMPONENTS.map(rowNameOf)
 
 /**
- * The interop contract this studio verifies (docs/INTEROP.md sections 2-4).
+ * The interop contract this plugin verifies (docs/INTEROP.md sections 2-4).
  *
  * \`slots\` is the flattened allocation: every registration the five components
  * make, with the slot it claims and the identity it claims it under. Two
@@ -216,13 +216,13 @@ export const COMPONENT_ROW_NAMES = COMPONENTS.map(rowNameOf)
  * dsh-declutter 0.2.0 ships the sidebar half of dsh-sidebar-declutter 0.3.3
  * verbatim (98.3% of its lines are byte-identical; the same STORE_KEY, the same
  * data-dsh-sidebar-declutter attribute, the same two slot ids). Both mounted at
- * once is the same code running twice over the same DOM, so the studio documents
+ * once is the same code running twice over the same DOM, so this plugin documents
  * the pair rather than silently allowing it.
  *
- * \`settingsCards\` records which components export a settings card the studio can
+ * \`settingsCards\` records which components export a settings card this plugin can
  * render. A component registers its card under \`<package>#<row id>\`, and the row
- * id changes inside the studio, so that registration can never match here - the
- * card has to be exported and rendered by the studio instead. A component that
+ * id changes inside this plugin, so that registration can never match here - the
+ * card has to be exported and rendered by this plugin instead. A component that
  * does not export one keeps its card only when installed standalone.
  */
 export const INTEROP = {
@@ -235,12 +235,12 @@ export const INTEROP = {
       conflictsWith: 'dsh-sidebar-declutter',
       slotIds: ['sidebar-declutter-collapse', 'hide-rows'],
       storageKeys: ['dsh-sidebar-declutter', 'dsh-hide-new-session', 'dsh-sidebar-declutter.menu'],
-      resolution: 'disable the standalone dsh-sidebar-declutter bundle while this studio is enabled',
+      resolution: 'disable the standalone dsh-sidebar-declutter bundle while this plugin is enabled',
     },
   ],
   settingsCards: [
     { component: 'dsh-session-relocate', exportPath: '__settings.ChildrenSetting', label: { zh: '连同子对话', en: 'Include child conversations' } },
   ],
-  /** The studio's own registrations: one row config seat, nothing else. */
-  studioSlots: [{ name: 'plugins.row.config', key: STUDIO_ID + '#' + STUDIO_ID }],
+  /** This plugin's own registrations: one row config seat, nothing else. */
+  pluginSlots: [{ name: 'plugins.row.config', key: PLUGIN_ID + '#' + PLUGIN_ID }],
 }

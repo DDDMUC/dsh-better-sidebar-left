@@ -1,7 +1,7 @@
 // Regenerate src/vendor/ from the five component sources.
 //
-// The studio is self-contained on the BROWSER side: the plugin list shows ONE row
-// (dsh-session-studio) and the five components are no longer separate entries,
+// This plugin is self-contained on the BROWSER side: the plugin list shows ONE row
+// (dsh-better-sidebar-left) and the five components are no longer separate entries,
 // which is only possible because their browser halves travel inside this bundle.
 // That makes this file load-bearing: a hand-maintained copy is a copy that drifts,
 // so the vendored files are GENERATED, byte for byte, from the component sources,
@@ -36,11 +36,11 @@ const here = dirname(fileURLToPath(import.meta.url))
 const root = join(here, '..')
 
 // The component checkouts live next to this package, in their own staging
-// directory: the studio's siblings in this workspace are the components' own
+// directory: this plugin's siblings in this workspace are the components' own
 // working trees, and vendoring must never read those (they carry uncommitted
 // work). --workspace overrides the staging directory so a test can drive this
 // tool against a corrupted COPY of the package while still reading real sources.
-const DEFAULT_WORKSPACE = join(root, '..', 'dsh-session-studio-src', 'components')
+const DEFAULT_WORKSPACE = join(root, '..', 'dsh-better-sidebar-left-src', 'components')
 const workspaceFlag = process.argv.indexOf('--workspace')
 const workspace = workspaceFlag === -1 ? DEFAULT_WORKSPACE : process.argv[workspaceFlag + 1]
 
@@ -165,7 +165,7 @@ for (const component of COMPONENTS) {
   const header = [
     '// ' + component.id + ' browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.',
     '//',
-    '// Source: ../dsh-session-studio-src/components/' + component.id + '/' + relativeClient + '  (v' + version + ', sha256 ' + sha + ')',
+    '// Source: ../dsh-better-sidebar-left-src/components/' + component.id + '/' + relativeClient + '  (v' + version + ', sha256 ' + sha + ')',
     '// Regenerate with npm run vendor; test/sync.test.js fails when this is stale.',
     '//',
     '// The component registers its factory with the host module loader; inside this',

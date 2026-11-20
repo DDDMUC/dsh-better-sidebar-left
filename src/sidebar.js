@@ -1,4 +1,4 @@
-// dsh-session-studio - the studio's own browser half (SOURCE).
+// dsh-better-sidebar-left - this plugin's own browser half (SOURCE).
 //
 // An ordinary component-style bundle, kept this way so it can be unit-tested on its
 // own. tools/build.mjs stitches it together with the five vendored component
@@ -22,15 +22,15 @@
 // really up (its package is missing, its row was disabled, its start failed) has no
 // routes behind it, so drawing its buttons would offer an action that cannot work -
 // the exact failure this package exists to prevent. So the gate asks
-// /api/dsh-session-studio/status first and mounts only what that answer calls
+// /api/dsh-better-sidebar-left/status first and mounts only what that answer calls
 // mounted; a host that cannot answer at all is treated as "unknown" and every
 // factory is mounted, which is the pre-gate behaviour.
 //
-// One surface is added on top: the Settings -> Plugins -> Session Studio page, which
+// One surface is added on top: the Settings -> Plugins -> Better Sidebar page, which
 // lists each component's live state. That is where a reader sees which of the five
 // are actually reachable, instead of guessing.
 window.__ModuleLoader__.load({
-  id: 'dsh-session-studio',
+  id: 'dsh-better-sidebar-left',
   factory: (require) => {
     var module = { exports: {} }
     var exports = module.exports
@@ -39,16 +39,16 @@ window.__ModuleLoader__.load({
     const react = require('react')
 
     /** Plugin identity; also the locale namespace. */
-    const NS = 'dsh-session-studio'
+    const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
     const PLUGIN_VERSION = '0.1.0'
 
     /** Presence marker the live verifier reads. */
-    const DEBUG_KEY = '__DSH_SESSION_STUDIO__'
+    const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
 
     /** The host route this half reads. Relative on purpose: web and desktop share it. */
-    const STATUS_ROUTE = '/api/dsh-session-studio/status'
+    const STATUS_ROUTE = '/api/dsh-better-sidebar-left/status'
 
     /** The five vendored factory names, in mount order (= the manifest order). */
     const VENDORED = [
@@ -63,7 +63,7 @@ window.__ModuleLoader__.load({
      * Which components export a settings card this page can render.
      *
      * A component registers its card on the slot key <package>#<row id>, and the
-     * row id changes inside this studio, so that registration can never match here.
+     * row id changes inside this plugin, so that registration can never match here.
      * A component that EXPORTS its card can still be reached: this table names
      * where the export lives, and the page renders THAT component function - never
      * a copy - so the two surfaces cannot drift.
@@ -78,8 +78,8 @@ window.__ModuleLoader__.load({
     // --- copy ------------------------------------------------------------------
 
     const zh = {
-      tab: '会话工作室',
-      heading: '会话工作室',
+      tab: '左侧栏增强',
+      heading: '左侧栏增强',
       summaryShort: '五个会话管理组件，装一个包',
       intro:
         '删除会话、跨工作区移动、双击改名、工作区会话数、会话与侧栏收纳 —— 五件事在同一个包里，插件列表里只有这一行。每个组件都可以单独缺席：缺了哪一个，它那一块就不出现，绝不会画出一个点了没反应的按钮。',
@@ -107,8 +107,8 @@ window.__ModuleLoader__.load({
     }
 
     const en = {
-      tab: 'Session Studio',
-      heading: 'Session Studio',
+      tab: 'Better Sidebar',
+      heading: 'Better Sidebar',
       summaryShort: 'Five session plugins, one install',
       intro:
         'Delete a session, move it across workspaces, rename it by double-click, count sessions per workspace, and tidy both the sidebar and the conversation - five jobs in one package, one row in the plugin list. Any component may be absent: whatever is missing simply does not appear, and no button is ever drawn that cannot work.',
@@ -144,37 +144,37 @@ window.__ModuleLoader__.load({
     // --- styles ----------------------------------------------------------------
 
     const STYLE = [
-      '.dsss-wrap{display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.5}',
-      '.dsss-lead{color:var(--dsw-alias-label-secondary);margin:0}',
-      '.dsss-count{font-weight:600;margin:0}',
-      '.dsss-row{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px}',
-      '.dsss-title{font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
-      '.dsss-code{font-size:11px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}',
-      '.dsss-pitch{color:var(--dsw-alias-label-secondary);margin:0}',
-      '.dsss-badge{font-size:11px;padding:1px 6px;border-radius:999px;border:1px solid transparent;white-space:nowrap}',
-      '.dsss-badgeOk{color:#0a7c42;border-color:#0a7c4233;background:#0a7c421a}',
-      '.dsss-badgeOff{color:#8a5a00;border-color:#8a5a0033;background:#8a5a001a}',
-      '.dsss-badgeNone{color:var(--dsw-alias-label-tertiary);border-color:var(--dsw-alias-border-l2)}',
-      '.dsss-why{color:#8a5a00;font-size:12px;margin:0}',
-      '.dsss-warn{color:#b3261e;font-size:12px;margin:0}',
-      '.dsss-sub{font-weight:600;margin:6px 0 0}',
-      '.dsss-foot{color:var(--dsw-alias-label-tertiary);font-size:12px;margin:0}',
-      '.dsss-btn{font:inherit;padding:2px 10px;border-radius:6px;border:1px solid var(--dsw-alias-border-l2);background:transparent;color:inherit;cursor:pointer;align-self:flex-start}',
-      '.dsss-slots{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}',
+      '.dbsl-wrap{display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.5}',
+      '.dbsl-lead{color:var(--dsw-alias-label-secondary);margin:0}',
+      '.dbsl-count{font-weight:600;margin:0}',
+      '.dbsl-row{display:flex;flex-direction:column;gap:2px;padding:8px 10px;border:1px solid var(--dsw-alias-border-l2);border-radius:8px}',
+      '.dbsl-title{font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap}',
+      '.dbsl-code{font-size:11px;color:var(--dsw-alias-label-tertiary);font-family:ui-monospace,SFMono-Regular,Menlo,monospace}',
+      '.dbsl-pitch{color:var(--dsw-alias-label-secondary);margin:0}',
+      '.dbsl-badge{font-size:11px;padding:1px 6px;border-radius:999px;border:1px solid transparent;white-space:nowrap}',
+      '.dbsl-badgeOk{color:#0a7c42;border-color:#0a7c4233;background:#0a7c421a}',
+      '.dbsl-badgeOff{color:#8a5a00;border-color:#8a5a0033;background:#8a5a001a}',
+      '.dbsl-badgeNone{color:var(--dsw-alias-label-tertiary);border-color:var(--dsw-alias-border-l2)}',
+      '.dbsl-why{color:#8a5a00;font-size:12px;margin:0}',
+      '.dbsl-warn{color:#b3261e;font-size:12px;margin:0}',
+      '.dbsl-sub{font-weight:600;margin:6px 0 0}',
+      '.dbsl-foot{color:var(--dsw-alias-label-tertiary);font-size:12px;margin:0}',
+      '.dbsl-btn{font:inherit;padding:2px 10px;border-radius:6px;border:1px solid var(--dsw-alias-border-l2);background:transparent;color:inherit;cursor:pointer;align-self:flex-start}',
+      '.dbsl-slots{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-size:12px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}',
     ].join('')
 
     function injectStyles() {
       if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return
-      if (document.querySelector('style[data-dsh-session-studio]') !== null) return
+      if (document.querySelector('style[data-dsh-better-sidebar-left]') !== null) return
       const style = document.createElement('style')
-      style.setAttribute('data-dsh-session-studio', '')
+      style.setAttribute('data-dsh-better-sidebar-left', '')
       style.textContent = STYLE
       document.head.appendChild(style)
     }
 
     function removeStyles() {
       if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return
-      const style = document.querySelector('style[data-dsh-session-studio]')
+      const style = document.querySelector('style[data-dsh-better-sidebar-left]')
       if (style !== null && style.parentNode !== null) style.parentNode.removeChild(style)
     }
 
@@ -308,7 +308,7 @@ window.__ModuleLoader__.load({
       return mountComponents(ctx, mountableComponents(payload))
     }
 
-    // --- the studio page --------------------------------------------------------
+    // --- this plugin page --------------------------------------------------------
 
     function stateLabel(t, state) {
       if (state === 'mounted') return t('mounted')
@@ -339,24 +339,24 @@ window.__ModuleLoader__.load({
     function renderRow(component, copy, t, locale) {
       const state = stateOf(component)
       const badgeClass =
-        state === 'mounted' ? 'dsss-badge dsss-badgeOk' : state === 'installed' ? 'dsss-badge dsss-badgeOff' : 'dsss-badge dsss-badgeNone'
+        state === 'mounted' ? 'dbsl-badge dbsl-badgeOk' : state === 'installed' ? 'dbsl-badge dbsl-badgeOff' : 'dbsl-badge dbsl-badgeNone'
       const title = copyFor(copy.title, locale) || copyFor(copy.title, 'zh')
       const pitch = copyFor(copy.pitch, locale) || copyFor(copy.pitch, 'zh')
       const children = [
-        h('div', { className: 'dsss-title', key: 'title' }, [
+        h('div', { className: 'dbsl-title', key: 'title' }, [
           h('span', { key: 'name' }, title),
           h('span', { className: badgeClass, key: 'badge' }, stateLabel(t, state)),
-          h('span', { className: 'dsss-code', key: 'pkg' }, copy.package),
-          component.version === null || component.version === undefined ? null : h('span', { className: 'dsss-code', key: 'ver' }, 'v' + component.version),
+          h('span', { className: 'dbsl-code', key: 'pkg' }, copy.package),
+          component.version === null || component.version === undefined ? null : h('span', { className: 'dbsl-code', key: 'ver' }, 'v' + component.version),
         ]),
-        h('p', { className: 'dsss-pitch', key: 'pitch' }, pitch),
+        h('p', { className: 'dbsl-pitch', key: 'pitch' }, pitch),
       ]
       const why = reasonText(t, component)
-      if (why !== null) children.push(h('p', { className: 'dsss-why', key: 'why' }, why))
+      if (why !== null) children.push(h('p', { className: 'dbsl-why', key: 'why' }, why))
       if (component.versionMatch === false) {
-        children.push(h('p', { className: 'dsss-warn', key: 'mismatch' }, t('versionMismatch') + ' ' + String(component.installedVersion)))
+        children.push(h('p', { className: 'dbsl-warn', key: 'mismatch' }, t('versionMismatch') + ' ' + String(component.installedVersion)))
       }
-      return h('div', { className: 'dsss-row', key: component.id }, children)
+      return h('div', { className: 'dbsl-row', key: component.id }, children)
     }
 
     function renderSlots(t) {
@@ -367,13 +367,13 @@ window.__ModuleLoader__.load({
         cells.push(h('span', { key: 'v' + cells.length }, who))
       }
       return h('div', { key: 'interop' }, [
-        h('p', { className: 'dsss-sub', key: 'title' }, t('interopHeading')),
-        h('p', { className: 'dsss-foot', key: 'intro' }, t('interopIntro')),
-        h('div', { className: 'dsss-slots', key: 'grid' }, cells),
+        h('p', { className: 'dbsl-sub', key: 'title' }, t('interopHeading')),
+        h('p', { className: 'dbsl-foot', key: 'intro' }, t('interopIntro')),
+        h('div', { className: 'dbsl-slots', key: 'grid' }, cells),
       ])
     }
 
-    /** The studio page. Set by apply() so the panel never reaches for a global. */
+    /** This plugin page. Set by apply() so the panel never reaches for a global. */
     let studioCtx = null
 
     function currentLocale() {
@@ -388,7 +388,7 @@ window.__ModuleLoader__.load({
       }
     }
 
-    function StudioPanel({ view: slotView, t }) {
+    function SidebarPanel({ view: slotView, t }) {
       // plugins.row.config asks twice: once for the row's one-liner and once for
       // the page. The one-liner must not fetch - it renders on every plugin row
       // paint - so it is the static description, and the page carries the live
@@ -411,25 +411,25 @@ window.__ModuleLoader__.load({
       }, [request])
 
       const locale = currentLocale()
-      const body = [h('p', { className: 'dsss-lead', key: 'intro' }, t('intro'))]
-      if (view.status === 'loading') body.push(h('p', { className: 'dsss-foot', key: 'loading' }, t('loading')))
+      const body = [h('p', { className: 'dbsl-lead', key: 'intro' }, t('intro'))]
+      if (view.status === 'loading') body.push(h('p', { className: 'dbsl-foot', key: 'loading' }, t('loading')))
       if (view.status === 'failed') {
-        body.push(h('p', { className: 'dsss-warn', key: 'failed' }, t('failed')))
-        body.push(h('button', { className: 'dsss-btn', key: 'retry', onClick: () => setRequest(request + 1) }, t('retry')))
+        body.push(h('p', { className: 'dbsl-warn', key: 'failed' }, t('failed')))
+        body.push(h('button', { className: 'dbsl-btn', key: 'retry', onClick: () => setRequest(request + 1) }, t('retry')))
       }
       if (view.status === 'ready') {
         const payload = view.payload
         const reported = {}
         for (const component of payload.components) reported[component.id] = component
         body.push(
-          h('p', { className: 'dsss-count', key: 'count' }, t('included') + ' ' + payload.summary.mounted + ' / ' + payload.summary.total + ' ' + t('components')),
+          h('p', { className: 'dbsl-count', key: 'count' }, t('included') + ' ' + payload.summary.mounted + ' / ' + payload.summary.total + ' ' + t('components')),
         )
         for (const component of MANIFEST) {
           const entry = reported[component.id]
           if (entry !== undefined) body.push(renderRow(entry, component, t, locale))
         }
       }
-      body.push(h('p', { className: 'dsss-sub', key: 'settingsTitle' }, t('settingsHeading')))
+      body.push(h('p', { className: 'dbsl-sub', key: 'settingsTitle' }, t('settingsHeading')))
       let cards = 0
       for (const component of MANIFEST) {
         const Card = vendoredConfigCard(component.id)
@@ -437,9 +437,9 @@ window.__ModuleLoader__.load({
         cards += 1
         body.push(h(Card, { key: 'card-' + component.id, view: 'full', t }))
       }
-      if (cards === 0) body.push(h('p', { className: 'dsss-foot', key: 'noSettings' }, t('settingsNone')))
+      if (cards === 0) body.push(h('p', { className: 'dbsl-foot', key: 'noSettings' }, t('settingsNone')))
       body.push(renderSlots(t))
-      return h('div', { className: 'dsss-wrap' }, body)
+      return h('div', { className: 'dbsl-wrap' }, body)
     }
 
     // --- plugin -----------------------------------------------------------------
@@ -455,7 +455,7 @@ window.__ModuleLoader__.load({
       // it: <package name>#<row id>. This package's own row is the bare package
       // name (see cordis.patch.yml), so the key is the package name twice.
       ctx.slots.inject('plugins.row.config', () =>
-        ctx.slots.register({ name: 'plugins.row.config', key: NS + '#' + NS, locale: NS }, StudioPanel),
+        ctx.slots.register({ name: 'plugins.row.config', key: NS + '#' + NS, locale: NS }, SidebarPanel),
       )
 
       ctx.effect(
@@ -478,7 +478,7 @@ window.__ModuleLoader__.load({
     exports.PLUGIN_VERSION = PLUGIN_VERSION
     exports.NS = NS
     exports.STATUS_ROUTE = STATUS_ROUTE
-    exports.StudioPanel = StudioPanel
+    exports.SidebarPanel = SidebarPanel
     exports.stateOf = stateOf
     exports.shouldMount = shouldMount
     exports.mountableComponents = mountableComponents

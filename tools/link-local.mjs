@@ -4,8 +4,8 @@
 //
 // It edits two files in the profile and nothing else: package.json (a link:
 // dependency) and its dsh.profile.bundles list. The component packages are NOT
-// added - they are the studio's own dependencies to vendor, not profile bundles -
-// and the standalone bundles whose feature the studio absorbs are reported, not
+// added - they are this plugin's own dependencies to vendor, not profile bundles -
+// and the standalone bundles whose feature this plugin absorbs are reported, not
 // removed, because disabling them is the user's decision.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -43,7 +43,7 @@ console.log('profile   ' + profile)
 console.log('dependency ' + name + ': ' + (current === undefined ? '(absent)' : current) + ' -> ' + wanted)
 console.log('bundles   ' + (bundles.length - (next.dsh.profile.bundles.length === bundles.length ? 0 : 1)) + ' -> ' + bundles.length + ' entries')
 for (const bundle of stillOn) {
-  console.log('WARNING   ' + bundle + ' is still a profile bundle; the studio now mounts the same feature')
+  console.log('WARNING   ' + bundle + ' is still a profile bundle; this plugin now mounts the same feature')
 }
 if (dryRun) {
   console.log('dry run: nothing written')

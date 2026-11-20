@@ -15,8 +15,8 @@
 | `dsh-session-counts` | decor | DDDMUC/dsh-session-counts | `counts` |
 | `dsh-declutter` | maintenance | DDDMUC/dsh-declutter | `declutter` |
 
-插件列表里只有本包一行（`dsh-session-studio` 0.1.0）。五个组件的装载行是
-`dsh-session-studio/<后缀>`，见 §11 的机制 A / B。
+插件列表里只有本包一行（`dsh-better-sidebar-left` 0.1.0）。五个组件的装载行是
+`dsh-better-sidebar-left/<后缀>`，见 §11 的机制 A / B。
 
 ## 1. 铁律
 
@@ -77,7 +77,7 @@ loopback 校验留在宿主侧。
 | `dsh-declutter` | `main` | `key: hide-rows` | — |
 | `dsh-declutter` | `plugins.row.config` | `key: dsh-declutter#dsh-declutter` | — |
 
-本包自己的注册只有一条：`plugins.row.config` / `key: dsh-session-studio#dsh-session-studio`。
+本包自己的注册只有一条：`plugins.row.config` / `key: dsh-better-sidebar-left#dsh-better-sidebar-left`。
 
 ### 2.1 DOM 归属
 
@@ -91,7 +91,7 @@ loopback 校验留在宿主侧。
 | `dsh-session-rename-dblclick` | `dssn` | `data-dsh-session-rename` |
 | `dsh-session-counts` | `dssc` | `data-dsh-count`、`data-dsh-total`、`data-dsh-session-counts` |
 | `dsh-declutter` | `dshdc`（**不改**） | `data-dshdc-*`、`data-dsh-sidebar-declutter` |
-| 本包 | `dsss` | `data-dsh-session-studio`、`.dsss-*` |
+| 本包 | `dbsl` | `data-dsh-better-sidebar-left`、`.dbsl-*` |
 
 `dsh-declutter` 的三样东西是 load-bearing，一个字符都不能改：
 `data-dsh-sidebar-declutter` 是它自检与样式锚点用的属性、
@@ -108,7 +108,7 @@ loopback 校验留在宿主侧。
 | 明确缺席 | 404 / 未注册 | 走缺席分支：不渲染对应 UI，不报错（I5） |
 | 探测本身失败 | 网络错、宿主没起来 | **不等于缺席**，按「未知」处理，别据此清空界面 |
 
-本包自己也守这条：`/api/dsh-session-studio/status` 答不上来时，浏览器半部把五个组件**全挂上**
+本包自己也守这条：`/api/dsh-better-sidebar-left/status` 答不上来时，浏览器半部把五个组件**全挂上**
 （未知 ≠ 全都没起来）；只有状态路由**明确说**某个组件 `hostMounted: false`，才不挂它。
 这样不会因为一次网络抖动把整条界面刷没。
 
@@ -130,8 +130,8 @@ loopback 校验留在宿主侧。
 这是本包与 `dsh-as-aistudio` 的**刻意分歧**（见 §11）。宿主半部不复制，组件行 `import` 真实包。
 所以从 profile 的 `node_modules` 移走 `dsh-session-counts` 之后：
 
-1. `dsh-session-studio/counts` 这一行 import 失败 —— **只有这一行失败**，另外四行照常启动；
-2. `/api/dsh-session-studio/status` 对它报 `hostMounted: false`、`hostReason: 'not-installed'`；
+1. `dsh-better-sidebar-left/counts` 这一行 import 失败 —— **只有这一行失败**，另外四行照常启动；
+2. `/api/dsh-better-sidebar-left/status` 对它报 `hostMounted: false`、`hostReason: 'not-installed'`；
 3. 浏览器半部据此**不挂载**它，所以工作区计数不出现；
 4. 没有任何报错弹窗，也没有 `console.error` 刷屏（I5）。
 
@@ -141,12 +141,12 @@ loopback 校验留在宿主侧。
 ## 6. 设置卡：为什么有的组件设置不见了
 
 组件把设置卡注册在槽位 key `<包名>#<行 id>` 上。聚合之后行 id 变成
-`dsh-session-studio-<后缀>`，那个 key 永远不会被匹配 —— 所以这些卡**不会**出现在本包行上。
+`dsh-better-sidebar-left-<后缀>`，那个 key 永远不会被匹配 —— 所以这些卡**不会**出现在本包行上。
 
 能恢复的原因是：组件把自己的卡**导出**给本包渲染（渲染的是组件自己的函数，不是复制品，
 所以两边不会漂移）。当前只有 relocate 导出了（`__settings.ChildrenSetting`），由本包设置页直接渲染；
 其余四个的卡只在单独安装时可见。要让某个组件的卡回到本页，组件侧加一行导出，
-再在 `src/studio.js` 的 `CONFIG_CARDS` 表里登记即可。
+再在 `src/sidebar.js` 的 `CONFIG_CARDS` 表里登记即可。
 
 | 组件 | 设置卡 | 聚合后可见 |
 |---|---|---|
@@ -173,12 +173,12 @@ loopback 校验留在宿主侧。
 ## 11. 自包含架构：六个机制
 
 ### A 单一行身份
-`cordis.patch.yml` 里自身那一行用**裸包名** `dsh-session-studio`。客户端模块扫描器只接受精确包名
+`cordis.patch.yml` 里自身那一行用**裸包名** `dsh-better-sidebar-left`。客户端模块扫描器只接受精确包名
 说明符，会去解析 `<name>/package.json` 找 `dsh.client`；子路径会被缓存成「不是 client 包」，
 浏览器半部永久静默不加载。
 
 ### B 组件行用子路径名
-每组件一行 `dsh-session-studio/<后缀>`，`config.plugin` 指组件包名。两条性质都是 load-bearing：
+每组件一行 `dsh-better-sidebar-left/<后缀>`，`config.plugin` 指组件包名。两条性质都是 load-bearing：
 插件列表是去重的**包身份**集合，本包子路径解析回本包身份 → 五条额外行在列表里成本 0 行；
 扫描器对子路径说明符判否 → 组件浏览器半部不会被当成第二个入口。
 
@@ -199,7 +199,7 @@ README 说明为什么。
 `hostMounted: false` + 原因；浏览器半部据此把对应按钮/装饰关掉。**不允许出现「按钮在、点了没反应」**。
 
 ### F 状态路由只回答那一个问题
-`GET /api/dsh-session-studio/status`：每个组件装没装、什么版本、它那一行**是不是真的活着** ——
+`GET /api/dsh-better-sidebar-left/status`：每个组件装没装、什么版本、它那一行**是不是真的活着** ——
 从 `ctx.loader.entries()` 和行 fiber 自己的状态读，不读自己记的「我挂上了」的乐观记录。
 `version` 是浏览器半部的版本（本包 vendor 的那份），`installedVersion` 是 profile 里宿主半部的版本，
 `versionMatch: false` 只被报出来，不会被悄悄修补。

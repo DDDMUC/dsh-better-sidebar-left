@@ -99,11 +99,11 @@ test('no two components claim the same identity when they all run together', asy
   assert.equal(all.length, INTEROP.slots.length, 'the union is the published allocation')
 })
 
-test('the studio own row config collides with no component registration', async () => {
+test('this plugin own row config collides with no component registration', async () => {
   const all = []
   for (const component of COMPONENTS) all.push(...(await claimsOf(component)))
   for (const claim of all) {
-    assert.notEqual(claim.key, 'dsh-session-studio#dsh-session-studio')
+    assert.notEqual(claim.key, 'dsh-better-sidebar-left#dsh-better-sidebar-left')
   }
 })
 

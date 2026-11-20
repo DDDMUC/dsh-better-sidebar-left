@@ -1,7 +1,7 @@
 {
-  "name": "dsh-session-studio",
+  "name": "dsh-better-sidebar-left",
   "version": "0.1.0",
-  "description": "Session management for DeepSeek Harness in one install: delete a session with a risk-checked confirmation, move one across workspaces (menu and drag), rename one by double-clicking its title, show per-workspace session counts, and declutter both the sidebar and the conversation's collapsed turns. Self-contained: the plugin list shows this one row, and the five components are vendored inside it - installing the studio installs nothing else.",
+  "description": "Session management for DeepSeek Harness in one install: delete a session with a risk-checked confirmation, move one across workspaces (menu and drag), rename one by double-clicking its title, show per-workspace session counts, and declutter both the sidebar and the conversation's collapsed turns. Self-contained: the plugin list shows this one row, and the five components are vendored inside it - installing this plugin installs nothing else.",
   "type": "module",
   "main": "src/index.js",
   "exports": {
@@ -42,7 +42,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DDDMUC/dsh-session-studio.git"
+    "url": "git+https://github.com/DDDMUC/dsh-better-sidebar-left.git"
   },
   "engines": {
     "node": ">=22"
@@ -120,6 +120,6 @@
         "0.2.1-rc.2": "compatible"
       }
     },
-    "vendorSourcesNote": "Every component source is a local git checkout of its GitHub repository at this exact commit (dsh-session-studio-src/components/<package>). A commit is what makes a build reproducible - a dist-tag is not - so all five are taken the same way, whether or not the same version is also on the npm registry."
+    "vendorSourcesNote": "Every component source is a local git checkout of its GitHub repository at this exact commit (dsh-better-sidebar-left-src/components/<package>). A commit is what makes a build reproducible - a dist-tag is not - so all five are taken the same way, whether or not the same version is also on the npm registry."
   }
 }

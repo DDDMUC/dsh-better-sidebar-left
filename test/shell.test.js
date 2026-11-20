@@ -4,11 +4,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { Config, apply, inject, name } from '../src/shell.js'
-import { COMPONENTS, STUDIO_ID } from '../src/components.js'
+import { COMPONENTS, PLUGIN_ID } from '../src/components.js'
 
 /** A profile-shaped directory holding one fake component package. */
 function fakeProfile(pkg, body) {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-session-studio-shell-'))
+  const dir = mkdtempSync(join(tmpdir(), 'dsh-better-sidebar-left-shell-'))
   mkdirSync(join(dir, 'node_modules', pkg), { recursive: true })
   writeFileSync(
     join(dir, 'node_modules', pkg, 'package.json'),
@@ -32,10 +32,10 @@ function rowContext(baseUrl, onSubmit) {
 }
 
 test('the shell exports the row contract', () => {
-  assert.equal(name, STUDIO_ID + '/component')
+  assert.equal(name, PLUGIN_ID + '/component')
   assert.deepEqual(inject, [])
   assert.equal(typeof Config['~standard'].validate, 'function')
-  assert.equal(Config['~standard'].vendor, STUDIO_ID)
+  assert.equal(Config['~standard'].vendor, PLUGIN_ID)
 })
 
 test('the shell config is a Standard Schema that passes the row through', () => {
@@ -45,7 +45,7 @@ test('the shell config is a Standard Schema that passes the row through', () => 
   assert.deepEqual(Config['~standard'].validate(config), { value: config })
   const refused = Config['~standard'].validate(['dsh-session-counts'])
   assert.equal(Array.isArray(refused.issues), true)
-  assert.match(refused.issues[0].message, new RegExp(STUDIO_ID))
+  assert.match(refused.issues[0].message, new RegExp(PLUGIN_ID))
 })
 
 test('a row that names no plugin fails loudly instead of mounting nothing', async () => {
@@ -55,7 +55,7 @@ test('a row that names no plugin fails loudly instead of mounting nothing', asyn
 })
 
 test('a row naming a package that is not one of ours is refused by name', async () => {
-  await assert.rejects(() => apply(rowContext(undefined), { plugin: 'dsh-something-else' }), /is not one of this studio components/)
+  await assert.rejects(() => apply(rowContext(undefined), { plugin: 'dsh-something-else' }), /is not one of this plugin components/)
   try {
     await apply(rowContext(undefined), { plugin: 'dsh-something-else' })
     assert.fail('should have thrown')
@@ -68,7 +68,7 @@ test('a row naming a package that is not one of ours is refused by name', async 
 })
 
 test('a component that is not installed fails its own row, naming the package', async () => {
-  const empty = mkdtempSync(join(tmpdir(), 'dsh-session-studio-empty-'))
+  const empty = mkdtempSync(join(tmpdir(), 'dsh-better-sidebar-left-empty-'))
   try {
     await assert.rejects(
       () => apply({ baseUrl: 'file://' + empty }, { plugin: 'dsh-session-counts' }),

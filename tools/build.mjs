@@ -1,4 +1,4 @@
-// Stitch src/client.js from src/studio.js and src/vendor/*.js into ONE bundle.
+// Stitch src/client.js from src/sidebar.js and src/vendor/*.js into ONE bundle.
 // The three .txt fragments hold the literal prologue, the mount table and the
 // epilogue; each vendored factory is lifted out of its own file verbatim, so a
 // component's code runs exactly as its own package ships it.
@@ -6,7 +6,7 @@
 //   node tools/build.mjs           # rewrite src/client.js
 //   node tools/build.mjs --check   # verify it is current, write nothing
 //
-// Two tables are injected into the studio source here, from src/components.js:
+// Two tables are injected into this plugin source here, from src/components.js:
 // MANIFEST (what the page lists) and INTEROP (the slot allocation it prints).
 // Generating them is the point - a hand-written copy of the manifest inside the
 // browser half is a copy that disagrees with the host half the day someone adds a
@@ -88,13 +88,13 @@ function interopLiteral() {
   return JSON.stringify({ slots }, null, 2).split('\n').join('\n    ')
 }
 
-// The studio source is a whole bundle of its own; inside the stitched bundle its
+// The package own browser half is a whole bundle of its own; inside the stitched
 // body belongs directly in this scope, so the arrow wrapper is removed. The body
 // declares its own module/exports, which is exactly the var-hoisted shadowing the
 // bundle expects (the same shape the five vendored factories use internally).
-const studioArrow = lift(readFileSync(join(root, 'src', 'studio.js'), 'utf8'), 'dsh-session-studio')
-if (!/^\(require\) => \{[\s\S]*\}$/.test(studioArrow)) throw new Error('dsh-session-studio: the studio source is not a single arrow factory')
-const studio = studioArrow
+const ownArrow = lift(readFileSync(join(root, 'src', 'sidebar.js'), 'utf8'), 'dsh-better-sidebar-left')
+if (!/^\(require\) => \{[\s\S]*\}$/.test(ownArrow)) throw new Error('dsh-better-sidebar-left: this plugin source is not a single arrow factory')
+const own = ownArrow
   .replace(/^\(require\) => \{/, '')
   .replace(/\}$/, '')
   .replace('__MANIFEST__', manifestLiteral())
@@ -107,7 +107,7 @@ for (const id of ORDER) {
   parts.push('    // ===== vendored ' + id + ' =====')
   parts.push('    const factory_' + id.replace(/-/g, '_') + ' = ' + vendored(id))
 }
-// The table is keyed by COMPONENT ID, because that is what the studio looks up
+// The table is keyed by COMPONENT ID, because that is what this plugin looks up
 // (VENDORED_TABLE[id] with id like 'dsh-delete-session'). Emitting the bare
 // factory names would build an object whose keys are the variable names instead,
 // every lookup would be undefined, and every component would silently fail to
@@ -118,7 +118,7 @@ parts.push(
     ORDER.map((id) => JSON.stringify(id) + ': factory_' + id.replace(/-/g, '_')).join(', '),
   ),
 )
-parts.push(studio)
+parts.push(own)
 parts.push(read('tail2.txt'))
 
 const text = parts.join('\n')

@@ -1,6 +1,6 @@
 // dsh-delete-session browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-session-studio-src/components/dsh-delete-session/src/client.js  (v0.5.0, sha256 7994799379db161a)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.0, sha256 7994799379db161a)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this

@@ -2,18 +2,18 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { COMPONENTS, COMPONENT_IDS, COMPONENT_ROW_NAMES, INTEROP, STUDIO_ID, STUDIO_VERSION, rowNameOf } from '../src/components.js'
+import { COMPONENTS, COMPONENT_IDS, COMPONENT_ROW_NAMES, INTEROP, PLUGIN_ID, PLUGIN_VERSION, rowNameOf } from '../src/components.js'
 import { root } from './helpers.js'
 
 const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 
-test('the studio names itself and keeps one version', () => {
-  assert.equal(STUDIO_ID, manifest.name)
-  assert.equal(STUDIO_VERSION, manifest.version)
-  assert.match(STUDIO_VERSION, /^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$/)
+test('this plugin names itself and keeps one version', () => {
+  assert.equal(PLUGIN_ID, manifest.name)
+  assert.equal(PLUGIN_VERSION, manifest.version)
+  assert.match(PLUGIN_VERSION, /^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$/)
 })
 
-test('the studio composes exactly the five session components', () => {
+test('this plugin composes exactly the five session components', () => {
   assert.deepEqual(COMPONENT_IDS, [
     'dsh-delete-session',
     'dsh-session-relocate',
@@ -37,7 +37,7 @@ test('component ids, suffixes and row names are unique', () => {
   assert.equal(new Set(COMPONENT_IDS).size, COMPONENTS.length)
   assert.equal(new Set(COMPONENTS.map((component) => component.suffix)).size, COMPONENTS.length)
   assert.equal(new Set(COMPONENT_ROW_NAMES).size, COMPONENTS.length)
-  for (const component of COMPONENTS) assert.equal(rowNameOf(component), STUDIO_ID + '/' + component.suffix)
+  for (const component of COMPONENTS) assert.equal(rowNameOf(component), PLUGIN_ID + '/' + component.suffix)
 })
 
 test('every component speaks both languages', () => {
@@ -76,16 +76,16 @@ test('no two components claim the same order on one slot', () => {
   }
 })
 
-test('the studio own registration collides with nothing', () => {
+test('this plugin own registration collides with nothing', () => {
   const claimed = new Set(
     INTEROP.slots.map((slot) => slot.name + '#' + (slot.id === undefined ? slot.key : slot.id)),
   )
-  for (const slot of INTEROP.studioSlots) {
+  for (const slot of INTEROP.pluginSlots) {
     const identity = slot.name + '#' + (slot.id === undefined ? slot.key : slot.id)
-    assert.equal(claimed.has(identity), false, 'the studio claims an identity a component already has: ' + identity)
+    assert.equal(claimed.has(identity), false, 'this plugin claims an identity a component already has: ' + identity)
     claimed.add(identity)
   }
-  assert.equal(INTEROP.studioSlots.length, 1, 'the studio registers one seat and nothing else')
+  assert.equal(INTEROP.pluginSlots.length, 1, 'this plugin registers one seat and nothing else')
 })
 
 test('the allocation mirrors the component tables exactly', () => {

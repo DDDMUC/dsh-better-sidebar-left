@@ -5,7 +5,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { COMPONENTS, INTEROP, STUDIO_ID, STUDIO_VERSION } from '../src/components.js'
+import { COMPONENTS, INTEROP, PLUGIN_ID, PLUGIN_VERSION } from '../src/components.js'
 import { root } from './helpers.js'
 
 const doc = readFileSync(join(root, 'docs', 'INTEROP.md'), 'utf8')
@@ -58,10 +58,10 @@ test('the slot table in section 2 is exactly the manifest allocation', () => {
   }
 })
 
-test('the document states the studio identity it ships with', () => {
+test('the document states this plugin identity it ships with', () => {
   const participants = section('0. 参与方')
-  assert.ok(participants.includes(STUDIO_ID), 'section 0 must name this package')
-  assert.ok(participants.includes(STUDIO_VERSION), 'section 0 must name the version it ships with')
+  assert.ok(participants.includes(PLUGIN_ID), 'section 0 must name this package')
+  assert.ok(participants.includes(PLUGIN_VERSION), 'section 0 must name the version it ships with')
 })
 
 test('the document keeps the two load-bearing rules about declutter', () => {

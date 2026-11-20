@@ -1,5 +1,5 @@
 
-    // --- which factories the studio mounts ---
+    // --- which factories this plugin mounts ---
     const VENDORED_TABLE = { __T__ }
 
-    // --- the studio's own browser half ---
+    // --- this plugin's own browser half ---

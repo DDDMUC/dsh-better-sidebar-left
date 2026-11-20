@@ -1,8 +1,8 @@
-// dsh-session-studio - the component-row shell.
+// dsh-better-sidebar-left - the component-row shell.
 //
 // One file, mounted once per component row in cordis.patch.yml. A Loader row
 // mounts whatever its "name" resolves to, so every component row is named
-// "dsh-session-studio/<suffix>" - package.json maps all five suffixes to THIS
+// "dsh-better-sidebar-left/<suffix>" - package.json maps all five suffixes to THIS
 // file - and carries the real component package in config.plugin. The shell is
 // what turns that name into a mount:
 //
@@ -24,7 +24,7 @@
 // src/vendor/host/ carries a copy of each component's host code):
 //
 //   * the host logic exists exactly once, and it is the copy the component's own
-//     release ships - a studio that vendored it would keep running last month's
+//     release ships - a plugin that vendored it would keep running last month's
 //     routes after a component fix, which is a silent-drift machine;
 //   * uninstalling a component really removes its feature (docs/INTEROP.md
 //     section 5): its row's import fails, the row's fiber fails, /status reports
@@ -42,11 +42,11 @@
 //
 // The row config is read once per activation. Editing it in the plugin manager
 // restarts the entry, which runs this apply again with the new value.
-import { COMPONENTS, STUDIO_ID } from './components.js'
+import { COMPONENTS, PLUGIN_ID } from './components.js'
 import { componentOf, importComponent, pluginOf } from './index.js'
 
 /** Loader display name of this shell (all five rows share it). */
-export const name = STUDIO_ID + '/component'
+export const name = PLUGIN_ID + '/component'
 
 /** Required services: none. The shell must be able to activate on its own. */
 export const inject = []
@@ -60,14 +60,14 @@ export const inject = []
 export const Config = {
   '~standard': {
     version: 1,
-    vendor: STUDIO_ID,
+    vendor: PLUGIN_ID,
     validate(value) {
       if (value === undefined || value === null) return { value: undefined }
       if (typeof value !== 'object' || Array.isArray(value)) {
         return {
           issues: [
             {
-              message: STUDIO_ID + ': a component row config must be a mapping with a "plugin" package name',
+              message: PLUGIN_ID + ': a component row config must be a mapping with a "plugin" package name',
               path: [],
             },
           ],
@@ -102,7 +102,7 @@ function messageOf(error) {
 /**
  * Mount the component package the row's config names.
  *
- * Every failure path throws with a message that names this studio and the
+ * Every failure path throws with a message that names this plugin and the
  * offending specifier, so the Loader's own entry log is the whole diagnostic -
  * there is no second reporting channel to keep in sync.
  *
@@ -114,16 +114,16 @@ export async function apply(ctx, config) {
   const spec = pluginSpecOf(config)
   if (spec === null) {
     throw new Error(
-      STUDIO_ID + ': this component row names no plugin; set config.plugin to the component package (row config: ' + describeConfig(config) + ')',
+      PLUGIN_ID + ': this component row names no plugin; set config.plugin to the component package (row config: ' + describeConfig(config) + ')',
     )
   }
   const component = componentOf(spec)
   if (component === null) {
     throw new Error(
-      STUDIO_ID +
+      PLUGIN_ID +
         ': component ' +
         JSON.stringify(spec) +
-        ' is not one of this studio components (' +
+        ' is not one of this plugin components (' +
         COMPONENTS.map((entry) => entry.package).join(', ') +
         ')',
     )
@@ -133,17 +133,17 @@ export async function apply(ctx, config) {
     namespace = await importComponent(ctx, component)
   } catch (error) {
     throw new Error(
-      STUDIO_ID + ': component ' + JSON.stringify(spec) + ' could not be imported: ' + messageOf(error),
+      PLUGIN_ID + ': component ' + JSON.stringify(spec) + ' could not be imported: ' + messageOf(error),
       { cause: error },
     )
   }
   const plugin = pluginOf(namespace)
   if (plugin === null) {
     throw new Error(
-      STUDIO_ID + ': component ' + JSON.stringify(spec) + ' has no usable plugin shape (expected a function or an object with apply)',
+      PLUGIN_ID + ': component ' + JSON.stringify(spec) + ' has no usable plugin shape (expected a function or an object with apply)',
     )
   }
   // No config: a component's own settings belong to its own row when it is
-  // installed standalone, and the studio has always mounted it with defaults.
+  // installed standalone, and this plugin has always mounted it with defaults.
   await ctx.plugin(plugin)
 }

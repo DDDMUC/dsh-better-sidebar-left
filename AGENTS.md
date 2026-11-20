@@ -1,24 +1,24 @@
-# AGENTS.md - dsh-session-studio
+# AGENTS.md - dsh-better-sidebar-left
 
-本仓库是聚合插件 **dsh-session-studio** 的唯一正本，**自包含**：插件列表里只有它一行。
+本仓库是聚合插件 **dsh-better-sidebar-left** 的唯一正本，**自包含**：插件列表里只有它一行。
 
 ## 架构
 
 ```
-cordis.patch.yml    插 6 行：本包自己（裸包名）+ 五条 dsh-session-studio/<后缀> 组件行
+cordis.patch.yml    插 6 行：本包自己（裸包名）+ 五条 dsh-better-sidebar-left/<后缀> 组件行
 src/components.js   唯一 manifest：身份 / 槽位 / 路由 / DOM 归属
-src/index.js        宿主半侧：/api/dsh-session-studio/status + importComponent（解析 profile 里的真实包）
+src/index.js        宿主半侧：/api/dsh-better-sidebar-left/status + importComponent（解析 profile 里的真实包）
 src/shell.js        组件行的壳：读 config.plugin，import 真实包，ctx.plugin 挂上去
-src/studio.js       本包自己的浏览器半侧（源，注册 id dsh-session-studio）
+src/sidebar.js       本包自己的浏览器半侧（源，注册 id dsh-better-sidebar-left）
 src/vendor/*.js     五个组件的浏览器半部，由 tools/vendor.mjs 逐字剥离生成，DO NOT EDIT
-src/client.js       生成的单一大 bundle：studio + 五个 vendored factory，DO NOT EDIT
+src/client.js       生成的单一大 bundle：本包浏览器半部 + 五个 vendored factory，DO NOT EDIT
 src/vendor/host/    保留目录，故意为空（见其中 README）
 ```
 
 三条不变量（改之前先读懂，测试都在盯）：
 
 1. **只有一条 profile 行。** 插件列表是「活跃 Loader 行背后的包身份（name+version）去重集合」，
-   `dsh-session-studio/counts` 这类子路径用 `barePackageName()` 解析回本包，所以多五条行
+   `dsh-better-sidebar-left/counts` 这类子路径用 `barePackageName()` 解析回本包，所以多五条行
    **不多占列表行**。行名一旦写成组件自己的包名（`dsh-session-counts`），列表立刻多一行。
 2. **组件行的 name 必须是本包子路径。** 客户端模块扫描器只认精确包说明符，子路径会被跳过、
    且被缓存成「不是客户端包」——所以组件行永远不会变成第二份浏览器源。只有本包那一行（裸包名）
@@ -30,14 +30,14 @@ src/vendor/host/    保留目录，故意为空（见其中 README）
 ## 源从哪来
 
 **全部来自 GitHub 仓库的本地检出**，不从 npm registry 取。五个组件分别在
-`../dsh-session-studio-src/components/<包名>/`，各是一个 git 仓库，基线提交记着对应的上游
+`../dsh-better-sidebar-left-src/components/<包名>/`，各是一个 git 仓库，基线提交记着对应的上游
 commit；`package.json` 的 `dsh.vendorSources` 是这张表的正本，`npm run verify:manifest`
 （离线）核对「声明 = 检出 = vendored 版本」三者一致。
 
 | 改了 | 要跑 |
 | --- | --- |
 | 组件仓库（五个检出） | `npm run vendor && npm run build` |
-| `src/studio.js` | `node tools/build.mjs` |
+| `src/sidebar.js` | `node tools/build.mjs` |
 | `src/index.js` / `src/shell.js` / `src/components.js` / `cordis.patch.yml` / `package.json` | 不用重建，重启宿主即生效 |
 
 只想重建 bundle 时**别**用 `npm run build`：它会先从 GitHub 检出重取 vendor 副本。

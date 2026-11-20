@@ -8,11 +8,11 @@ import { fakeRequire, loadBundle, readText, root } from './helpers.js'
 const clientText = readFileSync(join(root, 'src', 'client.js'), 'utf8')
 const registered = loadBundle(clientText)
 
-test('the bundle registers under the studio id', () => {
-  assert.equal(registered.id, 'dsh-session-studio')
+test('the bundle registers under this plugin id', () => {
+  assert.equal(registered.id, 'dsh-better-sidebar-left')
   const plugin = registered.factory(fakeRequire())
-  assert.equal(plugin.NS, 'dsh-session-studio')
-  assert.equal(plugin.STATUS_ROUTE, '/api/dsh-session-studio/status')
+  assert.equal(plugin.NS, 'dsh-better-sidebar-left')
+  assert.equal(plugin.STATUS_ROUTE, '/api/dsh-better-sidebar-left/status')
 })
 
 test('the manifest and the allocation were baked in, not left as placeholders', () => {
@@ -83,5 +83,5 @@ test('a component the host never mentions is not mounted', () => {
 test('the shipped bundle reaches for no web-only global while loading', () => {
   // Loading it above succeeded without a DOM, which is the assertion: the module
   // body must not touch document/window beyond registering with the loader.
-  assert.ok(readText('src/studio.js').includes("typeof document === 'undefined'"))
+  assert.ok(readText('src/sidebar.js').includes("typeof document === 'undefined'"))
 })

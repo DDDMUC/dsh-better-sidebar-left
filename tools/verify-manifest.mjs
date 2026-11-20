@@ -23,14 +23,14 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { COMPONENTS, STUDIO_ID, STUDIO_VERSION } from '../src/components.js'
+import { COMPONENTS, PLUGIN_ID, PLUGIN_VERSION } from '../src/components.js'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
 const versions = JSON.parse(readFileSync(join(root, 'src', 'vendor', 'versions.json'), 'utf8'))
-const staging = process.env.DSH_SESSION_STUDIO_SRC
-  ? process.env.DSH_SESSION_STUDIO_SRC
-  : join(root, '..', 'dsh-session-studio-src', 'components')
+const staging = process.env.DSH_BETTER_SIDEBAR_LEFT_SRC
+  ? process.env.DSH_BETTER_SIDEBAR_LEFT_SRC
+  : join(root, '..', 'dsh-better-sidebar-left-src', 'components')
 
 let failed = 0
 const fail = (message) => {
@@ -109,15 +109,15 @@ if (failed === 0) console.log('  ok            ' + COMPONENTS.length + ' GitHub 
 // 3/4. this package's own version must be one number in the three places that carry it.
 const sites = [
   ['package.json', /(^\s*"version":\s*")([^"]+)(")/m],
-  ['src/components.js', /(export const STUDIO_VERSION = ')([^']+)(')/],
-  ['src/studio.js', /(const PLUGIN_VERSION = ')([^']+)(')/],
+  ['src/components.js', /(export const PLUGIN_VERSION = ')([^']+)(')/],
+  ['src/sidebar.js', /(const PLUGIN_VERSION = ')([^']+)(')/],
 ]
 const found = sites.map(([file, pattern]) => {
   const match = pattern.exec(read(file))
   return { file, version: match === null ? null : match[2] }
 })
 const distinct = [...new Set(found.map((site) => site.version))]
-if (distinct.length !== 1 || distinct[0] === null || distinct[0] !== STUDIO_VERSION) {
+if (distinct.length !== 1 || distinct[0] === null || distinct[0] !== PLUGIN_VERSION) {
   fail('VERSION DRIFT ' + found.map((site) => site.file + '=' + site.version).join(', '))
 } else {
   console.log('  ok            version ' + distinct[0] + ' in all three places')
@@ -141,6 +141,6 @@ console.log(
     ' components vendored from GitHub commits, no runtime dependencies, version ' +
     distinct[0] +
     ' consistent, ' +
-    'studio ' +
-    STUDIO_ID,
+    'plugin ' +
+    PLUGIN_ID,
 )

@@ -2,7 +2,7 @@
 // modules the bundle injects and nothing else. A relative import would dangle (the
 // file it names is not shipped), and a bare import of anything else would fail at
 // page boot with the module loader reporting a missing module - silently, because
-// nothing else in the studio would notice.
+// nothing else in this plugin would notice.
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

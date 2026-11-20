@@ -1,6 +1,6 @@
 // dsh-session-counts browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-session-studio-src/components/dsh-session-counts/client.js  (v0.0.3, sha256 78d63e02c3f7db7e)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-counts/client.js  (v0.0.3, sha256 78d63e02c3f7db7e)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this

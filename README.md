@@ -1,6 +1,10 @@
-# dsh-session-studio
+# dsh-better-sidebar-left
 
 五个会话管理插件，装一个包。**插件列表里只多一行**，五个功能全部保留。
+
+> 名字只承诺**左侧栏**：删会话、跨工作区搬会话、双击改名、数会话数，都发生在侧栏。
+> 但 `dsh-declutter` 的「会话内收纳」收的是**对话里**的失败轮 / 空轮 / 编辑产生的合成轮 ——
+> 那一半不在左侧栏，名字里没有它，功能里有。
 
 | 组件 | 你得到什么 |
 |---|---|
@@ -13,10 +17,10 @@
 ## 安装
 
 ```sh
-npm i dsh-session-studio
+npm i dsh-better-sidebar-left
 ```
 
-然后把 `dsh-session-studio` 加进 profile 的 `dsh.profile.bundles`。组件**不需要**单独安装成本
+然后把 `dsh-better-sidebar-left` 加进 profile 的 `dsh.profile.bundles`。组件**不需要**单独安装成本
 包 —— 但它们的宿主半部要能从 profile 里被解析到（见下面「缺一个会怎样」）。
 
 开发时指向本地检出：
@@ -29,15 +33,15 @@ node tools/link-local.mjs --profile ~/.dsh/profiles/desktop
 ## 每个组件一个开关
 
 `cordis.patch.yml` 一共插 6 行：本包自己一行（裸包名），加上五行
-`dsh-session-studio/<后缀>`。**包列表只有一行，但行列表里有六行**，所以每个组件都能在插件
-管理里单独停用 —— 停用 `dsh-session-studio/declutter` 就只少收纳，其余四个照常。
+`dsh-better-sidebar-left/<后缀>`。**包列表只有一行，但行列表里有六行**，所以每个组件都能在插件
+管理里单独停用 —— 停用 `dsh-better-sidebar-left/declutter` 就只少收纳，其余四个照常。
 
 ## 缺一个会怎样
 
 可以从 profile 里移走任意一个组件包，重启后：
 
 - 它那一行导入失败，**只有那一行失败**，其余四行照常启动；
-- `GET /api/dsh-session-studio/status` 对它报 `hostMounted: false`，并给原因
+- `GET /api/dsh-better-sidebar-left/status` 对它报 `hostMounted: false`，并给原因
   （`not-installed` / `row-missing` / `disabled` / `start-failed`）；
 - 浏览器半部据此**不挂载**它那一半，所以不会出现「按钮在、点了没反应」。
 
@@ -59,7 +63,7 @@ node tools/link-local.mjs --profile ~/.dsh/profiles/desktop
 ## 状态路由
 
 ```sh
-curl -s http://127.0.0.1:<port>/api/dsh-session-studio/status | jq .summary
+curl -s http://127.0.0.1:<port>/api/dsh-better-sidebar-left/status | jq .summary
 ```
 
 只回答一个问题：每个组件装没装、跑的是哪一版、它那一行**是不是真的活着**。
@@ -72,15 +76,15 @@ curl -s http://127.0.0.1:<port>/api/dsh-session-studio/status | jq .summary
 ```sh
 npm run check          # verify:manifest + build + test
 npm run verify:vendor  # src/vendor/ 是否与组件源码一致（只读）
-npm run verify:build   # src/client.js 是否与 src/studio.js + src/vendor/ 一致（只读）
+npm run verify:build   # src/client.js 是否与 src/sidebar.js + src/vendor/ 一致（只读）
 npm test               # 只跑测试
 npm run bump 0.2.0     # 三处版本号一起动
 ```
 
 `src/client.js` 与 `src/vendor/*.js` 都是 **GENERATED**，手改会被下一次 `npm run build` 覆盖，
-`test/sync.test.js` 也会先失败。改组件请去组件仓库，改 Studio 自己的逻辑改 `src/studio.js`。
+`test/sync.test.js` 也会先失败。改组件请去组件仓库，改本包自己的逻辑改 `src/sidebar.js`。
 
-vendor 的源是 **GitHub 仓库的本地检出**：`../dsh-session-studio-src/components/<包名>/`，
+vendor 的源是 **GitHub 仓库的本地检出**：`../dsh-better-sidebar-left-src/components/<包名>/`，
 每个都是一个 git 仓库，基线提交里记着它对应 GitHub 上的哪个 commit（默认路径，可用
 `--workspace` 覆盖）。它**不会**读你工作区里那些正在开发的组件工作树。
 
@@ -94,10 +98,10 @@ commit/哪个版本」与「本地那份检出是不是真的干净地停在那�
 ```
 cordis.patch.yml     1 自身行 + 5 组件行（机制 A/B 的注释在文件里）
 src/components.js    唯一 manifest：五个组件的身份、槽位、路由、DOM 归属
-src/index.js         宿主半部：/api/dsh-session-studio/status + importComponent
+src/index.js         宿主半部：/api/dsh-better-sidebar-left/status + importComponent
 src/shell.js         组件行挂载器：读 config.plugin，import 真实包，ctx.plugin
-src/studio.js        自身浏览器半部（源）
-src/client.js        GENERATED：studio + 五个 vendored factory 的一个 bundle
+src/sidebar.js        自身浏览器半部（源）
+src/client.js        GENERATED：plugin + 五个 vendored factory 的一个 bundle
 src/vendor/*.js      GENERATED：五个组件的浏览器半部
 src/vendor/host/     保留目录，故意为空（见其中 README）
 tools/vendor.mjs     逐字节生成 src/vendor/（--check）

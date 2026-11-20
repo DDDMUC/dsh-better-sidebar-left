@@ -17,14 +17,14 @@ import {
   statusOf,
   vendoredVersions,
 } from '../src/index.js'
-import { COMPONENTS, STUDIO_ID, rowNameOf } from '../src/components.js'
+import { COMPONENTS, PLUGIN_ID, rowNameOf } from '../src/components.js'
 
 const counting = COMPONENTS.filter((component) => component.id === 'dsh-session-counts')[0]
 const rename = COMPONENTS.filter((component) => component.id === 'dsh-session-rename-dblclick')[0]
 
 /** A profile-shaped directory holding one fake package. */
 function fakeProfile(packages) {
-  const dir = mkdtempSync(join(tmpdir(), 'dsh-session-studio-host-'))
+  const dir = mkdtempSync(join(tmpdir(), 'dsh-better-sidebar-left-host-'))
   for (const [pkg, version] of Object.entries(packages)) {
     mkdirSync(join(dir, 'node_modules', pkg), { recursive: true })
     writeFileSync(join(dir, 'node_modules', pkg, 'package.json'), JSON.stringify({ name: pkg, version, main: 'index.js' }))
@@ -55,8 +55,8 @@ function ctxWith(rows, baseUrl) {
   }
 }
 
-test('the host half names the studio', () => {
-  assert.equal(name, STUDIO_ID)
+test('the host half names this plugin', () => {
+  assert.equal(name, PLUGIN_ID)
 })
 
 test('the vendored version record covers every component and is what status reports first', () => {
@@ -137,7 +137,7 @@ test('the host half mounts nothing itself: the component rows do', async () => {
     },
   }
   await apply(ctx)
-  assert.deepEqual(mounted, [], 'the studio host half must not mount any component itself')
+  assert.deepEqual(mounted, [], 'this plugin host half must not mount any component itself')
 })
 
 test('a live component row reads as mounted', () => {
@@ -160,7 +160,7 @@ test('any row that is not active reads as NOT mounted, with its reason', () => {
   }
 })
 
-test('a component installed standalone next to the studio answers under its own name', () => {
+test('a component installed standalone next to this plugin answers under its own name', () => {
   const state = hostStateOf(counting, loaderEntries(ctxWith([{ name: 'dsh-session-counts' }])), true)
   assert.equal(state.hostMounted, true)
   assert.equal(state.hostRow, 'dsh-session-counts')
@@ -184,7 +184,7 @@ test('the status document reports installed state, version and the own-row count
     const ctx = ctxWith([{ name: rowNameOf(counting) }, { name: 'dsh-session-counts' }], 'file://' + profile)
     const status = statusOf(ctx)
     assert.equal(status.ok, true)
-    assert.equal(status.plugin, STUDIO_ID)
+    assert.equal(status.plugin, PLUGIN_ID)
     assert.equal(status.loaderVisible, true)
     assert.equal(status.components.length, COMPONENTS.length)
     const counts = status.components.filter((component) => component.id === 'dsh-session-counts')[0]
@@ -261,7 +261,7 @@ async function routeHandler(ctx) {
   let handler = null
   const webServer = {
     register(options) {
-      assert.equal(options.path, '/api/dsh-session-studio/status')
+      assert.equal(options.path, '/api/dsh-better-sidebar-left/status')
       handler = options.handler
       return () => {}
     },
@@ -288,7 +288,7 @@ test('the route answers GET on loopback with the status document', async () => {
   await handler(request(), res)
   assert.equal(res.captured.status, 200)
   assert.equal(res.captured.body.ok, true)
-  assert.equal(res.captured.body.plugin, STUDIO_ID)
+  assert.equal(res.captured.body.plugin, PLUGIN_ID)
 })
 
 test('the route refuses a non-GET method', async () => {
