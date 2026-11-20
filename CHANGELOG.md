@@ -22,6 +22,7 @@
 
 ### 与本机部件的编号差异（记录，不是兼容问题）
 
-`dsh-declutter` 的 npm 发布史与仓库不一致：npm 上的 `0.1.2` / `0.1.3` 只有**侧栏半部**
-（`src/index.js` 是 98 字节空壳），两半合一的那份只存在于 GitHub main（`0.2.0`）。
-所以本包一律按 GitHub main 取源自洽性最好，也避免 `npm i dsh-declutter@^0.1.0` 拿到侧栏半部。
+`dsh-declutter` 的 npm 历史曾经和仓库不一致：`0.1.2` / `0.1.3` 只有**侧栏半部**
+（`src/index.js` 是 98 字节空壳）。`0.2.0`（两半合一 + 命名会话修复）已于 2026-11-21
+发布到 npm，`latest` 指向它；但本包的取源仍然按 GitHub commit 钉住，理由与另外四个一致：
+commit 是可复现的，dist-tag 不是。

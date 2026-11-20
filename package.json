@@ -120,6 +120,6 @@
         "0.2.1-rc.2": "compatible"
       }
     },
-    "vendorSourcesNote": "Every component source is a local git checkout of its GitHub repository at this exact commit (dsh-session-studio-src/components/<package>). Nothing is fetched from the npm registry: dsh-declutter's two-halves release exists on GitHub main only, and the other four are taken from the same place so one rule covers all five."
+    "vendorSourcesNote": "Every component source is a local git checkout of its GitHub repository at this exact commit (dsh-session-studio-src/components/<package>). A commit is what makes a build reproducible - a dist-tag is not - so all five are taken the same way, whether or not the same version is also on the npm registry."
   }
 }
