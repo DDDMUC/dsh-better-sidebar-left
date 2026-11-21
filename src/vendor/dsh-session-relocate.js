@@ -1,6 +1,6 @@
 // dsh-session-relocate browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.2.6, sha256 d37cf3f3becd7cf2)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.1, sha256 8ff2b757f387b404)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -31,9 +31,29 @@ export default function (require) {
       // 拖动时给工作区行加的高亮（官方行本身没有 drop 语义，所以这个类只由本插件加）
       '.dshsm-drop{outline:2px solid #4c8dff;outline-offset:-2px;border-radius:6px}',
       // 多选模式：行首勾选圈 + 底部操作条 + 目标工作区面板
-      '.dshsm-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:6px;border-radius:50%;border:1.5px solid var(--dsw-alias-border-l3,rgba(128,128,128,.5));background:0 0;flex:none}',
-      '.dshsm-check-on{border-color:#4c8dff;background:#4c8dff;box-shadow:inset 0 0 0 3px #fff}',
-      '.dshsm-dark .dshsm-check-on{box-shadow:inset 0 0 0 3px #1f232b}',
+      // 会话行勾选圈：逐字对齐 dsh-delete-session 的 .dsdel-check。
+      // 原来是「蓝底 + inset 白环」的空心蓝圈，对方是「实心蓝底 + ::after 白勾」；
+      // 单独装本插件的人看到的必须是同一套控件。
+      '.dshsm-check{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;border:1.5px solid var(--dsw-alias-border-l3,rgba(128,128,128,.5));background:transparent;flex:none;margin-right:8px;box-sizing:border-box;cursor:pointer}',
+      '.dshsm-check-on{background:var(--dsw-alias-state-business-primary,#4c6ef5);border-color:var(--dsw-alias-state-business-primary,#4c6ef5)}',
+      '.dshsm-check-on::after{content:"";width:9px;height:5px;border-left:2px solid #fff;border-bottom:2px solid #fff;transform:rotate(-45deg) translateY(-1px)}',
+      // 全选框：形态逐字对齐 dsh-delete-session（dsh-delete-session 单独装时用户看到的
+      // 就是这一套）。15px 方框、1px 描边、radius 4px、10px 字号、同一个颜色 token ——
+      // 两个插件都装时这里根本不渲染（BulkEntry / BulkBar 会让位），所以只有
+      // 单独装本插件的人才看得见它，它必须和「两个都装」时的样子一致。
+      '.dshsm-select-all{flex:0 0 auto;box-sizing:border-box;width:15px;height:15px;min-width:15px;margin:0 0 0 6px;padding:0;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--dsw-alias-border-l2,rgba(128,128,128,.45));border-radius:4px;background:transparent;color:var(--dsw-alias-label-secondary,#666);font-size:10px;line-height:1;cursor:pointer;opacity:1;visibility:visible;align-self:center}',
+      '.dshsm-select-all:hover{border-color:var(--dsw-alias-brand-primary,#4c8dff);color:var(--dsw-alias-brand-primary,#4c8dff)}',
+      '.dshsm-select-all[aria-checked="true"]{background:var(--dsw-alias-brand-primary,#4c8dff);border-color:var(--dsw-alias-brand-primary,#4c8dff);color:#fff}',
+      '.dshsm-select-all[aria-checked="mixed"]{border-color:var(--dsw-alias-brand-primary,#4c8dff);color:var(--dsw-alias-brand-primary,#4c8dff)}',
+      '.dshsm-select-all:focus-visible{outline:2px solid var(--dsw-alias-brand-primary,#4c8dff);outline-offset:1px}',
+      // spacer 占住 flex 剩余宽度，框才会落在名字后面而不是被推到行尾。
+      '.dshsm-flex-spacer{flex:1 1 auto;min-width:0;align-self:center;height:1px}',
+      // 多选期间让名字块按自己的文字宽度排。宿主给的是 flex:1，名字块会填满整行，
+      // 于是插在它后面的全选框被推到行中间（和名字之间空出一大截），而且一悬停、
+      // 右侧 ⋯/⊕ 出现把名字压成省略号时，框还会跟着往左跳。
+      // 这条和 dsh-delete-session 的 body.dsdel-selecting 那条同源。
+      'body.dshsm-selecting [class*="_projectText"]{flex:0 1 auto;min-width:0}',
+      // 暗色主题不再需要 inset 白环覆盖：勾现在由 ::after 画，白勾在两种主题下都够亮。
       // 多选底栏：注册进宿主槽 sidebar.footer.action，位置/宽度交给宿主排版。
       '.dshsm-bar{display:flex;align-items:center;gap:8px;width:100%;min-width:0;padding:6px 8px;box-sizing:border-box;font-size:13px}',
       '.dshsm-bar-count{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dsw-alias-label-secondary,inherit)}',
@@ -51,6 +71,12 @@ export default function (require) {
       'body.dshsm-selecting [class*="_footArea"] > *:not([class*="_footerActions"]){display:none}',
       'body.dshsm-selecting [data-slot="sidebar.footer.action"] > [data-dsh-plugin]{display:none}',
       'body.dshsm-selecting [data-slot="sidebar.footer.action"] > [class*="_entryRow"]{display:none}',
+      // 页脚里的「按钮型」入口也要让位。槽入口是**无包装层**的直接子节点
+      // （renderer 的 SlotOutlet 是 <div data-slot style="display:contents">，入口组件直接挂成子节点），
+      // 所以 '> button' 精确命中按钮型入口 —— 例如 dsh-sidebar-declutter 的 .dhns-footer-btn，
+      // 它没带 data-dsh-plugin，上面两条规则都漏了它，多选时会和底栏挤在同一行。
+      // :not([role="toolbar"]) 保证永远藏不到底栏自己（两家底栏都是 div + role="toolbar"）。
+      'body.dshsm-selecting [data-slot="sidebar.footer.action"] > button:not([role="toolbar"]){display:none}',
       '.dshsm-picker-backdrop{position:fixed;inset:0;z-index:2147483602;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.42)}',
       '.dshsm-picker{width:min(440px,92vw);max-height:70vh;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:14px;border:1px solid transparent;box-shadow:0 18px 48px rgba(0,0,0,.36)}',
       '.dshsm-picker.dshsm-dark{background:#1f232b;color:#f2f3f5;border-color:rgba(255,255,255,.18);color-scheme:dark}',
@@ -106,8 +132,13 @@ export default function (require) {
       '.dshsm-menu-disambig{display:flex;align-items:center;gap:4px;min-width:0}',
       '.dshsm-menu-title{text-overflow:ellipsis;min-width:0;overflow:hidden}',
       '.dshsm-menu-suffix{flex:none;max-width:75%;text-overflow:ellipsis;min-width:0;overflow:hidden;color:var(--dsw-alias-label-secondary,inherit)}',
+      // hover        → 整行悬浮显形（盯 .dshsm-dock）
+      // hover-self   → 只有指针落进胶囊自己那一小块才显形（最早的做法）。
+      // 两种都只是 opacity:0，仍然占位、仍然收得到指针事件，所以不会跳、也好点。
       '.dshsm-chip[data-mode="hover"]{opacity:0;transition:opacity .12s ease}',
       '.dshsm-dock:hover .dshsm-chip[data-mode="hover"]{opacity:1}',
+      '.dshsm-chip[data-mode="hover-self"]{opacity:0;transition:opacity .12s ease}',
+      '.dshsm-chip[data-mode="hover-self"]:hover,.dshsm-chip[data-mode="hover-self"]:focus-visible{opacity:1}',
       '.dshsm-dock--hidden{justify-content:flex-end}',
       // 皮肤插件（@linxin666/dsh-client-ui-skin-center）把 input.dock 的每个直接子元素都当
       // 「小配件」刷底板：
@@ -216,6 +247,15 @@ export default function (require) {
       failed: '移动失败',
       needsReload: '（刷新页面后生效）',
       dragMoved: '已移动到「{ws}」',
+      dragDetached: '已从「{ws}」移出，现在是未分组',
+      dragDetachedNoWs: '已移出工作区，现在是未分组',
+      bulkDetached: '已移出 {ok} 个',
+      selectAllGroup: '全选这个工作区',
+      selectAllWorkspaces: '全选所有工作区',
+      ungroupAction: '未分组',
+      ungroupAlready: '这个对话本来就不在任何工作区里',
+      ungroupDone: '已移出「{ws}」',
+      ungroupFailed: '移出失败',
       dragFailed: '移动失败：',
       bulk: '多选',
       bulkMove: '移动',
@@ -235,9 +275,10 @@ export default function (require) {
       childrenSettingTitle: '连同子对话一起移动',
       childrenSettingDesc: '默认开。移动父对话时，它的子智能体会话（侧边栏里隐藏的 subagent 会话）一起搬到目标工作区；关掉后只搬父对话。',
       chipModeTitle: '工作区 chip 什么时候出现',
-      chipModeDesc: '「一直出现」常驻在输入框上方；「悬浮才出现」鼠标移到那一行才显示（位置不变，不会跳）；「不出现」完全不渲染，预设胶囊会自动回到右边。',
+      chipModeDesc: '「一直出现」常驻在输入框上方；「悬浮在那一行才出现」鼠标移到整行才显示；「只悬浮胶囊才出现」鼠标要正好落在胶囊那一小块；两者都保留占位，不会跳。「不出现」完全不渲染，预设胶囊会自动回到右边。',
       chipModeAlways: '一直出现',
-      chipModeHover: '悬浮才出现',
+      chipModeHover: '悬浮在那一行才出现',
+      chipModeHoverSelf: '只悬浮胶囊才出现',
       chipModeNever: '不出现',
       starPrompt: '顺手留颗 Star，作者能高兴一整天',
       starCta: '行，给你一颗 Star',
@@ -262,6 +303,15 @@ export default function (require) {
       failed: 'Move failed',
       needsReload: ' (reload the page to apply)',
       dragMoved: 'Moved to “{ws}”',
+      dragDetached: 'Removed from “{ws}” — now ungrouped',
+      dragDetachedNoWs: 'Removed from its workspace — now ungrouped',
+      bulkDetached: 'Removed {ok}',
+      selectAllGroup: 'Select every session in this workspace',
+      selectAllWorkspaces: 'Select every session in every workspace',
+      ungroupAction: 'Ungrouped',
+      ungroupAlready: 'This conversation is not in any workspace',
+      ungroupDone: 'Removed from “{ws}”',
+      ungroupFailed: 'Remove failed',
       dragFailed: 'Move failed: ',
       bulk: 'Select multiple',
       bulkMove: 'Move',
@@ -281,9 +331,10 @@ export default function (require) {
       childrenSettingTitle: 'Move child conversations too',
       childrenSettingDesc: 'On by default. Moving a conversation also moves its hidden subagent sessions to the target workspace; turn it off to move only the parent conversation.',
       chipModeTitle: 'When to show the workspace chip',
-      chipModeDesc: '"Always" keeps it above the composer; "On hover" reveals it when the pointer enters that row (no layout shift); "Never" hides it and the preset chip moves back to the right.',
+      chipModeDesc: '"Always" keeps it above the composer; "On row hover" reveals it when the pointer enters that row; "Only when hovering the chip" needs the pointer on the chip itself. Both keep their space, so nothing jumps. "Never" hides it and the preset chip moves back to the right.',
       chipModeAlways: 'Always',
-      chipModeHover: 'On hover',
+      chipModeHover: 'On row hover',
+      chipModeHoverSelf: 'Only when hovering the chip',
       chipModeNever: 'Never',
       starPrompt: 'Leave a star — it makes the author’s day',
       starCta: 'Give a star',
@@ -318,7 +369,9 @@ export default function (require) {
 
     // ── 工作区 chip 的出现方式：一直出现 / 悬浮才出现 / 不出现 ────────────────
     var CHIP_MODE_KEY = 'dsh-session-relocate.chipMode';
-    var CHIP_MODES = ['always', 'hover', 'never'];
+    // always = 常驻；hover = 整行悬浮显形；hover-self = 只悬浮胶囊那一小块才显形；
+    // never = 完全不渲染。（和预设工作台的四种模式同名同义）
+    var CHIP_MODES = ['always', 'hover', 'hover-self', 'never'];
     var chipModeListeners = [];
 
     function chipMode() {
@@ -393,6 +446,7 @@ export default function (require) {
           react.createElement('div', { className: 'dshsm-seg', key: 'seg' }, [
             modeButton('always', strings.chipModeAlways),
             modeButton('hover', strings.chipModeHover),
+            modeButton('hover-self', strings.chipModeHoverSelf),
             modeButton('never', strings.chipModeNever),
           ]),
         ]),
@@ -444,9 +498,39 @@ export default function (require) {
     /** 官方 IconFolderOpenRegular（16px）的原始路径，菜单行图标复用。 */
     var FOLDER_OPEN_PATH = 'M1.50439 3.11059C1.50439 2.55831 1.95211 2.1106 2.50439 2.1106H5.43389C5.67773 2.1106 5.91318 2.19969 6.09593 2.36113L7.71649 3.79265C7.89924 3.95409 8.1347 4.04319 8.3785 4.04319H13.4958C14.0481 4.04319 14.4958 4.4909 14.4958 5.04319V12.8894C14.4958 13.4417 14.0481 13.8894 13.4958 13.8894H2.50439C1.95211 13.8894 1.50439 13.4417 1.50439 12.8894V4.04319V3.11059Z';
 
-    /** 菜单行左边的图标（尺寸/颜色对齐官方菜单行的图标列）。 */
-    function rowIcon() {
-      return react.createElement('span', { className: 'dshsm-rowIcon', key: 'icon' }, react.createElement('svg', {
+    /**
+     * 「多选」菜单项的图标（和 dsh-delete-session 的 SELECT_PATHS 同一套形状：
+     * 左侧两个圆点 + 右侧两条横线）。少了它这一行就是裸文字，两个插件都装时
+     * 切换安装方式会看到有无图标两种样子。
+     */
+    var SELECT_PATHS = [
+      'M5 7m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+      'M5 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0',
+      'M11 7h9',
+      'M11 17h9',
+    ];
+
+    /** 把一串 SVG 路径画成 16px 图标（24 视窗，和宿主菜单图标同尺寸）。 */
+    function menuGlyph(paths) {
+      return react.createElement('svg', {
+        width: 16,
+        height: 16,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.8,
+        strokeLinecap: 'round',
+        strokeLinejoin: 'round',
+        'aria-hidden': 'true',
+      }, paths.map(function (d) { return react.createElement('path', { key: d, d: d }); }));
+    }
+
+    /** 右键菜单里「移动到」那行的图标 key（要注册进 contextMenu.icon 槽才会渲染）。 */
+    var CONTEXT_ICON_KEY = 'session-relocate.move';
+
+    /** contextMenu.icon 槽的组件：右键菜单按 action.icon.key 查这条，渲染的工作区文件夹图标。 */
+    function MoveContextIcon() {
+      return react.createElement('svg', {
         width: 16,
         height: 16,
         viewBox: '0 0 16 16',
@@ -457,197 +541,13 @@ export default function (require) {
       }, [
         react.createElement('path', { key: 'a', d: FOLDER_OPEN_PATH, stroke: 'currentColor' }),
         react.createElement('path', { key: 'b', d: 'M3.63501 7.66614H12.3647', stroke: 'currentColor' }),
-      ]));
+      ]);
     }
-
     /** 渲染一个菜单按钮。 */
     function button(key, label, options) {
       var props = Object.assign({ key: key, type: 'button', role: 'menuitem', className: 'dshsm-item' }, options || {});
       return react.createElement('button', props, label);
     }
-
-    /** 带标题 + 灰色副标题的两行按钮内容。 */
-    function twoLine(title, meta) {
-      return [title, react.createElement('span', { key: 'meta', className: 'dshsm-meta' }, meta)];
-    }
-
-    /**
-     * 让「移动到」这一行和官方菜单项像素对齐：菜单里同时有官方项时，直接量它们的
-     * 图标左边缘、标签左边缘，反推我们这行的 padding-left 和图标-标签间距。
-     * 量不到（菜单里只有我们一条）就保留 CSS 里的 8px / 16px 兜底。
-     */
-    function alignRowToSiblings(node) {
-      if (node === null || node === undefined || typeof node.closest !== 'function') return;
-      var menu = null;
-      try { menu = node.closest('[role="menu"]'); } catch (error) { menu = null; }
-      if (menu === null || menu === undefined) menu = node.parentElement;
-      if (menu === null || menu === undefined || typeof menu.querySelectorAll !== 'function') return;
-      var rows = menu.querySelectorAll('[role="menuitem"]');
-      var iconLeft = null;
-      var labelLeft = null;
-      for (var i = 0; i < rows.length; i += 1) {
-        var row = rows[i];
-        if (row === node || typeof row.querySelector !== 'function') continue;
-        var svg = row.querySelector('svg');
-        if (svg === null || svg === undefined || typeof svg.getBoundingClientRect !== 'function') continue;
-        var labelRect = null;
-        try {
-          // 只量第一个非空文本节点（官方行的标签），不能用 selectNodeContents(row)——
-          // 那是整行内容的包围盒，左边缘等于图标，算出来的间距会是 0。
-          var textNode = null;
-          if (typeof document.createTreeWalker === 'function') {
-            var walker = document.createTreeWalker(row, 4);
-            while (walker.nextNode()) {
-              var content = walker.currentNode.textContent;
-              if (typeof content === 'string' && content.trim().length > 0) { textNode = walker.currentNode; break; }
-            }
-          }
-          if (textNode !== null) {
-            var range = document.createRange();
-            range.selectNodeContents(textNode);
-            labelRect = range.getBoundingClientRect();
-          }
-        } catch (error) { labelRect = null; }
-        if (labelRect === null || labelRect.width <= 0) continue;
-        iconLeft = svg.getBoundingClientRect().left;
-        labelLeft = labelRect.left;
-        break;
-      }
-      if (iconLeft === null || labelLeft === null) return;
-      var rowRect = node.getBoundingClientRect();
-      var paddingLeft = Math.round(iconLeft - rowRect.left);
-      var gap = Math.round(labelLeft - iconLeft - 16);
-      // 量歪了就保留 CSS 兜底（8px / 16px），别把行弄坏。
-      if (paddingLeft >= 0 && paddingLeft <= 40) node.style.paddingLeft = paddingLeft + 'px';
-      if (gap >= 0 && gap <= 60) node.style.columnGap = gap + 'px';
-    }
-
-    /**
-     * 会话行菜单项。
-     * props: sessionId / displayTitle / useMenuOpenState（由 slot 提供）。
-     */
-    function Entry(props) {
-      var sessionId = props.sessionId;
-      var useMenuOpenState = props.useMenuOpenState;
-
-      // 必须在顶层无条件调用（hooks 规则）。
-      var menuState = null;
-      if (typeof useMenuOpenState === 'function') {
-        try {
-          menuState = useMenuOpenState();
-        } catch (error) {
-          menuState = null;
-        }
-      }
-      var setMenuOpen = menuState !== null && Array.isArray(menuState) && typeof menuState[1] === 'function' ? menuState[1] : null;
-
-      var stateHook = react.useState({ phase: 'idle' });
-      var state = stateHook[0];
-      var setState = stateHook[1];
-      var strings = text();
-      var useRef = typeof react.useRef === 'function' ? react.useRef : function () { return { current: null }; };
-      var useEffect = typeof react.useEffect === 'function' ? react.useEffect : function () {};
-      var rowRef = useRef(null);
-      useEffect(function () {
-        if (state.phase !== 'idle') return;
-        alignRowToSiblings(rowRef.current);
-      }, [state.phase]);
-
-      function open() {
-        setState({ phase: 'loading' });
-        post('/describe', { sessionId: sessionId }).then(function (result) {
-          if (result === null || typeof result !== 'object' || result.ok !== true) {
-            setState({ phase: 'error', message: (result !== null && typeof result === 'object' && result.message !== undefined) ? result.message : strings.failed });
-            return;
-          }
-          var session = result.session;
-          var all = Array.isArray(result.workspaces) ? result.workspaces : [];
-          var targets = all.filter(function (workspace) { return workspace.current !== true; });
-          if (session === null || typeof session !== 'object' || session.canMove !== true) {
-            setState({ phase: 'blocked', message: (session !== null && typeof session === 'object' && session.reason !== undefined && session.reason !== null) ? session.reason : strings.cannot });
-            return;
-          }
-          setState({ phase: 'picking', targets: targets });
-        }, function (error) {
-          setState({ phase: 'error', message: errorText(error) });
-        });
-      }
-
-      function run(request) {
-        setState({ phase: 'moving' });
-        post('/move', Object.assign({ sessionId: sessionId }, request)).then(function (result) {
-          if (result === null || typeof result !== 'object' || result.ok !== true) {
-            setState({ phase: 'error', message: (result !== null && typeof result === 'object' && result.message !== undefined) ? result.message : strings.failed });
-            return;
-          }
-          setState({
-            phase: 'done',
-            title: result.targetTitle !== undefined ? result.targetTitle : result.to,
-            applied: result.applied,
-            note: receiptNotes(result),
-          });
-          // 成功后排这一行会被工作区列表刷新带走；这里顺手关掉菜单更干净。
-          if (setMenuOpen !== null) setMenuOpen(false);
-        }, function (error) {
-          setState({ phase: 'error', message: errorText(error) });
-        });
-      }
-
-      function chooseDirectory() {
-        pickDirectoryNative().then(function (picked) {
-          var path = picked;
-          if (path === undefined) {
-            var typed = globalThis.prompt(strings.chooseDirPrompt, '');
-            if (typeof typed !== 'string' || typed.trim().length === 0) return;
-            path = typed.trim();
-          }
-          if (typeof path !== 'string' || path.length === 0) return;
-          run({ targetPath: path });
-        }, function () { /* 选择器自己会报错 */ });
-      }
-
-      if (state.phase === 'idle') {
-        return button('open', [
-          rowIcon(),
-          react.createElement('span', { className: 'dshsm-rowLabel', key: 'label' }, strings.open),
-        ], { className: 'dshsm-item dshsm-row', onClick: open, ref: rowRef });
-      }
-      if (state.phase === 'loading') {
-        return button('loading', strings.loading, { disabled: true });
-      }
-      if (state.phase === 'moving') {
-        return button('moving', strings.moving, { disabled: true });
-      }
-      if (state.phase === 'blocked') {
-        return button('blocked', state.message, { disabled: true });
-      }
-      if (state.phase === 'error') {
-        return button('error', strings.failed + '：' + state.message, { disabled: true, className: 'dshsm-item dshsm-bad' });
-      }
-      if (state.phase === 'done') {
-        var doneText = state.applied === 'attached'
-          ? strings.attached.replace('{ws}', String(state.title))
-          : strings.done + ' ' + String(state.title);
-        var suffix = state.applied === 'pending'
-          ? strings.pending
-          : (state.applied === 'live' || state.applied === 'attached' ? '' : strings.needsReload);
-        var note = typeof state.note === 'string' ? state.note : '';
-        return button('done', doneText + note + (suffix.length > 0 ? '；' + suffix : ''), { disabled: true });
-      }
-      // picking
-      var nodes = [button('caption', strings.pick + (state.targets.length === 0 ? ' ' + strings.noTargets : ''), { disabled: true })];
-      for (var i = 0; i < state.targets.length; i++) {
-        (function (workspace) {
-          nodes.push(button('ws-' + workspace.id, twoLine(workspace.title, workspace.path), {
-            className: 'dshsm-item dshsm-target',
-            onClick: function () { run({ targetWorkspaceId: workspace.id }); },
-          }));
-        })(state.targets[i]);
-      }
-      nodes.push(button('choose-dir', strings.chooseDir, { className: 'dshsm-item dshsm-target', onClick: chooseDirectory }));
-      return react.createElement(react.Fragment, null, nodes);
-    }
-
     // ── 拖动搬移 ────────────────────────────────────────────────────────────
     //
     // 官方侧边栏给每一行都写了稳定的 data-row-key（client-ui-workspace）：
@@ -679,6 +579,10 @@ export default function (require) {
       sourceWorkspaceId: null,
       targetSection: null,
       hostSelected: false,
+      // 自动滚动：拖动源所在的滚动容器、当前指针、rAF 句柄
+      scrollEl: null,
+      scrollRaf: null,
+      pointer: null,
     };
     var dragInstallRefs = 0;
     var toastNode = null;
@@ -738,6 +642,29 @@ export default function (require) {
       return id.length > 0 ? id : null;
     }
 
+    /**
+     * 「未分组」那个分组：它的工作区行 data-row-key 恰好是 "workspace:"（id 为空）。
+     * 拖到它上面 = 移出工作区（只改归属，文件与 header 都不动）。
+     */
+    function ungroupedGroupOf(target) {
+      var node = target;
+      for (var depth = 0; depth < ROW_WALK_LIMIT && node !== null && node !== undefined; depth += 1) {
+        if (typeof node.getAttribute === 'function' && node.getAttribute('role') === 'tree') break;
+        if (typeof node.querySelectorAll === 'function') {
+          var rows = node.querySelectorAll(WORKSPACE_ROW_SELECTOR);
+          if (rows !== null && rows !== undefined && typeof rows.length === 'number') {
+            if (rows.length > 1) break;
+            if (rows.length === 1) {
+              var key = typeof rows[0].getAttribute === 'function' ? rows[0].getAttribute(ROW_KEY_ATTR) : null;
+              if (key === WORKSPACE_PREFIX) return { section: node, row: rows[0], workspaceId: '' };
+            }
+          }
+        }
+        node = node.parentElement;
+      }
+      return null;
+    }
+
     function toggleDropClass(row, on) {
       if (row === null || row === undefined) return;
       var list = row.classList;
@@ -759,7 +686,97 @@ export default function (require) {
       dragState.targetSection = null;
     }
 
+    // ── 拖到侧栏上下边缘自动滚动 ────────────────────────────────────────────
+    //
+    // 侧栏很长时，「能拖到」和「看得见」是两件事：不滚就只能拖到眼前那几个工作区。
+    // 这里用 rAF 自己滚（HTML5 拖拽时浏览器不会帮你滚），并且不依赖任何 class 名：
+    // 向上找第一个 overflow-y 可滚且内容确实超出的祖先，官方/第三方侧栏都适用。
+    var SCROLL_EDGE = 84;      // 指针进入距边缘这么多像素就开滚
+    var SCROLL_MAX_STEP = 22;  // 每帧最多滚多少像素
+    var SCROLL_TAIL = 40;      // 指针越出滚动区这么多以内继续（避免边缘抖动）
+
+    /** 从元素向上找真正的滚动容器；找不到返回 null。 */
+    function findScrollableAncestor(element) {
+      if (typeof document === 'undefined') return null;
+      var node = element;
+      while (node !== null && node !== undefined && node !== document.body && node !== document.documentElement) {
+        var style = null;
+        try {
+          style = typeof globalThis.getComputedStyle === 'function' ? globalThis.getComputedStyle(node) : null;
+        } catch (error) {
+          style = null;
+        }
+        var overflowY = style !== null && style !== undefined ? String(style.overflowY || '') : '';
+        if ((overflowY === 'auto' || overflowY === 'scroll' || overflowY === 'overlay')
+          && typeof node.scrollHeight === 'number' && typeof node.clientHeight === 'number'
+          && node.scrollHeight > node.clientHeight + 4) return node;
+        node = node.parentElement;
+      }
+      return null;
+    }
+
+    /** 离边缘越近每帧滚得越多：比例平方曲线，2~22px。 */
+    function scrollStepFor(distance) {
+      var ratio = Math.min(1, Math.max(0, Number(distance) / SCROLL_EDGE));
+      return Math.max(2, Math.round(ratio * ratio * SCROLL_MAX_STEP));
+    }
+
+    function stopAutoScroll() {
+      if (dragState.scrollRaf !== null) {
+        try {
+          if (typeof globalThis.cancelAnimationFrame === 'function') globalThis.cancelAnimationFrame(dragState.scrollRaf);
+          else clearTimeout(dragState.scrollRaf);
+        } catch (error) { /* ignore */ }
+        dragState.scrollRaf = null;
+      }
+      dragState.scrollEl = null;
+      dragState.pointer = null;
+    }
+
+    function ensureAutoScroll() {
+      if (dragState.scrollRaf !== null) return;
+      if (dragState.scrollEl === null || dragState.scrollEl === undefined) return;
+      if (typeof globalThis.requestAnimationFrame !== 'function') return;
+      dragState.scrollRaf = globalThis.requestAnimationFrame(autoScrollTick);
+    }
+
+    function autoScrollTick() {
+      dragState.scrollRaf = null;
+      var element = dragState.scrollEl;
+      var pointer = dragState.pointer;
+      if (element === null || element === undefined || pointer === null || dragState.sessionId === null) return;
+      var rect = null;
+      try { rect = element.getBoundingClientRect(); } catch (error) { rect = null; }
+      if (rect === null || rect === undefined || !(rect.height > 0)) return;
+      // 指针甩到侧栏外面（比如拖去聊天区）就别滚了
+      if (pointer.x < rect.left - SCROLL_TAIL || pointer.x > rect.right + SCROLL_TAIL) return;
+      if (pointer.y < rect.top - SCROLL_TAIL || pointer.y > rect.bottom + SCROLL_TAIL) return;
+      var delta = 0;
+      if (pointer.y < rect.top + SCROLL_EDGE) delta = -scrollStepFor(rect.top + SCROLL_EDGE - pointer.y);
+      else if (pointer.y > rect.bottom - SCROLL_EDGE) delta = scrollStepFor(pointer.y - (rect.bottom - SCROLL_EDGE));
+      if (delta === 0) return;
+      var before = element.scrollTop;
+      element.scrollTop = before + delta;
+      // 到底 / 到顶：滚不动了，等下一次 dragover 再说，别空转烧 rAF
+      if (element.scrollTop === before) return;
+      // 内容滚了但不会再收到 dragover：按指针位置重算一次投放目标，高亮才跟得上
+      hoverAtPoint(pointer.x, pointer.y);
+      ensureAutoScroll();
+    }
+
+    /** 自动滚动后按指针重算高亮（等价于一次没有事件的 dragover）。 */
+    function hoverAtPoint(x, y) {
+      if (typeof document === 'undefined' || typeof document.elementFromPoint !== 'function') return;
+      var node = null;
+      try { node = document.elementFromPoint(x, y); } catch (error) { node = null; }
+      if (node === null || node === undefined) { clearHighlight(); return; }
+      var drop = resolveDrop({ target: node });
+      if (drop === null) { clearHighlight(); return; }
+      highlightGroup(drop.section);
+    }
+
     function resetDrag() {
+      stopAutoScroll();
       clearHighlight();
       dragState.sessionId = null;
       dragState.sessionIds = null;
@@ -771,6 +788,12 @@ export default function (require) {
     function resolveDrop(event) {
       if (dragState.sessionId === null) return null;
       var target = event !== null && event !== undefined ? event.target : null;
+      // 「未分组」组 = 移出工作区。本来就在未分组时不接管（无事可做，让官方排序照旧）。
+      var ungrouped = ungroupedGroupOf(target);
+      if (ungrouped !== null) {
+        if (dragState.sourceWorkspaceId === null || dragState.sourceWorkspaceId === undefined || dragState.sourceWorkspaceId === '') return null;
+        return { sessionId: dragState.sessionId, kind: 'ungrouped', targetWorkspaceId: null, section: ungrouped.section };
+      }
       var group = workspaceGroupOf(target);
       if (group === null) {
         // 退化路径：读不到分组结构（老版本 DSH / 结构变了）时，回到「只认工作区行」的老行为，
@@ -779,11 +802,11 @@ export default function (require) {
         var fallbackId = row === null ? null : workspaceIdOf(row);
         if (fallbackId === null) return null;
         if (dragState.sourceWorkspaceId !== null && dragState.sourceWorkspaceId === fallbackId) return null;
-        return { sessionId: dragState.sessionId, targetWorkspaceId: fallbackId, section: row };
+        return { sessionId: dragState.sessionId, kind: 'workspace', targetWorkspaceId: fallbackId, section: row };
       }
       // 落在**它自己所在的那个分组**里 = 官方的工作区内排序区，让路（官方照旧重排）。
       if (dragState.sourceWorkspaceId !== null && dragState.sourceWorkspaceId === group.workspaceId) return null;
-      return { sessionId: dragState.sessionId, targetWorkspaceId: group.workspaceId, section: group.section };
+      return { sessionId: dragState.sessionId, kind: 'workspace', targetWorkspaceId: group.workspaceId, section: group.section };
     }
 
     /**
@@ -815,6 +838,7 @@ export default function (require) {
       if (sessionId.length === 0) return;
       resetDrag();
       dragState.sessionId = sessionId;
+      dragState.scrollEl = findScrollableAncestor(row);
       // 多选拖动：宿主底栏（或我们自己的多选）里选中的整批一起搬。
       var selectedIds = selectedIdsForDrag();
       var multi = selectedIds.length > 1 && selectedIds.indexOf(sessionId) >= 0;
@@ -837,6 +861,11 @@ export default function (require) {
 
     function onDragOver(event) {
       if (dragState.sessionId === null) return;
+      // 记下指针位置并驱动自动滚动（HTML5 拖拽时浏览器自己不滚）
+      if (event !== null && event !== undefined && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+        dragState.pointer = { x: event.clientX, y: event.clientY };
+        ensureAutoScroll();
+      }
       var drop = resolveDrop(event);
       if (drop === null) {
         clearHighlight();
@@ -866,7 +895,13 @@ export default function (require) {
       var targetWorkspaceId = drop.targetWorkspaceId;
       var ids = dragState.sessionIds !== null && dragState.sessionIds.length > 1 ? dragState.sessionIds : [sessionId];
       var hostSelected = dragState.hostSelected === true;
+      var kind = drop.kind === 'ungrouped' ? 'ungrouped' : 'workspace';
       resetDrag();
+      if (kind === 'ungrouped') {
+        if (ids.length > 1) detachManyByDrag(ids, hostSelected);
+        else detachByDrag(sessionId, hostSelected);
+        return;
+      }
       if (ids.length > 1) moveManyByDrag(ids, targetWorkspaceId, hostSelected);
       else moveByDrag(sessionId, targetWorkspaceId, hostSelected);
     }
@@ -909,6 +944,59 @@ export default function (require) {
         toast(strings.dragFailed + message);
       }, function (error) {
         toast(strings.dragFailed + errorText(error));
+      });
+    }
+
+    /** 拖到「未分组」组上：只把归属摘掉 —— 会话日志、header 的 cwd、写句柄全都不动。 */
+    function detachByDrag(sessionId, hostSelected) {
+      var strings = text();
+      toast(strings.moving);
+      post('/move-out', { sessionId: sessionId }).then(function (result) {
+        if (result !== null && result !== undefined && result.ok === true) {
+          var from = result.detachedFrom !== null && result.detachedFrom !== undefined && typeof result.detachedFrom.title === 'string'
+            ? result.detachedFrom.title
+            : '';
+          toast(from.length > 0 ? strings.dragDetached.replace('{ws}', from) : strings.dragDetachedNoWs);
+          if (bulkState.selecting === true) exitBulk();
+          else if (hostSelected === true) dismissHostSelection();
+          refreshSidebar();
+          return;
+        }
+        var message = result !== null && result !== undefined && typeof result.message === 'string' ? result.message : '';
+        toast(strings.dragFailed + message);
+      }, function (error) {
+        toast(strings.dragFailed + errorText(error));
+      });
+    }
+
+    /** 多选时整批移出工作区：逐条摘归属（只改注册表，很快），失败按条隔离。 */
+    function detachManyByDrag(ids, hostSelected) {
+      var strings = text();
+      toast(strings.moving);
+      var done = 0;
+      var failed = 0;
+      var chain = Promise.resolve();
+      for (var i = 0; i < ids.length; i += 1) {
+        (function (id) {
+          chain = chain.then(function () {
+            return post('/move-out', { sessionId: id }).then(function (result) {
+              if (result !== null && result !== undefined && result.ok === true) done += 1;
+              else failed += 1;
+              toast(strings.bulkProgress.replace('{d}', String(done + failed)).replace('{t}', String(ids.length)));
+            }, function () {
+              failed += 1;
+            });
+          });
+        })(ids[i]);
+      }
+      chain.then(function () {
+        var summary = failed === 0
+          ? strings.bulkDetached.replace('{ok}', String(done))
+          : strings.bulkPartial.replace('{ok}', String(done)).replace('{fail}', String(failed));
+        toast(summary);
+        if (bulkState.selecting === true) exitBulk();
+        else if (hostSelected === true) dismissHostSelection();
+        refreshSidebar();
       });
     }
 
@@ -1019,6 +1107,19 @@ export default function (require) {
     // 判断只认能力位、不猜 DOM：它没给能力位就按 B 走（宁可多一个入口，也不静默丢功能）。
     var CHECK_CLASS = 'dshsm-check';
     var CHECK_ON_CLASS = 'dshsm-check-on';
+    // 全选框（两个位置：整个「工作区 N」标题行 + 每个工作区行），形态和 dsh-delete-session 一致。
+    var SELECT_ALL_CLASS = 'dshsm-select-all';
+    var SPACER_CLASS = 'dshsm-flex-spacer';
+    /** 自建元素的标记属性：observer 靠它认出「这是我自己插的」，不再为它调度下一帧。 */
+    var OWN_ATTR = 'data-dshsm';
+    var ALL_HEADER_SELECTOR = '[data-sidebar-workspace-header]';
+    var LIST_SELECTOR = '[role="tree"]';
+    var WORKSPACE_ROW_SELECTOR = '[data-row-key^="workspace:"]';
+    /** 标题行的锚点：框插在名字后面、动作区前面（动作区那段不能带 margin-left:auto）。 */
+    var HEAD_ANCHOR = '[class*="_searchSlot"], [class*="_headerActions"]';
+    var ROW_ANCHOR = '[class*="_rowActions"]';
+    /** 当前挂着的列表 observer（只在多选期间存在）。 */
+    var rowObserver = null;
     var bulkState = { selecting: false, selected: {}, bar: null, countNode: null, moveNode: null, raf: null, moveSelectionFn: null, text: '', busy: false };
     /** 宿主有没有 sidebar.footer.action 这个槽（老宿主没有 → 回退自绘浮动卡片）。 */
     var bulkSlotReady = false;
@@ -1077,6 +1178,127 @@ export default function (require) {
         }
       }
       return rows;
+    }
+
+    /**
+     * 把 /describe 的结果整理成「移动到」子菜单的条目（右键菜单用）。
+     *
+     * 和「在应用中打开」一样是 **children 子菜单**：鼠标悬停展开，位置/样式/键盘导航全交给官方。
+     * 当前工作区不列出来；工作区名字重名时补末尾路径段区分。
+     */
+    function moveTargetActions(result, strings) {
+      if (result === null || result === undefined || typeof result !== "object") return [];
+      var session = result.session;
+      var all = Array.isArray(result.workspaces) ? result.workspaces : [];
+      if (session === null || session === undefined || typeof session !== "object") return [];
+      var rows = withPathSuffix(all.map(function (workspace) {
+        return {
+          workspace: workspace,
+          id: String(workspace.id),
+          title: typeof workspace.title === "string" && workspace.title.length > 0 ? workspace.title : String(workspace.id),
+          path: workspace.path,
+        };
+      }));
+      var actions = [];
+      for (var i = 0; i < rows.length; i += 1) {
+        if (rows[i].workspace.current === true) continue;
+        var label = rows[i].title;
+        if (rows[i].suffix !== undefined) {
+          label = react.createElement("span", { className: "dshsm-menu-disambig", key: "label", title: rows[i].path }, [
+            react.createElement("span", { className: "dshsm-menu-title", key: "title" }, rows[i].title),
+            " ",
+            react.createElement("span", { className: "dshsm-menu-suffix", key: "suffix" }, rows[i].suffix),
+          ]);
+        }
+        actions.push({ id: "ws:" + rows[i].id, label: label, workspace: rows[i].workspace, kind: "workspace" });
+      }
+      // 和面板同一顺序：各工作区 → 其它目录… → 未分组（有归属时才出现）。
+      actions.push({ id: "choose-dir", label: strings.chooseDir, kind: "choose-dir" });
+      var inWorkspace = typeof session.currentWorkspaceId === "string" && session.currentWorkspaceId.length > 0;
+      if (inWorkspace) actions.push({ id: "ungroup", label: strings.ungroupAction, kind: "ungroup" });
+      return actions;
+    }
+
+    /** 搬移成功后的提示文案：规则和面板里的完成态一致（pending / 需要刷新都要说出来）。 */
+    function moveDoneText(result, fallbackTitle) {
+      var strings = text();
+      var title = typeof result.targetTitle === "string" && result.targetTitle.length > 0 ? result.targetTitle : String(fallbackTitle);
+      var head = result.applied === "attached" ? strings.attached.replace("{ws}", title) : strings.dragMoved.replace("{ws}", title);
+      var suffix = result.applied === "pending"
+        ? strings.pending
+        : (result.applied === "live" || result.applied === "attached" ? "" : strings.needsReload);
+      return head + receiptNotes(result) + (suffix.length > 0 ? "；" + suffix : "");
+    }
+
+    /** 右键菜单里选中一项之后真正执行（单个会话）。 */
+    function runMenuAction(sessionId, action) {
+      var strings = text();
+      if (action === null || action === undefined) return;
+      if (action.kind === "ungroup") {
+        toast(strings.moving);
+        post("/move-out", { sessionId: sessionId }).then(function (result) {
+          if (result !== null && typeof result === "object" && result.ok === true) {
+            var from = result.detachedFrom !== null && result.detachedFrom !== undefined && typeof result.detachedFrom.title === "string"
+              ? result.detachedFrom.title
+              : "";
+            toast(from.length > 0 ? strings.ungroupDone.replace("{ws}", from) : strings.dragDetachedNoWs);
+            refreshSidebar();
+            return;
+          }
+          if (result !== null && typeof result === "object" && result.code === "already-ungrouped") {
+            toast(strings.ungroupAlready);
+            return;
+          }
+          var message = result !== null && typeof result === "object" && typeof result.message === "string" ? result.message : "";
+          toast(strings.dragFailed + message);
+        }, function (error) {
+          toast(strings.dragFailed + errorText(error));
+        });
+        return;
+      }
+      if (action.kind === "choose-dir") {
+        // 目录选择器（官方那头）优先；没有就退回手输。
+        pickDirectoryNative().then(function (picked) {
+          var path = picked;
+          if (path === undefined) {
+            var typed = globalThis.prompt(strings.chooseDirPrompt, "");
+            if (typeof typed !== "string" || typed.trim().length === 0) return;
+            path = typed.trim();
+          }
+          if (typeof path !== "string" || path.length === 0) return;
+          toast(strings.moving);
+          var payload = { sessionId: sessionId, targetPath: path };
+          if (wantChildren() === false) payload.includeChildren = false;
+          post("/move", payload).then(function (result) {
+            if (result !== null && typeof result === "object" && result.ok === true) {
+              toast(moveDoneText(result, path));
+              refreshSidebar();
+              return;
+            }
+            var message = result !== null && typeof result === "object" && typeof result.message === "string" ? result.message : "";
+            toast(strings.dragFailed + message);
+          }, function (error) {
+            toast(strings.dragFailed + errorText(error));
+          });
+        }, function () { /* 选择器自己会报错 */ });
+        return;
+      }
+      if (action.kind === "workspace" && action.workspace !== null && action.workspace !== undefined) {
+        toast(strings.moving);
+        var payload = { sessionId: sessionId, targetWorkspaceId: action.workspace.id };
+        if (wantChildren() === false) payload.includeChildren = false;
+        post("/move", payload).then(function (result) {
+          if (result !== null && typeof result === "object" && result.ok === true) {
+            toast(moveDoneText(result, action.workspace.title));
+            refreshSidebar();
+            return;
+          }
+          var message = result !== null && typeof result === "object" && typeof result.message === "string" ? result.message : "";
+          toast(strings.dragFailed + message);
+        }, function (error) {
+          toast(strings.dragFailed + errorText(error));
+        });
+      }
     }
 
     /** 从 composer chip 弹目标面板；取消返回 null。 */
@@ -1829,6 +2051,285 @@ export default function (require) {
       return null;
     }
 
+    // ── 全选框 ──────────────────────────────────────────────────────────────
+    //
+    // 和 dsh-delete-session 一样提供两个位置：
+    //   [data-sidebar-workspace-header]  = 「工作区 N」那一行 → 全选所有会话
+    //   [data-row-key^="workspace:"]     = 每个工作区行     → 全选该组的会话
+    // 只在多选模式里出现，和手动勾选双向同步。
+
+    /** 元素在 parent.children 里的位置；HTMLCollection 没有 indexOf，不能用它。 */
+    function childIndex(parent, node) {
+      if (parent === null || parent === undefined) return -1;
+      var kids = parent.children;
+      if (kids === null || kids === undefined) return -1;
+      for (var i = 0; i < kids.length; i += 1) {
+        if (kids[i] === node) return i;
+      }
+      return -1;
+    }
+
+    function rowKeyOf(node) {
+      if (node === null || node === undefined || typeof node.getAttribute !== 'function') return null;
+      return node.getAttribute(ROW_KEY_ATTR);
+    }
+
+    /**
+     * 只取 node 的**直系**行（穿透一层 wrapper，跳过嵌套工作区）。
+     *
+     * 宿主把工作区行包在 HoverCard 的 <span> 里，所以工作区行的 parentElement 是那个 span，
+     * 从它往下查不到任何会话行 —— 必须能穿透。div[role="group"] 是**嵌套工作区**，
+     * 跳过，否则父组的全选会把子组的会话一起选上。
+     */
+    function ownRows(node) {
+      var rows = [];
+      var visit = function (parent, depth) {
+        if (parent === null || parent === undefined || parent.children === undefined) return;
+        for (var i = 0; i < parent.children.length; i += 1) {
+          var child = parent.children[i];
+          var key = rowKeyOf(child);
+          if (typeof key === 'string') { rows.push(child); continue; }
+          if (depth >= 2) continue;
+          if (typeof child.getAttribute === 'function' && child.getAttribute('role') === 'group') continue;
+          visit(child, depth + 1);
+        }
+      };
+      visit(node, 0);
+      return rows;
+    }
+
+    /**
+     * 一个工作区行所属的容器，以及里面的直系行。
+     *
+     * 向上爬而不是假设层级：wrapper 会让「父元素就是分组」这个假设失效。
+     * 一旦爬到含**多于一个**工作区行的容器就停手 —— 那是共享列表，在那里取会把别组的也拿进来。
+     */
+    function groupContainerOf(headRow) {
+      var node = headRow === null || headRow === undefined ? null : headRow.parentElement;
+      for (var depth = 0; depth < 6; depth += 1) {
+        if (node === null || node === undefined) return null;
+        var rows = ownRows(node);
+        var workspaces = 0;
+        var sessions = [];
+        var overflow = false;
+        for (var i = 0; i < rows.length; i += 1) {
+          var key = rowKeyOf(rows[i]);
+          if (typeof key !== 'string') continue;
+          if (key.indexOf(WORKSPACE_PREFIX) === 0) workspaces += 1;
+          else if (key.indexOf(SESSION_PREFIX) === 0) sessions.push(key.slice(SESSION_PREFIX.length));
+          else if (key.indexOf('overflow:') === 0) overflow = true;
+        }
+        // 到共享列表了（这里能看见别的组）→ 停手，否则会把别组的会话也拿进来。
+        if (workspaces > 1) return null;
+        // 找到会话行了才算真的到分组：工作区行外面那层 wrapper 里一个会话都没有，
+        // 在那里返回就会得到一个空列表，全选框点了什么也不做。
+        if (sessions.length > 0 || overflow === true) return { sessions: sessions, overflow: overflow };
+        node = node.parentElement;
+      }
+      return null;
+    }
+
+    /** 本组的会话 id（只含当前渲染出来的；被折叠的不在 DOM 里）。 */
+    function sessionsUnderWorkspace(headRow) {
+      var found = groupContainerOf(headRow);
+      return found === null ? [] : found.sessions;
+    }
+
+    /** 整棵列表里所有会话 id。 */
+    function everySessionId(rows) {
+      var ids = [];
+      for (var i = 0; i < rows.length; i += 1) {
+        var key = rowKeyOf(rows[i]);
+        if (typeof key === 'string' && key.indexOf(SESSION_PREFIX) === 0 && key.length > SESSION_PREFIX.length) {
+          ids.push(key.slice(SESSION_PREFIX.length));
+        }
+      }
+      return ids;
+    }
+
+    /** 三态：全在 = true，部分 = mixed，没有 = false。 */
+    function groupState(ids) {
+      if (ids.length === 0) return 'false';
+      var picked = 0;
+      for (var i = 0; i < ids.length; i += 1) {
+        if (bulkState.selected[ids[i]] === true) picked += 1;
+      }
+      if (picked === 0) return 'false';
+      return picked === ids.length ? 'true' : 'mixed';
+    }
+
+    /** 空 → 填满；半选或满 → 补齐/清空。和 dsh-delete-session 的 toggleGroup 一致：
+     *  半选时再点应当是「补齐剩下那些」，而不是把已选的清掉（那需要连点两次才回到全选）。 */
+    function toggleGroup(ids) {
+      if (ids.length === 0) return;
+      var state = groupState(ids);
+      var fill = state !== 'true';
+      for (var i = 0; i < ids.length; i += 1) {
+        if (fill) bulkState.selected[ids[i]] = true;
+        else delete bulkState.selected[ids[i]];
+      }
+      refreshGroupBoxes();
+      scheduleBulkDecorate();
+      bulkUpdateBar();
+    }
+
+    /**
+     * 放一个全选框（幂等）。
+     *
+     * 只有位置真的不对时才动 DOM：每次 insertBefore 都是一次真实变异，列表 observer
+     * 会把它当成变化，于是「装饰 → 变异 → 再装饰」每帧循环，框被反复摘除再插入，
+     * 点击往往落在已摘除的瞬间 —— 表现就是要连点十几次才生效一次。
+     */
+    function placeGroupBox(host, extraClass, label, ids, anchor) {
+      if (host === null || host === undefined) return;
+      var box = typeof host.querySelector === 'function' ? host.querySelector('.' + SELECT_ALL_CLASS) : null;
+      var created = box === null;
+      if (created) {
+        box = document.createElement('button');
+        box.type = 'button';
+        box.className = extraClass === undefined || extraClass === null || extraClass.length === 0
+          ? SELECT_ALL_CLASS
+          : SELECT_ALL_CLASS + ' ' + extraClass;
+        box.setAttribute(OWN_ATTR, 'select-all');
+        box.setAttribute('role', 'checkbox');
+        box.addEventListener('click', function (event) {
+          // 工作区行本身的 onClick 是折叠/展开：不拦就会顺带收起整组。
+          if (event !== null && event !== undefined && typeof event.stopPropagation === 'function') event.stopPropagation();
+          if (event !== null && event !== undefined && typeof event.preventDefault === 'function') event.preventDefault();
+          toggleGroup(box.__dshsmIds === undefined ? [] : box.__dshsmIds);
+        });
+      }
+      // 锚点是逗号列表，逐个试：文档顺序命中可能挑到比调用方本意更靠后的兄弟。
+      var before = null;
+      var selectors = String(anchor === undefined || anchor === null ? '' : anchor).split(',');
+      for (var i = 0; i < selectors.length; i += 1) {
+        var found = typeof host.querySelector === 'function' ? host.querySelector(selectors[i].trim()) : null;
+        if (found !== null && found !== undefined) { before = found; break; }
+      }
+      if (before !== null && before !== undefined) {
+        var spacer = host.querySelector('.' + SPACER_CLASS);
+        if (spacer === null || spacer === undefined) {
+          spacer = document.createElement('span');
+          spacer.className = SPACER_CLASS;
+          spacer.setAttribute('aria-hidden', 'true');
+          spacer.setAttribute(OWN_ATTR, 'spacer');
+        }
+        // 工作区的名字块是 flex:1，会把剩余宽度全吃掉，框插在它后面视觉上仍被推到行尾；
+        // 补一条 flex:1 的 spacer 占住空间，位置才落在名字后面。
+        var boxAt = childIndex(host, box);
+        var spacerAt = childIndex(host, spacer);
+        var beforeAt = childIndex(host, before);
+        if (boxAt === -1 || spacerAt === -1 || beforeAt === -1
+          || boxAt !== spacerAt - 1 || beforeAt !== spacerAt + 1) {
+          host.insertBefore(spacer, before);
+          host.insertBefore(box, spacer);
+        }
+      } else if (created) {
+        host.appendChild(box);
+      }
+
+      box.__dshsmIds = ids;
+      applyGroupBoxState(box, label);
+    }
+
+    /** 把一个框的三种状态写进去（✓ / − / 空）。 */
+    function applyGroupBoxState(box, label) {
+      if (box === null || box === undefined) return;
+      var ids = box.__dshsmIds === undefined ? [] : box.__dshsmIds;
+      var state = groupState(ids);
+      var glyph = state === 'true' ? '\u2713' : (state === 'mixed' ? '\u2212' : '');
+      if (box.textContent !== glyph) box.textContent = glyph;
+      if (box.getAttribute('aria-checked') !== state) box.setAttribute('aria-checked', state);
+      if (label !== undefined && label !== null && box.getAttribute('aria-label') !== label) box.setAttribute('aria-label', label);
+    }
+
+    /** 已经挂着的框就地刷新（点一下要**立刻**看到 ✓ / −，不等下一帧）。 */
+    function refreshGroupBoxes() {
+      if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
+      var boxes = document.querySelectorAll('.' + SELECT_ALL_CLASS);
+      for (var i = 0; i < boxes.length; i += 1) applyGroupBoxState(boxes[i]);
+    }
+
+    /** 两个位置的总装饰（只在多选期间）。 */
+    function decorateSelectAll(rows) {
+      if (typeof document === 'undefined') return;
+      var strings = text();
+      var headings = typeof document.querySelectorAll === 'function' ? document.querySelectorAll(ALL_HEADER_SELECTOR) : [];
+      if (headings !== null && headings.length > 0) {
+        // 宿主每个组底部都有一行 `overflow:<ws>`（「收起」/「展开其余 N 个会话」）。
+        // 它只说明「这里有个折叠开关」，不等于「有会话被藏起来」：组全展开时它
+        // 照样在，写的是「收起」。所以不能拿它当「这一组选不全」的证据 ——
+        // 之前就是这么判断的，结果两个框永远显示 −，30 个全勾也不打勾。
+        // 框的状态只看 ids 全不全：全勾 = ✓。
+        var every = everySessionId(rows);
+        placeGroupBox(headings[0], 'dshsm-select-all-head', strings.selectAllWorkspaces, every, HEAD_ANCHOR);
+      }
+      var workspaceRows = typeof document.querySelectorAll === 'function' ? document.querySelectorAll(WORKSPACE_ROW_SELECTOR) : [];
+      for (var i = 0; i < workspaceRows.length; i += 1) {
+        var found = groupContainerOf(workspaceRows[i]);
+        placeGroupBox(workspaceRows[i], '', strings.selectAllGroup,
+          found === null ? [] : found.sessions, ROW_ANCHOR);
+      }
+    }
+
+    /** 退出多选时立刻摘掉框和 spacer（不等下一帧：spacer 撑着，留一帧会看见行尾抖一下）。 */
+    function removeSelectAll() {
+      if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
+      var doomed = ['.' + SELECT_ALL_CLASS, '.' + SPACER_CLASS];
+      for (var i = 0; i < doomed.length; i += 1) {
+        var nodes = document.querySelectorAll(doomed[i]);
+        for (var j = 0; j < nodes.length; j += 1) {
+          if (nodes[j] !== null && nodes[j] !== undefined && typeof nodes[j].remove === 'function') nodes[j].remove();
+        }
+      }
+    }
+
+    /** 这个节点是不是本插件自己插进侧边栏的。 */
+    function isOwnNode(node) {
+      if (node === null || node === undefined || typeof node.getAttribute !== 'function') return false;
+      return node.getAttribute(OWN_ATTR) !== null;
+    }
+
+    function allOwnNodes(list) {
+      if (list === null || list === undefined || list.length === 0) return true;
+      for (var i = 0; i < list.length; i += 1) {
+        if (!isOwnNode(list[i])) return false;
+      }
+      return true;
+    }
+
+    function onRowMutations(records) {
+      if (records === undefined || records === null) { scheduleBulkDecorate(); return; }
+      for (var i = 0; i < records.length; i += 1) {
+        var record = records[i];
+        var added = record === null || record === undefined ? null : record.addedNodes;
+        var removed = record === null || record === undefined ? null : record.removedNodes;
+        var hasAdded = added !== null && added !== undefined && added.length > 0;
+        var hasRemoved = removed !== null && removed !== undefined && removed.length > 0;
+        if (!hasAdded && !hasRemoved) continue;
+        // 自己插的框和 spacer 不是「再过一遍」的理由：把它们也算进来，
+        // 每一轮都会给下一轮排程，框就在光标底下反复搬。
+        if (allOwnNodes(added) && allOwnNodes(removed)) continue;
+        scheduleBulkDecorate();
+        return;
+      }
+    }
+
+    function startBulkObserver() {
+      if (typeof MutationObserver !== 'function') return;
+      if (rowObserver !== null) return;
+      rowObserver = new MutationObserver(onRowMutations);
+      // 观察根是列表本身，不是 document：下面的正文每来一个 token 都会被唤醒一次。
+      var list = typeof document.querySelector === 'function' ? document.querySelector(LIST_SELECTOR) : null;
+      rowObserver.observe(list !== null && list !== undefined ? list : document.body, { childList: true, subtree: true });
+    }
+
+    function stopBulkObserver() {
+      if (rowObserver === null) return;
+      try { rowObserver.disconnect(); } catch (error) { /* ignore */ }
+      rowObserver = null;
+    }
+
     function bulkDecorate() {
       bulkState.raf = null;
       if (typeof document === 'undefined' || typeof document.querySelectorAll !== 'function') return;
@@ -1846,11 +2347,14 @@ export default function (require) {
           check = document.createElement('span');
           check.className = CHECK_CLASS;
           check.setAttribute('aria-hidden', 'true');
+          check.setAttribute(OWN_ATTR, 'check');
           row.insertBefore(check, row.firstChild);
         }
         if (bulkState.selected[id] === true) check.classList.add(CHECK_ON_CLASS);
         else check.classList.remove(CHECK_ON_CLASS);
       }
+      if (bulkState.selecting === true) decorateSelectAll(rows);
+      else removeSelectAll();
     }
 
     function scheduleBulkDecorate() {
@@ -1948,6 +2452,7 @@ export default function (require) {
       if (typeof event.stopPropagation === 'function') event.stopPropagation();
       if (bulkState.selected[id] === true) delete bulkState.selected[id];
       else bulkState.selected[id] = true;
+      refreshGroupBoxes();
       scheduleBulkDecorate();
       bulkUpdateBar();
     }
@@ -1970,6 +2475,8 @@ export default function (require) {
       bulkUpdateBar();   // 初始化文案（已选 0 个）+ 通知订阅者重渲染
       document.addEventListener('click', onBulkRowClick, true);
       document.addEventListener('keydown', onBulkKeydown, true);
+      // 宿主重渲染后勾选圈和全选框会消失且不会回来 —— 观察列表补一次装饰。
+      startBulkObserver();
       scheduleBulkDecorate();
       // 关掉菜单（和官方一样：在别处点一下）
       try { document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true })); } catch (error) { /* ignore */ }
@@ -1999,6 +2506,8 @@ export default function (require) {
       }
       bulkState.text = '';
       bulkState.busy = false;
+      stopBulkObserver();
+      removeSelectAll();
       markSelecting(false);
       bulkNotify();
       bulkDecorate();
@@ -2089,18 +2598,33 @@ export default function (require) {
         try { menuState = useMenuOpenState(); } catch (error) { menuState = null; }
       }
       if (hostSupportsBulkMove()) return null;
-      return button('bulk', text().bulk, {
-        onClick: function () {
-          if (menuState !== null && Array.isArray(menuState) && typeof menuState[1] === 'function') {
-            try { menuState[1](false); } catch (error) { /* ignore */ }
-          }
-          enterBulk();
-        },
-      });
+      var strings = text();
+      var onSelect = function () {
+        if (menuState !== null && Array.isArray(menuState) && typeof menuState[1] === 'function') {
+          try { menuState[1](false); } catch (error) { /* ignore */ }
+        }
+        enterBulk();
+      };
+      // 宿主有 MenuItemButton 就走它：行高、hover、左图标列都由宿主排版，
+      // 图标才和「置顶 / 分叉 / 移动到」那几行对齐。没有基座时退回自绘按钮。
+      if (primitives !== null && primitives !== undefined && primitives.MenuItemButton !== undefined) {
+        return react.createElement(primitives.MenuItemButton, {
+          icon: menuGlyph(SELECT_PATHS),
+          onSelect: onSelect,
+        }, strings.bulk);
+      }
+      return button('bulk', strings.bulk, { onClick: onSelect });
     }
 
-    /** 需要 slots 服务。 */
-    var inject = ['slots'];
+    /**
+     * 需要的服务。
+     *
+     * `contextMenus` 必须**声明**在这里，不能靠 ctx.get 探测 ——
+     * 官方的 dsh-client-ui-open-in-app 就是把它写进 inject 再直接 ctx.contextMenus.register()。
+     * 探测是不可靠的：服务什么时候就绪取决于插件加载顺序，同一份代码会出现
+     * 「一次拿到、一次拿不到」的抖动，菜单形态也就随机退化。
+     */
+    var inject = ['slots', 'contextMenus'];
 
     function apply(ctx) {
       ensureStyles();
@@ -2189,16 +2713,76 @@ export default function (require) {
           );
         }));
       }
+      // 右键菜单里的「移动到」：注册成 contextMenus 的 target=session 贡献项 ——
+      // 和官方「在应用中打开」同一个位置、同样的子菜单形态（children 交给官方 Menu 渲染）。
+      // 左键「…」那个菜单是另一套组件（见下一个 inject），两边都要有，用户点哪个都能用。
+      // 右键菜单里的「移动到」：ctx.contextMenus 来自 inject 声明，服务就绪后 apply 才会跑，
+      // 所以这里不需要任何探测 / 兜底。
+      if (typeof ctx.effect === 'function') {
+        ctx.effect(function () {
+          // 右键菜单按 action.icon.key 去 contextMenu.icon 槽里查图标；
+          // 不注册这条，行首就是空的（官方的「在应用中打开」也各自注册了自己的 key）。
+          var iconDisposer = null;
+          if (typeof ctx.slots.inject === 'function') {
+            iconDisposer = ctx.slots.inject('contextMenu.icon', function () {
+              return ctx.slots.register({ name: 'contextMenu.icon', key: CONTEXT_ICON_KEY }, MoveContextIcon);
+            });
+          }
+          var menuDisposer = ctx.contextMenus.register({
+            id: 'session-relocate.move-out-menu',
+            target: 'session',
+            // 550：排在官方「在应用中打开」(500) 之后、「归档」(600，本来就进 footer) 之前。
+            // 别用 350 —— 那样会排到「复制 Session ID」(450) 上面，整个位置就跑到菜单最前了。
+            order: 550,
+            observe: function () { return []; },
+            resolve: function (value, signal) {
+              var sessionId = value !== null && value !== undefined && typeof value.sessionId === 'string' ? value.sessionId : null;
+              if (sessionId === null || sessionId.length === 0) return [];
+              return post('/describe', { sessionId: sessionId }).then(function (result) {
+                if (signal !== null && signal !== undefined && typeof signal.aborted === 'boolean' && signal.aborted === true) return [];
+                if (result === null || result === undefined || result.ok !== true) return [];
+                var strings = text();
+                var canMove = result.session !== null && result.session !== undefined && result.session.canMove === false ? false : true;
+                if (canMove === false) {
+                  // 官方 Menu 的条目只投影 disabled，不投影 disabledReason，
+                  // 所以这里只能给一行置灰的「移动到」，原因交给左键那条面板（那里有完整文案）。
+                  return [{ id: 'move-out', label: strings.open, icon: { key: CONTEXT_ICON_KEY }, disabled: true }];
+                }
+                var actions = moveTargetActions(result, strings);
+                if (actions.length === 0) return [];
+                return [{
+                  id: 'move-out',
+                  label: strings.open,
+                  icon: { key: CONTEXT_ICON_KEY },
+                  children: actions.map(function (action) {
+                    return {
+                      id: action.id,
+                      label: action.label,
+                      run: function () { runMenuAction(sessionId, action); },
+                    };
+                  }),
+                }];
+              }, function () { return []; });
+            },
+          });
+          return function () {
+            if (typeof menuDisposer === 'function') {
+              try { menuDisposer(); } catch (error) { /* ignore */ }
+            }
+            if (typeof iconDisposer === 'function') {
+              try { iconDisposer(); } catch (error) { /* ignore */ }
+            }
+            return undefined;
+          };
+        }, 'dsh-session-relocate: context menu');
+      }
+
       disposers.push(ctx.slots.inject('sidebar.workspaces.session.menu.item', function () {
         var items = [];
         // 「多选」入口：dsh-delete-session 支持批量动作时该组件渲染 null（入口交给它那根底栏）。
         items.push(ctx.slots.register(
           { name: 'sidebar.workspaces.session.menu.item', id: 'session-relocate-bulk', order: 351 },
           BulkEntry,
-        ));
-        items.push(ctx.slots.register(
-          { name: 'sidebar.workspaces.session.menu.item', id: 'session-relocate', order: 350 },
-          Entry,
         ));
         return function () {
           for (var i = 0; i < items.length; i += 1) {
@@ -2227,7 +2811,6 @@ export default function (require) {
       setChipMode: setChipMode,
     };
     exports.inject = inject;
-    exports.__entry = Entry;
     exports.__bulkEntry = BulkEntry;
     // 给测试用的内部入口（浏览器里没人用）。
     exports.__bulk = {
@@ -2261,7 +2844,12 @@ export default function (require) {
       reset: resetDrag,
       nearestRow: nearestRow,
       workspaceGroupOf: workspaceGroupOf,
+      ungroupedGroupOf: ungroupedGroupOf,
       workspaceIdOf: workspaceIdOf,
+      scrollStepFor: scrollStepFor,
+      findScrollableAncestor: findScrollableAncestor,
+      autoScrollTick: autoScrollTick,
+      detachByDrag: detachByDrag,
     };
     return module.exports;
   }
