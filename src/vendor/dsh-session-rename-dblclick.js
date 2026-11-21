@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.2, sha256 9938feb04ada0030)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.2, sha256 fba96ac4e4446795)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -578,22 +578,21 @@ export default () => {
 
     function onDoubleClick(event) {
       if (event.button !== 0) return
-      if (editor) return
       const target = resolveTarget(event.target)
       if (!target) {
         lastClick = null
         return
       }
-      if (target.surface === 'header') {
-        // The click already opened the editor. Swallow the double click anyway:
-        // otherwise the browser word-selects the title and leaves a blue band on the
-        // text, which is most of what made the header look broken.
-        event.preventDefault()
-        event.stopPropagation()
-        return
-      }
+      // Swallow the event BEFORE looking at whether our editor is up.
+      //
+      // The product opens ITS rename dialog on this same event (Rows.tsx:
+      // onDoubleClick -> onRenameRequest). Returning early whenever an editor existed
+      // let both run: the second click opened our inline input, then this double click
+      // reached the product and its modal appeared on top of it. For the header the
+      // same early return also let the browser word-select the title.
       event.preventDefault()
       event.stopPropagation()
+      if (editor) return
       openEditor(target)
     }
 
@@ -676,5 +675,5 @@ export default () => {
 
     }
 
-    return { apply, __resolveTarget: resolveTarget, __sessionIdOfRow: sessionIdOfRow, __sessionIdForHeader: sessionIdForHeader, __openEditor: openEditor }
+    return { apply, __resolveTarget: resolveTarget, __sessionIdOfRow: sessionIdOfRow, __sessionIdForHeader: sessionIdForHeader, __openEditor: openEditor, __onDoubleClick: onDoubleClick }
   }

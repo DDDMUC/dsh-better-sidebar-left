@@ -105,6 +105,25 @@ test('two conversations on screen means no answer at all - never a guess', () =>
  * a parent chain for closest(), and a computed style whose tokens resolve to nothing
  * (so the code has to fall back rather than crash).
  */
+/** Just enough CSS matching for the selectors this plugin uses. */
+function matches(element, selector) {
+  if (element === null || element === undefined) return false
+  const className = String(element.className || '')
+  if (selector.startsWith('[class*="')) {
+    const needle = selector.slice(selector.indexOf('"') + 1, selector.lastIndexOf('"'))
+    return className.includes(needle)
+  }
+  if (selector.startsWith('[data-row-key^="')) {
+    const prefix = selector.slice(selector.indexOf('"') + 1, selector.lastIndexOf('"'))
+    return String(element.getAttribute('data-row-key') || '').startsWith(prefix)
+  }
+  if (selector === '[data-conversation-session]') return element.getAttribute('data-conversation-session') !== null
+  if (selector === 'input, textarea, [contenteditable="true"]') {
+    return element.tagName === 'INPUT' || element.tagName === 'TEXTAREA'
+  }
+  return false
+}
+
 function miniDom() {
   const make = (tag) => {
     const node = {
@@ -123,10 +142,36 @@ function miniDom() {
       getAttribute(name) { return this.attributes[name] ?? null },
       appendChild(child) { child.parentElement = this; this.children.push(child); return child },
       remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter((c) => c !== this) },
-      querySelector() { return null },
+      querySelector(selector) {
+        const found = []
+        const walk = (current) => {
+          for (const child of current.children) {
+            if (matches(child, selector)) found.push(child)
+            walk(child)
+          }
+        }
+        walk(this)
+        return found[0] ?? null
+      },
       querySelectorAll() { return [] },
-      closest() { return null },
-      contains() { return false },
+      closest(selector) {
+        let current = this
+        while (current !== null && current !== undefined) {
+          for (const one of String(selector).split(',').map((part) => part.trim())) {
+            if (matches(current, one)) return current
+          }
+          current = current.parentElement
+        }
+        return null
+      },
+      contains(other) {
+        let node = other
+        while (node !== null && node !== undefined) {
+          if (node === this) return true
+          node = node.parentElement
+        }
+        return false
+      },
       getBoundingClientRect() { return { left: 100, top: 50, width: 180, height: 22, right: 280, bottom: 72 } },
       getContext() { return null },
       focus() {},
@@ -193,6 +238,45 @@ test('opening the editor really builds the pill (the bug this guards)', async ()
     assert.equal(wrap.style.height, '40px', 'the header pill is 40px tall')
     assert.equal(wrap.style.boxShadow, 'inset 0 0 0 1px #3964fe', 'the ring is the reference blue, inset')
     assert.equal(titleEl.style.visibility, 'hidden', 'the title underneath is hidden while editing')
+  } finally {
+    if (saved.document === undefined) delete globalThis.document
+    else globalThis.document = saved.document
+    if (saved.window === undefined) delete globalThis.window
+    else globalThis.window = saved.window
+  }
+})
+
+test('a double click never lets the stock rename dialog open as well', async () => {
+  // The product opens ITS dialog on this same event (Rows.tsx: onDoubleClick ->
+  // onRenameRequest). Our second click opens the inline editor, so the handler used to
+  // return early - without swallowing - and the stock modal appeared on top of it.
+  const saved = { document: globalThis.document, window: globalThis.window }
+  const dom = miniDom()
+  globalThis.document = dom.document
+  globalThis.window = dom.window
+  try {
+    const factory = (await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)).default
+    const plugin = factory(() => null)
+    const row = dom.document.createElement('div')
+    row.className = 'JoiKIa_sessionRow'
+    row.setAttribute('data-row-key', 'session:abc')
+    const title = dom.document.createElement('span')
+    title.className = 'JoiKIa_title'
+    title.textContent = 'A session'
+    row.appendChild(title)
+    dom.document.body.appendChild(row)
+
+    plugin.__openEditor({ sessionId: 'abc', titleEl: title, surface: 'row' })
+    let prevented = false
+    let stopped = false
+    plugin.__onDoubleClick({
+      button: 0,
+      target: title,
+      preventDefault() { prevented = true },
+      stopPropagation() { stopped = true },
+    })
+    assert.equal(prevented, true, 'the double click must be prevented so the stock dialog cannot open')
+    assert.equal(stopped, true, 'and it must not travel on to the product handler')
   } finally {
     if (saved.document === undefined) delete globalThis.document
     else globalThis.document = saved.document
