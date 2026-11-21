@@ -39,11 +39,22 @@ const fail = (message) => {
 }
 const read = (file) => readFileSync(join(root, file), 'utf8')
 
-/** The subject line of a checkout's single baseline commit, or null when it is not one. */
-function baselineOf(dir) {
+/**
+ * Every commit subject in a checkout, newest first, or null when it is not a checkout.
+ *
+ * The whole history matters, not just HEAD: a component may carry local fixes on
+ * top of its upstream baseline (dsh-session-rename-dblclick does - the sidebar row
+ * stopped being an <a>, so its double-click never fired). What must still hold is
+ * that SOME commit in the history names the upstream commit this package declares;
+ * the exact code that ships is checked by the vendored hash, not by git.
+ */
+function subjectsOf(dir) {
   if (!existsSync(join(dir, '.git'))) return null
   try {
-    return execFileSync('git', ['-C', dir, 'log', '-1', '--format=%s'], { encoding: 'utf8' }).trim()
+    return execFileSync('git', ['-C', dir, 'log', '--format=%s'], { encoding: 'utf8' })
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0)
   } catch (error) {
     return null
   }
@@ -85,12 +96,15 @@ for (const component of COMPONENTS) {
     fail('MISSING        ' + component.package + ' is not checked out at ' + dir)
     continue
   }
-  const subject = baselineOf(dir)
-  if (subject === null) {
+  const subjects = subjectsOf(dir)
+  if (subjects === null) {
     fail('NOT A CHECKOUT ' + component.package + ' has no .git; re-fetch it from GitHub instead of copying files')
     continue
   }
-  if (!subject.includes(source.commit)) fail('WRONG COMMIT   ' + component.package + ': the checkout is not at ' + source.commit + ' (baseline: ' + subject + ')')
+  const provenance = subjects.filter((subject) => subject.includes(source.commit))
+  if (provenance.length === 0) {
+    fail('NO PROVENANCE  ' + component.package + ': no commit names the upstream ' + source.commit + ' (HEAD: ' + (subjects[0] ?? 'none') + ')')
+  }
   if (!isClean(dir)) fail('DIRTY CHECKOUT ' + component.package + ' has changes on top of its baseline; the vendoring source must be the GitHub content')
   let staged = null
   try {

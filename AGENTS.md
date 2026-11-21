@@ -31,8 +31,8 @@ src/vendor/host/    GENERATED：五个组件的宿主半部（含被搬过来的
 ## 源从哪来
 
 **全部来自 GitHub 仓库的本地检出**，不从 npm registry 取。五个组件分别在
-`../dsh-better-sidebar-left-src/components/<包名>/`，各是一个 git 仓库，基线提交记着对应的上游
-commit；`package.json` 的 `dsh.vendorSources` 是这张表的正本，`npm run verify:manifest`
+`../dsh-better-sidebar-left-src/components/<包名>/`，各是一个 git 仓库，历史里必须有提交记着对应的上游
+commit（可以在它之上有本地修复，vendored 哈希负责证明实际跑的是哪份代码）；`package.json` 的 `dsh.vendorSources` 是这张表的正本，`npm run verify:manifest`
 （离线）核对「声明 = 检出 = vendored 版本」三者一致。
 
 | 改了 | 要跑 |
