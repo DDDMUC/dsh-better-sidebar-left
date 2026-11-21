@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.6, sha256 87b6fbccd0e167ed)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.6, sha256 753c7211d0cdb5db)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -289,6 +289,15 @@ export default () => {
 
     const BORDER = 1
     const PAD_X = 12
+    // The live product draws its field with --dsl-input-height:44px and
+    // --dsl-input-border-radius:22px, i.e. a 44px pill whose caps are TRUE semicircles
+    // (radius = height / 2, nothing for the browser to clamp).
+    //
+    // A 40px pill with a 22px radius is not the same thing: CSS scales both radii by
+    // 40/44, so the caps come out at 20px and read a touch tighter at both ends. That
+    // is the difference one sees when the two are put side by side.
+    const PILL_HEIGHT = 44
+    const PILL_RADIUS = 22
 
     /**
      * The pill that the editor and the hover ring both draw.
@@ -325,10 +334,9 @@ export default () => {
       const font = pillFont(titleEl)
       const metrics = measureText(titleEl, title, font)
       const contentHeight = Math.max(14, Math.round(font.lineHeight))
-      // The product pill is 40px tall over a 22px line with a 1px border, so the
-      // padding is (40 - 22) / 2 - 1 = 8. Counting the border is what makes it land
-      // on 40 instead of 42.
-      const target = surface === 'header' ? 40 : contentHeight + 8
+      // Padding is computed from the BORDER as well, so the box lands on the target
+      // height instead of target + 2.
+      const target = surface === 'header' ? PILL_HEIGHT : contentHeight + 8
       const padY = Math.max(2, Math.min(12, Math.round((target - contentHeight) / 2) - BORDER))
       const contentLeft = rect.left + metrics.padLeft
       const contentTop = rect.top + metrics.padTop
@@ -364,7 +372,7 @@ export default () => {
       ringEl.style.top = `${box.top}px`
       ringEl.style.width = `${box.width}px`
       ringEl.style.height = `${box.height}px`
-      ringEl.style.borderRadius = box.height >= 40 ? '22px' : `${Math.round(Math.min(22, box.height / 2))}px`
+      ringEl.style.borderRadius = `${Math.round(Math.min(PILL_RADIUS, box.height / 2))}px`
       ringEl.style.borderColor = resolveToken(titleEl, '--dsw-alias-border-l2', 'borderColor', 'rgba(0, 0, 0, 0.1)')
       ringEl.style.boxShadow = resolveToken(titleEl, '--dsw-shadow-lv2', 'boxShadow', 'none')
       if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
@@ -491,7 +499,7 @@ export default () => {
       wrap.style.borderColor = 'transparent'
       wrap.style.background = resolveToken(titleEl, '--dsw-specific-input-major', 'backgroundColor', 'transparent')
       wrap.style.boxShadow = `inset 0 0 0 1px ${brand}`
-      wrap.style.borderRadius = box.height >= 40 ? '22px' : `${Math.round(Math.min(22, box.height / 2))}px`
+      wrap.style.borderRadius = `${Math.round(Math.min(PILL_RADIUS, box.height / 2))}px`
       wrap.style.padding = `${box.padY}px ${PAD_X}px`
       wrap.style.fontFamily = font.family
       wrap.style.fontSize = `${font.size}px`
