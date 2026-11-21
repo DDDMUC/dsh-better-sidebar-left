@@ -6328,14 +6328,6 @@ window.__ModuleLoader__.load({
      * @param {Element} row
      * @returns {string | null}
      */
-    function sessionIdOfRow(row) {
-      const key = row && typeof row.getAttribute === 'function' ? row.getAttribute('data-row-key') : null
-      if (typeof key === 'string' && key.startsWith('session:') && key.length > 'session:'.length) {
-        return key.slice('session:'.length)
-      }
-      const link = row && typeof row.querySelector === 'function' ? row.querySelector('a[href*="/session/"]') : null
-      return sessionIdFromHref(link && link.getAttribute('href'))
-    }
 
     function sessionIdFromHref(href) {
       const match = href ? SESSION_IN_PATH.exec(href) : null
@@ -6364,16 +6356,9 @@ window.__ModuleLoader__.load({
         return sessionId ? { sessionId, titleEl: crumb, surface: 'header' } : null
       }
 
-      // sidebar row: `data-row-key="session:<id>"` is the shipped contract.
-      // The row is a <div role="treeitem" data-row-key=...> with an onClick, not
-      // a link - requiring an anchor here matched nothing in current builds, so
-      // every double-click was a silent no-op.
-      const row = el.closest('[class*="_sessionRow"], [data-row-key^="session:"]')
-      if (!row) return null
-      const titleEl = el.closest('[class*="_title"]') || row.querySelector('[class*="_title"]')
-      if (!titleEl || !row.contains(titleEl)) return null
-      const sessionId = sessionIdOfRow(row)
-      return sessionId ? { sessionId, titleEl, surface: 'row' } : null
+      // Sidebar rows are deliberately NOT ours: clicking a row opens the session and
+      // the product owns renaming there. This plugin edits the header title only.
+      return null
     }
 
     // --- the in-place editor ---------------------------------------------------
@@ -6748,13 +6733,7 @@ window.__ModuleLoader__.load({
 
     // --- listener --------------------------------------------------------------
 
-    // The browser's own `dblclick` is the primary trigger, but some builds route
-    // a row click through handlers that cancel the native double-click synthesis.
-    // Tracking the two clicks here keeps the gesture working either way: same
-    // session, within 600 ms, within 8 px of the previous click.
-    const DOUBLE_MS = 600
-    const DOUBLE_PX = 8
-    let lastClick = null
+    // (Single-click editing only: the sidebar-row double click was removed.)
 
     /**
      * The header title a hover is over, or null.
@@ -6785,64 +6764,14 @@ window.__ModuleLoader__.load({
       hideRing()
     }
 
-    function onDoubleClick(event) {
-      if (event.button !== 0) return
-      const target = resolveTarget(event.target)
-      if (!target) {
-        lastClick = null
-        return
-      }
-      if (target.surface === 'header') {
-        // Leave the event alone. The current crumb is a plain <span> with no handler of
-        // its own (only ancestor crumbs are buttons, and those are not this node), so
-        // there is nothing to defend against - and swallowing it took away the native
-        // "double click selects a word" inside our own input, which is exactly what one
-        // wants while renaming.
-        if (editor === null) openEditor(target)
-        return
-      }
-      // A row is different: the product opens ITS rename dialog on this same event
-      // (Rows.tsx: onDoubleClick -> onRenameRequest). Swallow it whether or not our
-      // editor is up, otherwise the stock modal lands on top of our input.
-      event.preventDefault()
-      event.stopPropagation()
-      if (editor) return
-      openEditor(target)
-    }
-
     function onClick(event) {
       if (event.button !== 0) return
-      if (editor) return
+      if (editor !== null) return
       const target = resolveTarget(event.target)
-      if (!target) {
-        lastClick = null
-        return
-      }
-      // The header title is a plain span: clicking it does nothing in the product, so
-      // ONE click opens the editor - that is what the reference implementation does
-      // (the box is always there, a click swaps its contents for an input). A sidebar
-      // row is different: clicking it opens the session, so it needs the deliberate
-      // second click.
-      if (target.surface === 'header') {
-        lastClick = null
-        event.preventDefault()
-        event.stopPropagation()
-        openEditor(target)
-        return
-      }
-      const now = Date.now()
-      const previous = lastClick
-      lastClick = { sessionId: target.sessionId, x: event.clientX, y: event.clientY, time: now }
-      // A real double-click reports detail 2; the timing test covers the case
-      // where the browser's own synthesis never happened.
-      const byDetail = event.detail >= 2
-      const byTiming = previous !== null
-        && previous.sessionId === target.sessionId
-        && now - previous.time <= DOUBLE_MS
-        && Math.abs(previous.x - event.clientX) <= DOUBLE_PX
-        && Math.abs(previous.y - event.clientY) <= DOUBLE_PX
-      if (!byDetail && !byTiming) return
-      lastClick = null
+      if (target === null) return
+      // Only the header title is ours: it is a plain <span> that does nothing on click
+      // in the product, so one click opens the field. Sidebar rows belong to the
+      // product (a click opens the session and it owns renaming there).
       event.preventDefault()
       event.stopPropagation()
       openEditor(target)
@@ -6856,9 +6785,8 @@ window.__ModuleLoader__.load({
       // a second listener pair would open two editors over the same title.
       if (typeof window !== 'undefined' && window.__DSH_SESSION_RENAME__) return
       if (typeof window !== 'undefined') window.__DSH_SESSION_RENAME__ = true
-      console.info('[dsh-session-rename-dblclick] ready — double-click a session title to rename')
+      console.info('[dsh-session-rename-dblclick] ready — click the header title to rename')
       const install = () => {
-        document.addEventListener('dblclick', onDoubleClick, true)
         document.addEventListener('click', onClick, true)
         document.addEventListener('mouseover', onHover, true)
         document.addEventListener('mouseout', onOut, true)
@@ -6870,7 +6798,6 @@ window.__ModuleLoader__.load({
           window.addEventListener('resize', hideRing)
         }
         return () => {
-          document.removeEventListener('dblclick', onDoubleClick, true)
           document.removeEventListener('click', onClick, true)
           document.removeEventListener('mouseover', onHover, true)
           document.removeEventListener('mouseout', onOut, true)
@@ -6879,7 +6806,6 @@ window.__ModuleLoader__.load({
             window.removeEventListener('resize', hideRing)
           }
           hideRing()
-          lastClick = null
           finish()
           if (typeof window !== 'undefined') window.__DSH_SESSION_RENAME__ = false
         }
@@ -6889,7 +6815,7 @@ window.__ModuleLoader__.load({
 
     }
 
-    return { apply, __resolveTarget: resolveTarget, __sessionIdOfRow: sessionIdOfRow, __sessionIdForHeader: sessionIdForHeader, __openEditor: openEditor, __onDoubleClick: onDoubleClick }
+    return { apply, __resolveTarget: resolveTarget, __sessionIdForHeader: sessionIdForHeader, __openEditor: openEditor }
   }
 
     // ===== vendored dsh-session-counts =====
@@ -9423,7 +9349,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.1.6'
+    const PLUGIN_VERSION = '0.1.7'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'

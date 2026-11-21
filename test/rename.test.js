@@ -8,36 +8,15 @@ const root = join(import.meta.dirname, '..')
 const module = await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)
 const plugin = module.default(() => null)
 
-/** A row shaped like the shipped one: a div with data-row-key, no anchor. */
-function shippedRow(key) {
-  return {
-    getAttribute(name) { return name === 'data-row-key' ? key : null },
-    querySelector() { return null },
-  }
-}
-
-test('a session row is identified by data-row-key, not by an anchor', () => {
-  // The shipped row is <div role="treeitem" data-row-key="session:<id>"> with an
-  // onClick. Requiring an <a href> made every double-click a silent no-op.
-  assert.equal(plugin.__sessionIdOfRow(shippedRow('session:01fd0544-0049-44bf-bccf-3c6abe067a31')), '01fd0544-0049-44bf-bccf-3c6abe067a31')
-  assert.equal(plugin.__sessionIdOfRow(shippedRow('workspace:abc')), null, 'a workspace row is not a session row')
-  assert.equal(plugin.__sessionIdOfRow(shippedRow('session:')), null, 'an empty id is not an id')
-})
-
-test('a row that still renders an anchor keeps working as a fallback', () => {
-  const oldRow = {
-    getAttribute() { return null },
-    querySelector(selector) {
-      return selector.indexOf('a[href') === 0 ? { getAttribute: () => '#/session/legacy-id' } : null
-    },
-  }
-  assert.equal(plugin.__sessionIdOfRow(oldRow), 'legacy-id')
-})
-
-test('the browser half asks for the row by data-row-key', () => {
+test('the sidebar row is out of scope: only the header title is ours', () => {
+  // Removed on request: renaming happens on the header title only. The row keeps its
+  // product behaviour (a click opens the session, the product owns renaming there).
   const source = readFileSync(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js'), 'utf8')
-  assert.ok(source.includes('[data-row-key^="session:"]'), 'the row selector must include the shipped contract')
-  assert.ok(source.includes('function sessionIdOfRow'), 'the row id must be read from data-row-key')
+  assert.ok(source.includes('[class*="_crumbCurrent"]'), 'the header title is still resolved')
+  assert.ok(!source.includes('[data-row-key^="session:"]'), 'no sidebar row selector may remain')
+  assert.ok(!source.includes('_sessionRow'), 'no sidebar row class may remain')
+  assert.ok(!source.includes('onDoubleClick'), 'no double-click handler may remain')
+  assert.ok(!source.includes('sessionIdOfRow'), 'the row id reader is gone too')
 })
 
 /** A minimal element: real descendants, real closest(), fake attributes only. */
@@ -244,82 +223,6 @@ test('opening the editor really builds the pill (the bug this guards)', async ()
     const field = wrap.children[0]
     assert.equal(field.selectionStart, 'Review session studio brief file'.length, 'the caret sits after the last character, nothing is selected')
     assert.equal(field.selectionEnd, 'Review session studio brief file'.length, 'no selection band on open')
-  } finally {
-    if (saved.document === undefined) delete globalThis.document
-    else globalThis.document = saved.document
-    if (saved.window === undefined) delete globalThis.window
-    else globalThis.window = saved.window
-  }
-})
-
-test('a double click never lets the stock rename dialog open as well', async () => {
-  // The product opens ITS dialog on this same event (Rows.tsx: onDoubleClick ->
-  // onRenameRequest). Our second click opens the inline editor, so the handler used to
-  // return early - without swallowing - and the stock modal appeared on top of it.
-  const saved = { document: globalThis.document, window: globalThis.window }
-  const dom = miniDom()
-  globalThis.document = dom.document
-  globalThis.window = dom.window
-  try {
-    const factory = (await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)).default
-    const plugin = factory(() => null)
-    const row = dom.document.createElement('div')
-    row.className = 'JoiKIa_sessionRow'
-    row.setAttribute('data-row-key', 'session:abc')
-    const title = dom.document.createElement('span')
-    title.className = 'JoiKIa_title'
-    title.textContent = 'A session'
-    row.appendChild(title)
-    dom.document.body.appendChild(row)
-
-    plugin.__openEditor({ sessionId: 'abc', titleEl: title, surface: 'row' })
-    let prevented = false
-    let stopped = false
-    plugin.__onDoubleClick({
-      button: 0,
-      target: title,
-      preventDefault() { prevented = true },
-      stopPropagation() { stopped = true },
-    })
-    assert.equal(prevented, true, 'the double click must be prevented so the stock dialog cannot open')
-    assert.equal(stopped, true, 'and it must not travel on to the product handler')
-  } finally {
-    if (saved.document === undefined) delete globalThis.document
-    else globalThis.document = saved.document
-    if (saved.window === undefined) delete globalThis.window
-    else globalThis.window = saved.window
-  }
-})
-
-test('a double click on the header is left alone', async () => {
-  // The current crumb is a plain <span>: no onClick, no onDoubleClick. Swallowing the
-  // double click there only removed the native select-a-word inside our own input.
-  const saved = { document: globalThis.document, window: globalThis.window }
-  const dom = miniDom()
-  globalThis.document = dom.document
-  globalThis.window = dom.window
-  try {
-    const factory = (await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)).default
-    const plugin = factory(() => null)
-    const panel = dom.document.createElement('div')
-    panel.setAttribute('data-conversation-session', 'abc')
-    dom.document.body.appendChild(panel)
-    const crumb = dom.document.createElement('span')
-    crumb.className = 'kiGsTW_crumb kiGsTW_crumbCurrent'
-    crumb.textContent = 'A session'
-    panel.appendChild(crumb)
-
-    plugin.__openEditor({ sessionId: 'abc', titleEl: crumb, surface: 'header' })
-    let prevented = false
-    let stopped = false
-    plugin.__onDoubleClick({
-      button: 0,
-      target: crumb,
-      preventDefault() { prevented = true },
-      stopPropagation() { stopped = true },
-    })
-    assert.equal(prevented, false, 'the header must keep the native double-click behaviour')
-    assert.equal(stopped, false, 'and must not swallow the event either')
   } finally {
     if (saved.document === undefined) delete globalThis.document
     else globalThis.document = saved.document
