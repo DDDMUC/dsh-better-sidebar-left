@@ -9107,10 +9107,6 @@ window.__ModuleLoader__.load({
       reasonDisposed: '组件行已销毁',
       reasonUnknown: '组件行状态未知',
       applyFailed: '这个组件的 apply() 没跑完：',
-      diagBoot: 'relocate 引导全局：',
-      diagDrag: '最近一次拖拽：',
-      diagNone: '还没有检测到任何拖拽事件',
-      diagAbsent: '页面上没有（不代表拖动关闭，只有 drag:false 才会关）',
       versionMismatch: '本包运行的是 vendor 的这份；profile 里另装了不同版本（不影响本包，但那份若作为独立插件启用会重复挂载）：',
       settingsHeading: '设置',
       interopHeading: '槽位占用',
@@ -9141,10 +9137,6 @@ window.__ModuleLoader__.load({
       reasonDisposed: 'the component row was disposed',
       reasonUnknown: 'the component row state is unknown',
       applyFailed: 'this component apply() did not finish:',
-      diagBoot: 'relocate boot global:',
-      diagDrag: 'last drag event:',
-      diagNone: 'no drag event seen yet',
-      diagAbsent: 'absent from the page (that alone does not disable dragging; only drag:false does)',
       versionMismatch: 'this package runs the vendored copy; a different version is also installed in the profile (harmless here, but that copy would double-mount if it were enabled on its own):',
       settingsHeading: 'Settings',
       interopHeading: 'Slot allocation',
@@ -9407,55 +9399,6 @@ window.__ModuleLoader__.load({
       if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return
       const style = document.querySelector('style[data-dsh-better-sidebar-left]')
       if (style !== null && style.parentNode !== null) style.parentNode.removeChild(style)
-    }
-
-    // --- drag probe --------------------------------------------------------------
-    //
-    // When dragging does not work the question is always the same and always two
-    // parts: did the page get the host's boot global, and did a dragstart reach the
-    // document at all? Both are answerable from the page itself, so the panel answers
-    // them instead of guessing. The listeners are pure observers - they never call
-    // preventDefault or stopPropagation, so they cannot change the drag they watch.
-
-    /** The boot global the relocate host half publishes into the page. */
-    const BOOT_GLOBAL = '__DSH_SESSION_RELOCATE__'
-
-    let lastDrag = null
-
-    function describeBoot() {
-      const boot = globalThis[BOOT_GLOBAL]
-      if (boot === null || boot === undefined || typeof boot !== 'object') return null
-      return { prefix: boot.prefix ?? null, version: boot.version ?? null, drag: boot.drag ?? null }
-    }
-
-    function rowKeyOf(target) {
-      let node = target
-      for (let depth = 0; depth < 12 && node !== null && node !== undefined; depth += 1) {
-        if (typeof node.getAttribute === 'function') {
-          const key = node.getAttribute('data-row-key')
-          if (typeof key === 'string' && key.length > 0) return key
-        }
-        node = node.parentElement
-      }
-      return null
-    }
-
-    function publishDrag() {
-      if (globalThis[DEBUG_KEY] !== undefined) globalThis[DEBUG_KEY].lastDrag = lastDrag
-    }
-
-    function installDragProbe() {
-      if (typeof document === 'undefined' || typeof document.addEventListener !== 'function') return function () {}
-      const kinds = ['dragstart', 'dragover', 'drop', 'dragend']
-      const handler = (event) => {
-        if (event.type === 'dragover') return
-        lastDrag = { kind: event.type, key: rowKeyOf(event.target), at: Date.now() }
-        publishDrag()
-      }
-      for (const kind of kinds) document.addEventListener(kind, handler, true)
-      return function () {
-        for (const kind of kinds) document.removeEventListener(kind, handler, true)
-      }
     }
 
     // --- mounting the vendored halves -------------------------------------------
@@ -9751,15 +9694,6 @@ window.__ModuleLoader__.load({
         body.push(h(Card, { key: 'card-' + component.id, view: 'full', t }))
       }
       if (cards === 0) body.push(h('p', { className: 'dbsl-foot', key: 'noSettings' }, t('settingsNone')))
-      const boot = describeBoot()
-      body.push(
-        h('p', { className: 'dsss-foot', key: 'diagBoot' }, t('diagBoot') + ' ' +
-          (boot === null ? t('diagAbsent') : JSON.stringify(boot))),
-      )
-      body.push(
-        h('p', { className: 'dsss-foot', key: 'diagDrag' }, t('diagDrag') + ' ' +
-          (lastDrag === null ? t('diagNone') : lastDrag.kind + ' @ ' + String(lastDrag.key))),
-      )
       body.push(renderSlots(t))
       return h('div', { className: 'dbsl-wrap' }, body)
     }
@@ -9769,7 +9703,6 @@ window.__ModuleLoader__.load({
     function apply(ctx) {
       ownCtx = ctx
       injectStyles()
-      ctx.effect(installDragProbe, NS + ': drag probe')
       ctx.effect(() => ctx.locale.register(NS, { zh, en }), NS + ': dictionaries')
 
       const t = ctx.locale.bind(NS)
@@ -9813,8 +9746,6 @@ window.__ModuleLoader__.load({
     exports.INTEROP = INTEROP
     exports.VENDORED = VENDORED
     exports.SERVICES = SERVICES
-    exports.describeBoot = describeBoot
-    exports.lastDrag = () => lastDrag
     exports.failures = failures
     exports.zh = zh
     exports.en = en
