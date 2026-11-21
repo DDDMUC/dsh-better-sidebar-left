@@ -73,6 +73,20 @@ window.__ModuleLoader__.load({
      */
     const CONFIG_CARDS = [{ id: 'dsh-session-relocate', path: ['__settings', 'ChildrenSetting'] }]
 
+    /**
+     * The cordis services this bundle's apply() needs, as the UNION of what every
+     * vendored component declares plus what the page itself uses.
+     *
+     * This is load-bearing and was once wrong: dsh-session-relocate declares
+     * inject: ['slots', 'contextMenus'] and calls ctx.contextMenus.register()
+     * unconditionally, so mounting it under a context that does not carry that
+     * service threw inside its apply() and left the feature half-registered. The
+     * components run inside THIS plugin's context (a bundle is served per row), so
+     * whatever they need has to be declared here - test/sidebar.test.js proves this
+     * list covers every component's own inject array.
+     */
+    const SERVICES = ['slots', 'locale', 'contextMenus']
+
     const h = react.createElement
 
     // --- copy ------------------------------------------------------------------
@@ -96,6 +110,7 @@ window.__ModuleLoader__.load({
       reasonStopping: '组件行正在卸载',
       reasonDisposed: '组件行已销毁',
       reasonUnknown: '组件行状态未知',
+      applyFailed: '这个组件的 apply() 没跑完：',
       versionMismatch: '本包运行的是 vendor 的这份；profile 里另装了不同版本（不影响本包，但那份若作为独立插件启用会重复挂载）：',
       settingsHeading: '设置',
       interopHeading: '槽位占用',
@@ -125,6 +140,7 @@ window.__ModuleLoader__.load({
       reasonStopping: 'the component row is unloading',
       reasonDisposed: 'the component row was disposed',
       reasonUnknown: 'the component row state is unknown',
+      applyFailed: 'this component apply() did not finish:',
       versionMismatch: 'this package runs the vendored copy; a different version is also installed in the profile (harmless here, but that copy would double-mount if it were enabled on its own):',
       settingsHeading: 'Settings',
       interopHeading: 'Slot allocation',
@@ -195,19 +211,42 @@ window.__ModuleLoader__.load({
       return factory(require)
     }
 
+    /**
+     * Apply one vendored component to this plugin's context.
+     *
+     * @returns { ok: true } or { ok: false, error } - the reason is kept, not just
+     *   logged, because a component that half-mounted is exactly the "button there,
+     *   click does nothing" failure this package exists to prevent: the page shows
+     *   the failure and the marker carries it.
+     */
     function applyVendored(ctx, id) {
       try {
         const plugin = vendoredModule(id)
         if (typeof plugin !== 'object' || plugin === null || typeof plugin.apply !== 'function') {
           console.error('[' + NS + '] vendored ' + id + ' has no apply()', plugin)
-          return false
+          return { ok: false, error: 'no apply()' }
         }
-        plugin.apply(ctx)
-        return true
+        const result = plugin.apply(ctx)
+        // A component whose apply() is async must not be able to fail silently.
+        if (result !== null && typeof result === 'object' && typeof result.then === 'function') {
+          result.then(null, (error) => {
+            console.error('[' + NS + '] vendored ' + id + ' failed asynchronously:', error)
+            recordFailure(id, error)
+          })
+        }
+        return { ok: true }
       } catch (error) {
         console.error('[' + NS + '] vendored ' + id + ' failed to apply:', error)
-        return false
+        return { ok: false, error: String((error && error.message) || error) }
       }
+    }
+
+    /** Per-component apply() failures, keyed by component id. */
+    const failures = {}
+
+    function recordFailure(id, error) {
+      failures[id] = String((error && error.message) || error)
+      if (globalThis[DEBUG_KEY] !== undefined) globalThis[DEBUG_KEY].failures = { ...failures }
     }
 
     /**
@@ -298,8 +337,16 @@ window.__ModuleLoader__.load({
     function mountComponents(ctx, ids) {
       const mounted = {}
       const gate = Array.isArray(ids) ? ids : VENDORED.slice()
-      for (const id of VENDORED) mounted[id] = gate.indexOf(id) === -1 ? false : applyVendored(ctx, id)
-      globalThis[DEBUG_KEY] = { version: PLUGIN_VERSION, mounted, gate: gate.slice(), route: STATUS_ROUTE }
+      for (const id of VENDORED) {
+        if (gate.indexOf(id) === -1) {
+          mounted[id] = false
+          continue
+        }
+        const result = applyVendored(ctx, id)
+        mounted[id] = result.ok
+        if (!result.ok) recordFailure(id, result.error)
+      }
+      globalThis[DEBUG_KEY] = { version: PLUGIN_VERSION, mounted, gate: gate.slice(), route: STATUS_ROUTE, failures: { ...failures } }
       return mounted
     }
 
@@ -353,6 +400,8 @@ window.__ModuleLoader__.load({
       ]
       const why = reasonText(t, component)
       if (why !== null) children.push(h('p', { className: 'dbsl-why', key: 'why' }, why))
+      const failure = failures[component.id]
+      if (failure !== undefined) children.push(h('p', { className: 'dsss-warn', key: 'failure' }, t('applyFailed') + ' ' + failure))
       if (component.versionMatch === false) {
         children.push(h('p', { className: 'dbsl-warn', key: 'mismatch' }, t('versionMismatch') + ' ' + String(component.installedVersion)))
       }
@@ -474,7 +523,7 @@ window.__ModuleLoader__.load({
     }
 
     exports.apply = apply
-    exports.inject = ['slots', 'locale']
+    exports.inject = SERVICES
     exports.PLUGIN_VERSION = PLUGIN_VERSION
     exports.NS = NS
     exports.STATUS_ROUTE = STATUS_ROUTE
@@ -489,6 +538,8 @@ window.__ModuleLoader__.load({
     exports.MANIFEST = MANIFEST
     exports.INTEROP = INTEROP
     exports.VENDORED = VENDORED
+    exports.SERVICES = SERVICES
+    exports.failures = failures
     exports.zh = zh
     exports.en = en
     return module.exports

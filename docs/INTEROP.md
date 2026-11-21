@@ -212,6 +212,15 @@ loopback 校验留在宿主侧。
 `versionMatch: false` 只被报出来，不会被悄悄修补 —— 注意它**不是故障**：跑的是 vendor 那份，
 profile 里另装一份不同版本对本包没有影响（那份若作为独立插件启用，反而会和本包重复挂载）。
 
+### G 服务注入要取并集
+组件是跑在**本插件自己的 ctx** 上的（一个 bundle 只能注册一次），所以组件声明要用的 cordis 服务
+必须在本包的 `exports.inject` 里一起声明 —— 否则它会在一个缺服务的 ctx 上执行 apply()，
+注册到一半抛错，功能半残。`dsh-session-relocate` 声明 `['slots', 'contextMenus']` 且无条件调用
+`ctx.contextMenus.register()`，这就是它曾经单独不生效的原因。
+
+`src/sidebar.js` 的 `SERVICES` 是这张并集表；`test/sidebar.test.js` 逐个组件读它自己的 `inject`
+并断言被 `SERVICES` 覆盖。加组件时先跑那条测试。
+
 ### 版本错配的判定
 两侧都可能落后：profile 里的组件包（宿主半部）与本包 vendor 的浏览器半部。`versions.json` 记的是
 后者。两者不等时 `/status` 报 `versionMatch: false`，设置页用红字写出来 —— 因为「半部对半部」的

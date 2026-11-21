@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
 import { test } from 'node:test'
-import { COMPONENT_IDS } from '../src/components.js'
+import { COMPONENTS, COMPONENT_IDS } from '../src/components.js'
 import { fakeRequire, loadBundle, readText, root } from './helpers.js'
 
 const clientText = readFileSync(join(root, 'src', 'client.js'), 'utf8')
@@ -32,6 +33,22 @@ test('the manifest and the allocation were baked in, not left as placeholders', 
 test('the mount order is the manifest order', () => {
   const plugin = registered.factory(fakeRequire())
   assert.deepEqual(plugin.VENDORED, COMPONENT_IDS)
+})
+
+test('the browser half injects every service its components need', async () => {
+  // The components run inside THIS plugin's context, so a service one of them
+  // declares has to be declared here too - otherwise its apply() runs without the
+  // service and the feature half-mounts (dsh-session-relocate needs contextMenus).
+  const plugin = registered.factory(fakeRequire())
+  const declared = new Set(plugin.SERVICES)
+  for (const component of COMPONENTS) {
+    const module = await import(pathToFileURL(join(root, 'src', 'vendor', component.id + '.js')).href)
+    const vendored = module.default(fakeRequire())
+    for (const service of vendored.inject ?? []) {
+      assert.ok(declared.has(service), component.id + ' needs ' + service + ', which this bundle does not inject')
+    }
+  }
+  for (const needed of ['slots', 'locale']) assert.ok(declared.has(needed), 'the studio page itself needs ' + needed)
 })
 
 test('both dictionaries are complete and parallel', () => {
