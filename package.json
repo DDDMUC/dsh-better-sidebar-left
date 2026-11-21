@@ -80,7 +80,7 @@
       "dsh-session-rename-dblclick": {
         "repo": "https://github.com/DDDMUC/dsh-session-rename-dblclick",
         "ref": "main",
-        "commit": "c141ec0f98b3ee8cafe1f4492f466f6a123c1e46",
+        "commit": "734063e929816b442b5648af5bcb08fd3581604d",
         "version": "0.1.0"
       },
       "dsh-session-counts": {
