@@ -99,3 +99,104 @@ test('two conversations on screen means no answer at all - never a guess', () =>
   nodeOf({}, [nodeOf({}, [crumb]), left, right])
   assert.equal(plugin.__sessionIdForHeader(crumb), null)
 })
+
+/**
+ * A DOM just big enough for openEditor: elements with inline styles, children,
+ * a parent chain for closest(), and a computed style whose tokens resolve to nothing
+ * (so the code has to fall back rather than crash).
+ */
+function miniDom() {
+  const make = (tag) => {
+    const node = {
+      tagName: String(tag).toUpperCase(),
+      nodeType: 1,
+      style: {},
+      dataset: {},
+      attributes: {},
+      className: '',
+      textContent: '',
+      children: [],
+      parentElement: null,
+      isConnected: true,
+      classList: { add() {}, remove() {}, contains() { return false }, toggle() {} },
+      setAttribute(name, value) { this.attributes[name] = String(value) },
+      getAttribute(name) { return this.attributes[name] ?? null },
+      appendChild(child) { child.parentElement = this; this.children.push(child); return child },
+      remove() { if (this.parentElement) this.parentElement.children = this.parentElement.children.filter((c) => c !== this) },
+      querySelector() { return null },
+      querySelectorAll() { return [] },
+      closest() { return null },
+      contains() { return false },
+      getBoundingClientRect() { return { left: 100, top: 50, width: 180, height: 22, right: 280, bottom: 72 } },
+      getContext() { return null },
+      focus() {},
+      select() {},
+      addEventListener() {},
+      removeEventListener() {},
+    }
+    return node
+  }
+  const head = make('head')
+  const body = make('body')
+  const document = {
+    head,
+    body,
+    createElement: make,
+    querySelector() { return null },
+    querySelectorAll() { return [] },
+    addEventListener() {},
+    removeEventListener() {},
+  }
+  const computed = {
+    fontFamily: 'system-ui',
+    fontSize: '14px',
+    fontWeight: '500',
+    fontStyle: 'normal',
+    letterSpacing: 'normal',
+    lineHeight: '22px',
+    textAlign: 'start',
+    color: 'rgb(31, 32, 35)',
+    paddingLeft: '0px',
+    paddingTop: '0px',
+    getPropertyValue() { return '' },
+  }
+  const window = {
+    innerWidth: 1280,
+    getComputedStyle() { return computed },
+    getSelection() { return { removeAllRanges() {} } },
+    addEventListener() {},
+    removeEventListener() {},
+  }
+  return { document, window }
+}
+
+test('opening the editor really builds the pill (the bug this guards)', async () => {
+  // The previous revision logged `brand` before its const declared it: openEditor threw
+  // a temporal-dead-zone error AFTER the click was already swallowed, so clicking the
+  // header did nothing at all - and every other test stayed green because none of them
+  // ever opened an editor.
+  const saved = { document: globalThis.document, window: globalThis.window }
+  const dom = miniDom()
+  globalThis.document = dom.document
+  globalThis.window = dom.window
+  try {
+    const factory = (await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)).default
+    const plugin = factory(() => null)
+    const titleEl = dom.document.createElement('span')
+    titleEl.textContent = 'Review session studio brief file'
+    plugin.__openEditor({ sessionId: 'abc', titleEl, surface: 'header' })
+
+    const wrap = dom.document.body.children.filter((node) => node.className === 'dsr-wrap')[0]
+    assert.ok(wrap !== undefined, 'the editor box must be appended to the body')
+    assert.equal(wrap.children.length, 1, 'the box holds exactly one field')
+    assert.equal(wrap.children[0].tagName, 'INPUT', 'the field is an input')
+    assert.equal(wrap.style.height, '40px', 'the header pill is 40px tall')
+    assert.equal(wrap.style.boxShadow, 'inset 0 0 0 1px #3964fe', 'the ring is the reference blue, inset')
+    assert.equal(titleEl.style.visibility, 'hidden', 'the title underneath is hidden while editing')
+  } finally {
+    if (saved.document === undefined) delete globalThis.document
+    else globalThis.document = saved.document
+    if (saved.window === undefined) delete globalThis.window
+    else globalThis.window = saved.window
+  }
+})
