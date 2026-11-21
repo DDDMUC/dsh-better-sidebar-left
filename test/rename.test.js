@@ -8,13 +8,14 @@ const root = join(import.meta.dirname, '..')
 const module = await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)
 const plugin = module.default(() => null)
 
-test('the sidebar row is out of scope: only the header title is ours', () => {
+test('the sidebar row is guarded against double-click navigation, not renamed', () => {
   // Removed on request: renaming happens on the header title only. The row keeps its
   // product behaviour (a click opens the session, the product owns renaming there).
   const source = readFileSync(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js'), 'utf8')
   assert.ok(source.includes('[class*="_crumbCurrent"]'), 'the header title is still resolved')
-  assert.ok(!source.includes('[data-row-key^="session:"]'), 'no sidebar row selector may remain')
-  assert.ok(!source.includes('_sessionRow'), 'no sidebar row class may remain')
+  assert.ok(source.includes('[data-row-key^="session:"]'), 'the click gate needs the row selector')
+  assert.ok(source.includes('_sessionRow'), 'the click gate needs the row class')
+  assert.ok(source.includes('HOLD_MS'), 'the gate holds the first click')
   assert.ok(!source.includes('onDoubleClick'), 'no double-click handler may remain')
   assert.ok(!source.includes('sessionIdOfRow'), 'the row id reader is gone too')
 })
