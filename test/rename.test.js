@@ -284,3 +284,40 @@ test('a double click never lets the stock rename dialog open as well', async () 
     else globalThis.window = saved.window
   }
 })
+
+test('a double click on the header is left alone', async () => {
+  // The current crumb is a plain <span>: no onClick, no onDoubleClick. Swallowing the
+  // double click there only removed the native select-a-word inside our own input.
+  const saved = { document: globalThis.document, window: globalThis.window }
+  const dom = miniDom()
+  globalThis.document = dom.document
+  globalThis.window = dom.window
+  try {
+    const factory = (await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-rename-dblclick.js')).href)).default
+    const plugin = factory(() => null)
+    const panel = dom.document.createElement('div')
+    panel.setAttribute('data-conversation-session', 'abc')
+    dom.document.body.appendChild(panel)
+    const crumb = dom.document.createElement('span')
+    crumb.className = 'kiGsTW_crumb kiGsTW_crumbCurrent'
+    crumb.textContent = 'A session'
+    panel.appendChild(crumb)
+
+    plugin.__openEditor({ sessionId: 'abc', titleEl: crumb, surface: 'header' })
+    let prevented = false
+    let stopped = false
+    plugin.__onDoubleClick({
+      button: 0,
+      target: crumb,
+      preventDefault() { prevented = true },
+      stopPropagation() { stopped = true },
+    })
+    assert.equal(prevented, false, 'the header must keep the native double-click behaviour')
+    assert.equal(stopped, false, 'and must not swallow the event either')
+  } finally {
+    if (saved.document === undefined) delete globalThis.document
+    else globalThis.document = saved.document
+    if (saved.window === undefined) delete globalThis.window
+    else globalThis.window = saved.window
+  }
+})

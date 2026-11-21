@@ -8,13 +8,15 @@ const require_ = fakeRequire()
 const plugin = bundle.factory(require_)
 
 const MARKER = '__DSH_BETTER_SIDEBAR_LEFT__'
+// Read the real version instead of a literal: a bump should not need a test edit.
+const VERSION = JSON.parse(readText('package.json')).version
 const ALL = COMPONENTS.map((component) => component.id)
 
 function payload(overrides = {}) {
   return {
     ok: true,
     plugin: 'dsh-better-sidebar-left',
-    version: '0.1.0',
+    version: VERSION,
     components: COMPONENTS.map((component) => ({
       id: component.id,
       package: component.package,
@@ -67,7 +69,7 @@ test('applying the bundle mounts all five components', async () => {
 test('the marker records what mounted, so a live check can read it', async () => {
   await withBundle(payload(), async ({ mounted }) => {
     const marker = globalThis[MARKER]
-    assert.equal(marker.version, '0.1.0')
+    assert.equal(marker.version, VERSION)
     assert.deepEqual(marker.mounted, mounted)
     assert.equal(marker.route, '/api/dsh-better-sidebar-left/status')
     assert.deepEqual(marker.gate, ALL)

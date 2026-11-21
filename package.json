@@ -1,6 +1,6 @@
 {
   "name": "dsh-better-sidebar-left",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Session management for DeepSeek Harness in one install: delete a session with a risk-checked confirmation, move one across workspaces (menu and drag), rename one by double-clicking its title, show per-workspace session counts, and declutter both the sidebar and the conversation's collapsed turns. Self-contained: the plugin list shows this one row, and the five components are vendored inside it - installing this plugin installs nothing else.",
   "type": "module",
   "main": "src/index.js",
@@ -80,8 +80,8 @@
       "dsh-session-rename-dblclick": {
         "repo": "https://github.com/DDDMUC/dsh-session-rename-dblclick",
         "ref": "main",
-        "commit": "e23f2a5eb5a037604d77115985ef19a131fab4d6",
-        "version": "0.1.3"
+        "commit": "53bbae2fefc691bf0852696496aa96693b26ff9e",
+        "version": "0.1.4"
       },
       "dsh-session-counts": {
         "repo": "https://github.com/DDDMUC/dsh-session-counts",
