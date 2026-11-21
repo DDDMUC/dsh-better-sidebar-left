@@ -102,23 +102,27 @@ export const COMPONENTS = [
     repo: 'https://github.com/DDDMUC/dsh-session-relocate',
     title: { zh: '跨工作区移动', en: 'Move across workspaces' },
     pitch: {
-      zh: '把会话搬到另一个工作区：行菜单「移动到」、右键菜单、以及直接把会话行拖到目标工作区；迁移走崩溃可恢复的事务，打开中但空闲的会话也能搬。',
-      en: 'Move a session into another workspace: the row menu, the context menu, or by dragging the session row onto the target workspace. The move is a crash-recoverable transaction, and an open-but-idle session can be moved too.',
+      zh: '把会话搬到另一个工作区：会话行「…」菜单里的「移动到」，以及直接把会话行拖到目标工作区；迁移走崩溃可恢复的事务，打开中但空闲的会话也能搬。',
+      en: 'Move a session into another workspace: "move to" in the session row menu, or by dragging the session row onto the target workspace. The move is a crash-recoverable transaction, and an open-but-idle session can be moved too.',
     },
     slots: [
       { name: 'conversation.input.dock', id: 'session-relocate-workspace', order: 10 },
       { name: 'sidebar.footer.action', id: 'session-relocate-bulkbar', order: 40 },
+      // The row menu carries "move to" directly in 0.2.6 (350 = itself, 351 = the
+      // multi-select variant). 0.3.x moved these to a right-click context menu, which
+      // is why this table has no contextMenu entry.
+      { name: 'sidebar.workspaces.session.menu.item', id: 'session-relocate', order: 350 },
+      { name: 'sidebar.workspaces.session.menu.item', id: 'session-relocate-bulk', order: 351 },
       { name: 'plugins.row.config', id: 'session-relocate-children-row-0', order: 100, key: 'dsh-session-relocate#session-relocate' },
       { name: 'plugins.row.config', id: 'session-relocate-children-row-1', order: 100, key: 'dsh-session-relocate#dsh-session-relocate' },
       { name: 'plugins.bundle.config', id: 'session-relocate-children-bundle', order: 100, key: 'dsh-session-relocate' },
-      { name: 'contextMenu.icon', key: 'session-relocate.move' },
     ],
-    contextMenus: [{ id: 'session-relocate.move-out-menu', target: 'session', order: 550 }],
     childSlots: [{ name: 'session-relocate.dock', kind: 'list', scope: 'session' }],
     routes: [
       'POST /api/dsh-session-relocate/describe',
       'POST /api/dsh-session-relocate/move',
-      'GET /api/dsh-session-relocate/status',
+      'POST /api/dsh-session-relocate/move-commit',
+      'GET|POST /api/dsh-session-relocate/status',
     ],
     hostInject: ['workspaceRegistry', 'sessionPersistence'],
     dom: { allocated: 'dssr', prefixes: ['data-dshsm', 'data-dshsm-toast', 'dshsm-'] },

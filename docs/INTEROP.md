@@ -64,10 +64,11 @@ loopback 校验留在宿主侧。
 | `dsh-delete-session` | `plugins.row.config` | `key: dsh-delete-session#dsh-delete-session` | — |
 | `dsh-session-relocate` | `conversation.input.dock` | `id: session-relocate-workspace` | 10 |
 | `dsh-session-relocate` | `sidebar.footer.action` | `id: session-relocate-bulkbar` | 40 |
+| `dsh-session-relocate` | `sidebar.workspaces.session.menu.item` | `id: session-relocate` | 350 |
+| `dsh-session-relocate` | `sidebar.workspaces.session.menu.item` | `id: session-relocate-bulk` | 351 |
 | `dsh-session-relocate` | `plugins.row.config` | `id: session-relocate-children-row-0` | 100 |
 | `dsh-session-relocate` | `plugins.row.config` | `id: session-relocate-children-row-1` | 100 |
 | `dsh-session-relocate` | `plugins.bundle.config` | `id: session-relocate-children-bundle` | 100 |
-| `dsh-session-relocate` | `contextMenu.icon` | `key: session-relocate.move` | — |
 | `dsh-session-counts` | `shell.overlay` | `id: session-counts` | 50 |
 | `dsh-session-counts` | `plugins.row.config` | `key: dsh-session-counts#session-counts` | — |
 | `dsh-session-counts` | `plugins.row.config` | `key: @local/dsh-session-counts#session-counts` | — |
