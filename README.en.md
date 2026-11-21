@@ -67,6 +67,8 @@ curl -s http://127.0.0.1:<port>/api/dsh-better-sidebar-left/status | jq .summary
 
 It answers one question: is each component installed, which version is running, and is its row **really** live - read from `ctx.loader.entries()` and the row fiber's own state, never from an optimistic self-report. `version` is the browser half (the copy vendored here), `installedVersion` is the host half in the profile, and `versionMatch: false` means they disagree - reported, never silently repaired.
 
+Two more fields separate "what is on disk" from "what this process is running": `hostLoaded` says whether that row mounted in this process at all, and `hostStale` says the hash in memory differs from the file on disk (`null` = it never mounted here). `summary.stale` counts them. A vendored file does not reload itself, so a non-zero count means the host needs a restart.
+
 ## Development
 
 ```sh

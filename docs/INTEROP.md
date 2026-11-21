@@ -210,6 +210,10 @@ loopback 校验留在宿主侧。
 `GET /api/dsh-better-sidebar-left/status`：每个组件装没装、什么版本、它那一行**是不是真的活着** ——
 从 `ctx.loader.entries()` 和行 fiber 自己的状态读，不读自己记的「我挂上了」的乐观记录。
 `version` 是浏览器半部的版本（本包 vendor 的那份），`installedVersion` 是 profile 里宿主半部的版本，
+`hostLoaded` / `hostStale` 回答的是另一件事：**这个进程里跑的是不是磁盘上那份**。vendored 文件改了不会
+自我重载（ESM 按 URL 缓存），所以「包升级了但宿主没重启」是完全可能的：`hostStale: true` 就是它，
+`summary.stale` 数出有几个。`null` 表示那一行在这个进程里没挂过，未知不等于过期。
+
 `versionMatch: false` 只被报出来，不会被悄悄修补 —— 注意它**不是故障**：跑的是 vendor 那份，
 profile 里另装一份不同版本对本包没有影响（那份若作为独立插件启用，反而会和本包重复挂载）。
 

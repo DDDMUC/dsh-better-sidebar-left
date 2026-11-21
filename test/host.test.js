@@ -13,6 +13,7 @@ import {
   loaderEntries,
   name,
   pluginOf,
+  recordHostBuild,
   resolveAnchors,
   statusOf,
   vendoredVersions,
@@ -361,4 +362,28 @@ test('apply defers to the webServer injection when the service is absent', async
 test('dshVersion answers a version string or null, never throws', () => {
   const version = dshVersion()
   assert.ok(version === null || typeof version === 'string')
+})
+
+test('status separates the build in memory from the build on disk', () => {
+  // A vendored file changing on disk does not reload the module that is running.
+  // That is exactly how a host ended up serving one component version while the
+  // package shipped another, so /status has to report it.
+  const dir = fakeProfile({})
+  const ctx = ctxWith([{ name: rowNameOf(counting) }, { name: rowNameOf(rename) }], dir)
+  const untouched = statusOf(ctx).components.filter((component) => component.id === counting.id)[0]
+  assert.equal(untouched.hostLoaded, false, 'a row that never mounted here is not loaded')
+  assert.equal(untouched.hostStale, null, 'unknown is not the same as stale')
+  assert.equal(statusOf(ctx).summary.stale, 0)
+
+  recordHostBuild(counting.id)
+  const fresh = statusOf(ctx).components.filter((component) => component.id === counting.id)[0]
+  assert.equal(fresh.hostLoaded, true)
+  assert.equal(fresh.hostStale, false, 'the copy in memory is the copy on disk')
+
+  const table = globalThis[Symbol.for(PLUGIN_ID + ':hostBuilds')]
+  table[counting.id] = { hash: 'older-build-000', at: Date.now() }
+  const stale = statusOf(ctx)
+  assert.equal(stale.components.filter((component) => component.id === counting.id)[0].hostStale, true)
+  assert.equal(stale.summary.stale, 1)
+  delete table[counting.id]
 })

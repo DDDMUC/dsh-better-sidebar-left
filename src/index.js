@@ -29,6 +29,7 @@
 // resolved through the cordis context at call time - so it loads and degrades on
 // any profile (web, desktop, headless).
 import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { createRequire } from 'node:module'
 import { basename, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -276,6 +277,41 @@ export function hostStateOf(component, entries, installed) {
 }
 
 /**
+ * Which build of each vendored host half is loaded in THIS process.
+ *
+ * A vendored file changing on disk does not reload it: the module is already in
+ * memory. That is how a running host ends up serving one component version while
+ * the package ships another, so /status reads this registry and says so instead of
+ * echoing the manifest.
+ */
+const HOST_BUILDS = Symbol.for(PLUGIN_ID + ":hostBuilds")
+
+/** Absolute path of the vendored host half for one component. */
+export function hostBuildPath(id) {
+  return fileURLToPath(new URL("./vendor/host/" + id + ".js", import.meta.url))
+}
+
+/** A short content hash of the vendored host half as it is on disk right now. */
+export function currentHostHash(id) {
+  try {
+    return createHash("sha256").update(readFileSync(hostBuildPath(id))).digest("hex").slice(0, 16)
+  } catch {
+    return null
+  }
+}
+
+/** Record that a component row mounted this build. Called by src/shell.js. */
+export function recordHostBuild(id) {
+  const table = globalThis[HOST_BUILDS] ?? (globalThis[HOST_BUILDS] = {})
+  table[id] = { hash: currentHostHash(id), at: Date.now() }
+}
+
+/** The builds recorded in this process, keyed by component id. */
+export function loadedHostBuilds() {
+  return globalThis[HOST_BUILDS] ?? {}
+}
+
+/**
  * The status document: what is installed, what is mounted, and what the browser
  * half should therefore mount.
  * @param ctx - the plugin context (only get is used).
@@ -293,6 +329,7 @@ export function statusOf(ctx) {
     // rows by id, so this is informational, not an error.
     const rows = entries === null ? null : entries.filter((entry) => entry.name === component.package)
     const version = vendored[component.id] ?? found.version
+    const build = loadedHostBuilds()[component.id]
     return {
       id: component.id,
       package: component.package,
@@ -311,6 +348,9 @@ export function statusOf(ctx) {
       hostReason: host.hostReason,
       hostRow: host.hostRow,
       ownRows: rows === null ? null : rows.filter((row) => !row.disabled).length,
+      // Is the copy in memory the copy on disk? null = this row never mounted here.
+      hostLoaded: build !== undefined,
+      hostStale: build === undefined ? null : build.hash !== currentHostHash(component.id),
     }
   })
   const live = components.filter((component) => component.hostMounted === true)
@@ -326,6 +366,7 @@ export function statusOf(ctx) {
       installed: components.filter((component) => component.installed).length,
       mounted: live.length,
       mismatched: components.filter((component) => component.versionMatch === false).length,
+      stale: components.filter((component) => component.hostStale === true).length,
       combination: live.map((component) => component.id),
     },
   }

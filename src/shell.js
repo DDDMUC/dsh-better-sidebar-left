@@ -46,7 +46,7 @@
 // The row config is read once per activation. Editing it in the plugin manager
 // restarts the entry, which runs this apply again with the new value.
 import { COMPONENTS, PLUGIN_ID } from './components.js'
-import { componentOf, pluginOf } from './index.js'
+import { componentOf, pluginOf, recordHostBuild } from './index.js'
 
 /** Loader display name of this shell (all five rows share it). */
 export const name = PLUGIN_ID + '/component'
@@ -142,6 +142,9 @@ export async function apply(ctx, config) {
       { cause: error },
     )
   }
+  // Remember which build this process put in memory, so /status can tell a running
+  // host from the package on disk (a vendored file changes without reloading itself).
+  recordHostBuild(component.id)
   const plugin = pluginOf(namespace)
   if (plugin === null) {
     throw new Error(

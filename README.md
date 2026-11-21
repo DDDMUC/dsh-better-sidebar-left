@@ -75,6 +75,11 @@ curl -s http://127.0.0.1:<port>/api/dsh-better-sidebar-left/status | jq .summary
 `version` 是**浏览器半部**（本包 vendor 的那份）的版本，`installedVersion` 是 profile 里装的
 宿主半部版本，`versionMatch: false` 说明两边错版 —— 只会被报出来，不会被悄悄修补。
 
+还有两个字段专门拆「磁盘上是哪一版」和「进程里跑的是哪一版」：`hostLoaded` 表示这一行在这个进程里
+有没有挂过，`hostStale` 表示**内存里那份的哈希和磁盘上现在这份不一样**（`null` = 那个进程还没挂过它）。
+`summary.stale` 是这类组件的个数。vendored 文件改了不会自我重载，这个字段就是为它准备的 ——
+非 0 就说明宿主该重启了。
+
 ## 开发
 
 ```sh
