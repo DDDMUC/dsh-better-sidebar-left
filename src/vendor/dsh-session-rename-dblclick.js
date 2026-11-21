@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.0, sha256 a971097cc851bd2b)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.0, sha256 94661afd1538e0e9)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -79,6 +79,42 @@ export default () => {
     }
 
     /**
+     * The Session the conversation panel around `crumb` is showing.
+     *
+     * Walks up until an ancestor holds conversation content, then keeps only the
+     * TOP-LEVEL occurrences (one whose own nearest `[data-conversation-session]`
+     * ancestor is itself, so an embedded subagent panel does not pass for the
+     * outer conversation). More than one survivor means the answer is ambiguous -
+     * return null rather than rename a session the user did not point at.
+     * @param {Element} crumb
+     * @returns {string | null}
+     */
+    function sessionIdForHeader(crumb) {
+      let node = crumb
+      for (let depth = 0; depth < 24 && node !== null && node !== undefined; depth += 1) {
+        if (typeof node.querySelectorAll !== 'function') {
+          node = node.parentElement
+          continue
+        }
+        const found = node.querySelectorAll('[data-conversation-session]')
+        if (found.length === 0) {
+          node = node.parentElement
+          continue
+        }
+        const top = []
+        for (const el of found) {
+          const parent = el.parentElement
+          const owner = parent && typeof parent.closest === 'function' ? parent.closest('[data-conversation-session]') : null
+          if (owner === null) top.push(el)
+        }
+        if (top.length !== 1) return null
+        const value = top[0].getAttribute('data-conversation-session')
+        return typeof value === 'string' && value.length > 0 ? value : null
+      }
+      return null
+    }
+
+    /**
      * The Session a sidebar row names.
      *
      * `data-row-key` first: current builds render the row as
@@ -112,10 +148,15 @@ export default () => {
       // Never start an edit from inside another editable surface.
       if (el.closest('input, textarea, [contenteditable="true"]')) return null
 
-      // header breadcrumb: the title of the Session this page shows
+      // header breadcrumb: the title of the Session this page shows.
+      // The URL cannot answer this: the web front end has no router, so
+      // location.href stays "http://host:port/" whatever session is open.
+      // DSH itself answers the same question with `[data-conversation-session]`
+      // (that is how its stop-shortcut finds the session), so read that - and
+      // refuse to guess when more than one conversation is on screen.
       const crumb = el.closest('[class*="_crumbCurrent"]')
       if (crumb) {
-        const sessionId = sessionIdFromHref(String(location.href || ''))
+        const sessionId = sessionIdForHeader(crumb)
         return sessionId ? { sessionId, titleEl: crumb } : null
       }
 
@@ -351,5 +392,5 @@ export default () => {
 
     }
 
-    return { apply, __resolveTarget: resolveTarget, __sessionIdOfRow: sessionIdOfRow }
+    return { apply, __resolveTarget: resolveTarget, __sessionIdOfRow: sessionIdOfRow, __sessionIdForHeader: sessionIdForHeader }
   }

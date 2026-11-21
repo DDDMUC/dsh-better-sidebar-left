@@ -39,3 +39,63 @@ test('the browser half asks for the row by data-row-key', () => {
   assert.ok(source.includes('[data-row-key^="session:"]'), 'the row selector must include the shipped contract')
   assert.ok(source.includes('function sessionIdOfRow'), 'the row id must be read from data-row-key')
 })
+
+/** A minimal element: real descendants, real closest(), fake attributes only. */
+function nodeOf(attrs, children) {
+  const node = {
+    attributes: attrs,
+    children: [],
+    parentElement: null,
+    getAttribute(name) { return name in attrs ? attrs[name] : null },
+    querySelectorAll() {
+      const found = []
+      const walk = (current) => {
+        for (const child of current.children) {
+          if ('data-conversation-session' in child.attributes) found.push(child)
+          walk(child)
+        }
+      }
+      walk(node)
+      return found
+    },
+    closest(selector) {
+      let current = node
+      while (current !== null && current !== undefined) {
+        if (selector === '[data-conversation-session]' && 'data-conversation-session' in current.attributes) return current
+        current = current.parentElement
+      }
+      return null
+    },
+  }
+  for (const child of children ?? []) {
+    child.parentElement = node
+    node.children.push(child)
+  }
+  return node
+}
+
+test('the header title resolves its session from the DOM, not from the URL', () => {
+  // The web front end has no router: location.href stays http://host:port/ no
+  // matter which session is open, so the old location.hash/href lookup was dead.
+  const crumb = nodeOf({ class: 'kiGsTW_crumb kiGsTW_crumbCurrent' }, [])
+  const header = nodeOf({}, [crumb])
+  const content = nodeOf({ 'data-conversation-session': 'abc' }, [])
+  nodeOf({}, [header, content])
+  assert.equal(plugin.__sessionIdForHeader(crumb), 'abc')
+})
+
+test('an embedded conversation panel does not pass for the outer one', () => {
+  const crumb = nodeOf({ class: 'kiGsTW_crumbCurrent' }, [])
+  const inner = nodeOf({ 'data-conversation-session': 'subagent-session' }, [])
+  const outer = nodeOf({ 'data-conversation-session': 'outer-session' }, [inner])
+  nodeOf({}, [nodeOf({}, [crumb]), outer])
+  assert.equal(plugin.__sessionIdForHeader(crumb), 'outer-session')
+})
+
+test('two conversations on screen means no answer at all - never a guess', () => {
+  const crumb = nodeOf({ class: 'kiGsTW_crumbCurrent' }, [])
+  const left = nodeOf({ 'data-conversation-session': 'left' }, [])
+  const right = nodeOf({ 'data-conversation-session': 'right' }, [])
+  nodeOf({}, [nodeOf({}, [crumb]), left, right])
+  assert.equal(plugin.__sessionIdForHeader(crumb), null)
+})
