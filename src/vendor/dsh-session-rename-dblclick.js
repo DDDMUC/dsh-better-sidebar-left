@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.0, sha256 444acbe478143ce1)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.1.0, sha256 d07f9fb8618109dd)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -341,7 +341,9 @@ export default () => {
       ringEl.style.width = `${box.width}px`
       ringEl.style.height = `${box.height}px`
       ringEl.style.borderRadius = `${Math.round(Math.min(22, box.height / 2))}px`
-      ringEl.style.color = window.getComputedStyle(titleEl).color
+      if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
+        ringEl.style.color = window.getComputedStyle(titleEl).color
+      }
       ringEl.style.display = 'block'
       ringOwner = titleEl
     }
@@ -524,15 +526,22 @@ export default () => {
         document.addEventListener('click', onClick, true)
         document.addEventListener('mouseover', onHover, true)
         document.addEventListener('mouseout', onOut, true)
-        window.addEventListener('scroll', hideRing, true)
-        window.addEventListener('resize', hideRing)
+        // Not every environment that runs this bundle has a window (the tests drive
+        // it under a bare document); the ring is repositioned on demand anyway.
+        const hasWindow = typeof window !== 'undefined' && typeof window.addEventListener === 'function'
+        if (hasWindow) {
+          window.addEventListener('scroll', hideRing, true)
+          window.addEventListener('resize', hideRing)
+        }
         return () => {
           document.removeEventListener('dblclick', onDoubleClick, true)
           document.removeEventListener('click', onClick, true)
           document.removeEventListener('mouseover', onHover, true)
           document.removeEventListener('mouseout', onOut, true)
-          window.removeEventListener('scroll', hideRing, true)
-          window.removeEventListener('resize', hideRing)
+          if (hasWindow) {
+            window.removeEventListener('scroll', hideRing, true)
+            window.removeEventListener('resize', hideRing)
+          }
           hideRing()
           lastClick = null
           finish()
