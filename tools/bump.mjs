@@ -19,6 +19,8 @@ const sites = [
   { file: 'package.json', pattern: /(^\s*"version":\s*")([^"]+)(")/m, label: 'manifest' },
   { file: 'src/components.js', pattern: /(export const PLUGIN_VERSION = ')([^']+)(')/, label: 'PLUGIN_VERSION' },
   { file: 'src/sidebar.js', pattern: /(const PLUGIN_VERSION = ')([^']+)(')/, label: 'PLUGIN_VERSION' },
+  // The interop document names the identity it ships with, and a test enforces it.
+  { file: 'docs/INTEROP.md', pattern: /(`dsh-better-sidebar-left` )([0-9]+\.[0-9]+\.[0-9]+)([）])/, label: 'identity' },
 ]
 
 for (const site of sites) {

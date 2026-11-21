@@ -6217,16 +6217,10 @@ window.__ModuleLoader__.load({
           margin: 0; border: 1px solid transparent; background: transparent;
           box-shadow: none; transition: none;
         }
-        /* Editing: the same pill, now wearing the brand ring - that is how the
-           reference paints its focused field. The interior stays transparent so
-           no colour is invented on top of the host theme. */
-        .dsr-wrap[data-editing='true'] {
-          border-color: var(--dsw-alias-brand-primary, #4d6bfe);
-          /* The reference field is FILLED (it wears the input token), not a hole cut
-             in the header - that fill is most of why its edit state reads as a field. */
-          background: var(--dsw-specific-input-major, var(--dsw-alias-bg-overlay, #ffffff));
-          box-shadow: var(--dsw-shadow-lv2, 0 2px 8px 0 rgba(0, 0, 0, .04));
-        }
+        /* Editing: the colours are set inline by openEditor from tokens resolved INSIDE
+           the theme scope. They cannot live here - this overlay hangs off <body>, where
+           the theme variables do not exist, so a var() would fall back to something
+           invented (that is exactly how the ring once came out black). */
         /*
          * Idle affordance. It CANNOT be a pseudo-element on the title: the product's
          * crumb is display:inline-block with overflow hidden, so anything drawn outside
@@ -6387,16 +6381,6 @@ window.__ModuleLoader__.load({
     /** @type {null | { closed: boolean, targetEl: Element, sessionId: string }} */
     let editor = null
 
-    function copyFont(from, to) {
-      const cs = window.getComputedStyle(from)
-      to.style.fontFamily = cs.fontFamily
-      to.style.fontSize = cs.fontSize
-      to.style.fontWeight = cs.fontWeight
-      to.style.fontStyle = cs.fontStyle
-      to.style.letterSpacing = cs.letterSpacing
-      to.style.lineHeight = cs.lineHeight
-      to.style.textAlign = cs.textAlign
-    }
 
     /** Width of `text` in the title's own font, so the editor can hug the glyphs. */
     function measureText(el, text, font) {
@@ -6405,18 +6389,35 @@ window.__ModuleLoader__.load({
       const weight = font !== undefined && font !== null ? font.weight : cs.fontWeight
       const family = font !== undefined && font !== null ? font.family : cs.fontFamily
       const lineHeight = font !== undefined && font !== null ? font.lineHeight : parseFloat(cs.lineHeight) || Math.round(size * 1.35)
+      const style = font !== undefined && font !== null ? font.style : cs.fontStyle
+      const spacing = font !== undefined && font !== null ? font.letterSpacing : cs.letterSpacing
+      // Measure with a REAL element, not canvas metrics.
+      //
+      // Canvas measureText and the layout engine disagree by a pixel or two per CJK
+      // string, so a canvas-measured pill came out ~2px wider than the text it hugs.
+      // The reference is `width: fit-content`, i.e. whatever layout says, so ask layout.
       let width = 0
+      let probe = null
       try {
-        if (!measureText.canvas) measureText.canvas = document.createElement('canvas')
-        const context = measureText.canvas.getContext('2d')
-        context.font = `${cs.fontStyle} ${weight} ${size}px ${family}`
-        width = context.measureText(text).width
-      } catch {
+        probe = document.createElement('span')
+        probe.textContent = text
+        probe.setAttribute('aria-hidden', 'true')
+        probe.style.position = 'absolute'
+        probe.style.visibility = 'hidden'
+        probe.style.pointerEvents = 'none'
+        probe.style.whiteSpace = 'pre'
+        probe.style.font = `${style} ${weight} ${size}px ${family}`
+        probe.style.lineHeight = `${lineHeight}px`
+        probe.style.letterSpacing = spacing
+        const host = el !== null && el !== undefined && el.parentElement !== null && el.parentElement !== undefined ? el.parentElement : document.body
+        host.appendChild(probe)
+        width = probe.getBoundingClientRect().width
+      } catch (error) {
         width = 0
+      } finally {
+        if (probe !== null && typeof probe.remove === 'function') probe.remove()
       }
       if (!width) width = text.length * size * 0.62
-      const spacing = parseFloat(cs.letterSpacing)
-      if (Number.isFinite(spacing) && spacing !== 0) width += spacing * Math.max(text.length - 1, 0)
       return { width, height: lineHeight, padLeft: parseFloat(cs.paddingLeft) || 0, padTop: parseFloat(cs.paddingTop) || 0 }
     }
 
@@ -6482,7 +6483,15 @@ window.__ModuleLoader__.load({
      */
     function pillFont(titleEl) {
       const cs = typeof window !== 'undefined' && typeof window.getComputedStyle === 'function' ? window.getComputedStyle(titleEl) : null
-      return { size: 14, weight: '600', lineHeight: 22, family: cs === null ? 'inherit' : cs.fontFamily }
+      if (cs === null) return { size: 14, weight: '400', style: 'normal', lineHeight: 20, family: 'inherit', letterSpacing: 'normal' }
+      return {
+        size: parseFloat(cs.fontSize) || 14,
+        weight: cs.fontWeight || '400',
+        style: cs.fontStyle || 'normal',
+        lineHeight: parseFloat(cs.lineHeight) || 20,
+        family: cs.fontFamily || 'inherit',
+        letterSpacing: cs.letterSpacing || 'normal',
+      }
     }
 
     function boxOf(titleEl, title, surface) {
@@ -6661,7 +6670,9 @@ window.__ModuleLoader__.load({
       wrap.style.fontFamily = font.family
       wrap.style.fontSize = `${font.size}px`
       wrap.style.fontWeight = font.weight
+      wrap.style.fontStyle = font.style
       wrap.style.lineHeight = `${font.lineHeight}px`
+      wrap.style.letterSpacing = font.letterSpacing
 
       const input = document.createElement('input')
       input.className = 'dsr-input'
@@ -6704,7 +6715,11 @@ window.__ModuleLoader__.load({
       const focusNow = () => {
         if (state.closed) return
         input.focus({ preventScroll: true })
-        input.select()
+        // The reference drops a caret after the last character; it does NOT select the
+        // title. Selecting everything made the first keystroke replace the whole name,
+        // and it repainted the text with a selection band that the reference never shows.
+        const end = String(input.value).length
+        if (typeof input.setSelectionRange === 'function') input.setSelectionRange(end, end)
       }
       // Next frame when there is one (some hosts without a window still run this code).
       if (typeof requestAnimationFrame === 'function') requestAnimationFrame(focusNow)
@@ -9388,7 +9403,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.1.1'
+    const PLUGIN_VERSION = '0.1.3'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'

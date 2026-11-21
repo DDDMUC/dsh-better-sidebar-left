@@ -175,7 +175,8 @@ function miniDom() {
       getBoundingClientRect() { return { left: 100, top: 50, width: 180, height: 22, right: 280, bottom: 72 } },
       getContext() { return null },
       focus() {},
-      select() {},
+      select() { this.selectionStart = 0; this.selectionEnd = String(this.value).length },
+      setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end },
       addEventListener() {},
       removeEventListener() {},
     }
@@ -238,6 +239,9 @@ test('opening the editor really builds the pill (the bug this guards)', async ()
     assert.equal(wrap.style.height, '40px', 'the header pill is 40px tall')
     assert.equal(wrap.style.boxShadow, 'inset 0 0 0 1px #3964fe', 'the ring is the reference blue, inset')
     assert.equal(titleEl.style.visibility, 'hidden', 'the title underneath is hidden while editing')
+    const field = wrap.children[0]
+    assert.equal(field.selectionStart, 'Review session studio brief file'.length, 'the caret sits after the last character, nothing is selected')
+    assert.equal(field.selectionEnd, 'Review session studio brief file'.length, 'no selection band on open')
   } finally {
     if (saved.document === undefined) delete globalThis.document
     else globalThis.document = saved.document
