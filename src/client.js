@@ -6760,7 +6760,7 @@ window.__ModuleLoader__.load({
     // first click of a pair is never replayed. A single click on another row's title
     // therefore navigates after this delay; a slower pair is undone by the dblclick
     // handler below, which opens the previous session again.
-    const HOLD_MS = 90
+    const HOLD_MS = 120
     let heldClick = null
     let replaying = false
     let lastReplay = null
@@ -9485,7 +9485,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.1.18'
+    const PLUGIN_VERSION = '0.1.19'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
