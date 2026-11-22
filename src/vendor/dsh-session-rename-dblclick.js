@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.2.16, sha256 f6f671eac987be01)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.3.0, sha256 f6f671eac987be01)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this

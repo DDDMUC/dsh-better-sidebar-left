@@ -10,7 +10,7 @@
 首个版本。把五个「会话管理类」插件合并成一个聚合包，插件列表里只出现一行。
 
 - 组件（全部从 **GitHub 仓库的本地检出** vendor，不从 npm 取）：
-  `dsh-delete-session` 0.5.0、`dsh-session-relocate` 0.3.1、`dsh-session-rename-dblclick` 0.2.16、
+  `dsh-delete-session` 0.5.0、`dsh-session-relocate` 0.3.1、`dsh-session-rename-dblclick` 0.3.0、
   `dsh-session-counts` 0.0.3、`dsh-declutter` 0.2.0。
   每个的上游 commit 钉在 `package.json` 的 `dsh.vendorSources`，`npm run verify:manifest` 离线核对。
 - 单一行身份：`cordis.patch.yml` 插 1 行裸包名 + 5 行 `dsh-better-sidebar-left/<后缀>`；

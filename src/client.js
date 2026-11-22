@@ -9485,7 +9485,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.1.19'
+    const PLUGIN_VERSION = '0.2.0'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
