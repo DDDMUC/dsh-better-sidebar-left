@@ -1,7 +1,7 @@
 {
   "dsh-delete-session": "0.5.0",
   "dsh-session-relocate": "0.3.1",
-  "dsh-session-rename-dblclick": "0.2.14",
+  "dsh-session-rename-dblclick": "0.2.15",
   "dsh-session-counts": "0.0.3",
   "dsh-declutter": "0.2.0"
 }
