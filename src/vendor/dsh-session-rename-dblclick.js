@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.2.6, sha256 20c0c26a6e2b02a6)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.2.7, sha256 80abfa39ed8c3954)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -582,9 +582,10 @@ export default () => {
     // whether a second is coming, so the first click is held briefly: if another arrives
     // within HOLD_MS both are swallowed (the product's own dblclick still opens its
     // dialog), otherwise the click is replayed so the session opens as usual.
-    const HOLD_MS = 200
+    const HOLD_MS = 300
     let heldClick = null
     let replaying = false
+    let lastReplay = null
 
     function rowOfNode(node) {
       const el = elementOf(node)
@@ -616,6 +617,20 @@ export default () => {
         event = null
       }
       if (event === null || typeof row.dispatchEvent !== 'function') return
+      // Remember what this replay is about to replace: if the user turns out to be
+      // double clicking (slowly), the dblclick handler below puts the previous session
+      // back so the rename never leaves them somewhere else.
+      let previousRow = null
+      try {
+        previousRow = document.querySelector('[class*="_selected"][data-row-key^="session:"]')
+      } catch (error) {
+        previousRow = null
+      }
+      lastReplay = {
+        row,
+        previous: previousRow !== null && previousRow !== row ? previousRow : null,
+        at: Date.now(),
+      }
       replaying = true
       try {
         row.dispatchEvent(event)
@@ -624,6 +639,43 @@ export default () => {
       }
     }
 
+    /**
+     * Undo a replay that turned out to be the first half of a double click.
+     *
+     * Fast double clicks are already handled by the hold above. A slower one (say 350ms
+     * apart) lets the replay navigate first and only then fires the product dblclick, so
+     * the rename would leave the user on the wrong session. Here the previous session is
+     * opened again, and the product dialog keeps opening on the row that was double
+     * clicked.
+     */
+    function onRowDoubleClick(event) {
+      if (lastReplay === null) return
+      if (event.button !== 0) return
+      const row = rowOfNode(event.target)
+      if (row === null || row !== lastReplay.row) return
+      const el = elementOf(event.target)
+      const titleEl = el && typeof el.closest === 'function' ? el.closest('[class*="_title"]') : null
+      if (titleEl === null || titleEl === undefined || typeof row.contains !== 'function' || !row.contains(titleEl)) return
+      const replay = lastReplay
+      lastReplay = null
+      if (Date.now() - replay.at > 900) return
+      const previous = replay.previous
+      if (previous === null || previous === undefined || previous.isConnected === false) return
+      let event2 = null
+      try {
+        const view = typeof window === 'undefined' ? null : window
+        event2 = new MouseEvent('click', { bubbles: true, cancelable: true, view, detail: 1 })
+      } catch (error) {
+        event2 = null
+      }
+      if (event2 === null || typeof previous.dispatchEvent !== 'function') return
+      replaying = true
+      try {
+        previous.dispatchEvent(event2)
+      } finally {
+        replaying = false
+      }
+    }
     function onRowClick(event) {
       if (replaying) return
       if (event.button !== 0) return
@@ -681,6 +733,7 @@ export default () => {
       const install = () => {
         document.addEventListener('click', onClick, true)
         document.addEventListener('click', onRowClick, true)
+        document.addEventListener('dblclick', onRowDoubleClick, true)
         document.addEventListener('mouseover', onHover, true)
         document.addEventListener('mouseout', onOut, true)
         // Not every environment that runs this bundle has a window (the tests drive
@@ -693,6 +746,8 @@ export default () => {
         return () => {
           document.removeEventListener('click', onClick, true)
           document.removeEventListener('click', onRowClick, true)
+          document.removeEventListener('dblclick', onRowDoubleClick, true)
+          lastReplay = null
           releaseHeldClick()
           document.removeEventListener('mouseover', onHover, true)
           document.removeEventListener('mouseout', onOut, true)
