@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.2.11, sha256 cbe538561c373b4a)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/client.js  (v0.2.12, sha256 00f89614b7dc571e)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -586,7 +586,7 @@ export default () => {
     // first click of a pair is never replayed. A single click on another row's title
     // therefore navigates after this delay; a slower pair is undone by the dblclick
     // handler below, which opens the previous session again.
-    const HOLD_MS = 500
+    const HOLD_MS = 200
     let heldClick = null
     let replaying = false
     let lastReplay = null
