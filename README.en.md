@@ -11,7 +11,7 @@ Five session-management plugins in one install. **The plugin list grows by exact
 |---|---|
 | `dsh-delete-session` 0.5.0 | **Delete a session** from the sidebar row menu: a risk list (log, workspace files, quarantine folder) first, nothing touched until you confirm; plus a multi-select footer bar for batches |
 | `dsh-session-relocate` 0.3.1 | **Move across workspaces**: row menu, context menu, or drag the session row onto the target workspace - a crash-recoverable transaction, open-but-idle sessions included |
-| `dsh-session-rename-dblclick` 0.2.13 | **Rename in place**: one click on the header title, a double click on a sidebar row; the pill follows the shipped title (40px, 22px radius, outline on hover, brand ring while editing), Enter saves, Esc cancels |
+| `dsh-session-rename-dblclick` 0.2.14 | **Rename in place**: one click on the header title, a double click on a sidebar row; the pill follows the shipped title (40px, 22px radius, outline on hover, brand ring while editing), Enter saves, Esc cancels |
 | `dsh-session-counts` 0.0.3 | **Per-workspace counts**: a badge at the end of each workspace row and a total next to the section label, following the archived filter |
 | `dsh-declutter` 0.2.0 | **Declutter**: failed/empty/synthesised turns fold away per a rule table (view attributes only, reversible, log untouched) + sidebar tidying (brand row, New session, More buttons, top gap, panel visibility and order) |
 
