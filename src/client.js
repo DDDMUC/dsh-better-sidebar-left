@@ -6756,40 +6756,10 @@ window.__ModuleLoader__.load({
     // whether a second is coming, so the first click is held briefly: if another arrives
     // within HOLD_MS both are swallowed (the product's own dblclick still opens its
     // dialog), otherwise the click is replayed so the session opens as usual.
-    // The hold has to outlast the user's own double click. Rather than guess, it adapts:
-    // every time a second click is observed, the hold is set just above that interval
-    // (and persisted), so a fast clicker keeps a short delay and a slow one stops seeing
-    // the navigation happen at all.
-    const HOLD_MIN = 150
-    const HOLD_MAX = 600
-    const HOLD_KEY = 'dsh-session-rename:hold'
-
-    function loadHold() {
-      try {
-        const raw = typeof localStorage === 'undefined' ? null : localStorage.getItem(HOLD_KEY)
-        const value = raw === null ? NaN : Number(raw)
-        if (!Number.isFinite(value)) return 350
-        return Math.min(HOLD_MAX, Math.max(HOLD_MIN, Math.round(value)))
-      } catch (error) {
-        return 350
-      }
-    }
-
-    function saveHold(value) {
-      try {
-        if (typeof localStorage !== 'undefined') localStorage.setItem(HOLD_KEY, String(value))
-      } catch (error) {
-        // storage can be unavailable; the hold simply falls back to the default
-      }
-    }
-
-    function adaptHold(interval) {
-      if (!Number.isFinite(interval) || interval <= 0) return
-      holdMs = Math.min(HOLD_MAX, Math.max(HOLD_MIN, Math.round(interval + 60)))
-      saveHold(holdMs)
-    }
-
-    let holdMs = loadHold()
+    // Fixed at the request's value: half a second is longer than a normal double click,
+    // so the first click of a pair is never replayed. A single click on another row's
+    // title therefore navigates after this delay.
+    const HOLD_MS = 500
     let heldClick = null
     let replaying = false
     let lastReplay = null
@@ -6837,7 +6807,6 @@ window.__ModuleLoader__.load({
         row,
         previous: previousRow !== null && previousRow !== row ? previousRow : null,
         at: Date.now(),
-        firstAt: held !== undefined && held !== null && held.at !== undefined ? held.at : Date.now(),
       }
       replaying = true
       try {
@@ -6867,7 +6836,6 @@ window.__ModuleLoader__.load({
       const replay = lastReplay
       lastReplay = null
       if (Date.now() - replay.at > 900) return
-      adaptHold(Date.now() - replay.firstAt)
       const previous = replay.previous
       if (previous === null || previous === undefined || previous.isConnected === false) return
       let event2 = null
@@ -6897,7 +6865,6 @@ window.__ModuleLoader__.load({
       if (isRowSelected(row)) return
       if (event.detail >= 2) {
         if (heldClick !== null && heldClick.row === row) {
-          adaptHold(Date.now() - heldClick.at)
           releaseHeldClick()
           event.preventDefault()
           event.stopPropagation()
@@ -6923,7 +6890,7 @@ window.__ModuleLoader__.load({
         timer: typeof setTimeout === 'function' ? setTimeout(() => {
           const held = releaseHeldClick()
           if (held !== null) replayClick(held)
-        }, holdMs) : null,
+        }, HOLD_MS) : null,
       }
     }
     function onClick(event) {
@@ -9517,7 +9484,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.1.11'
+    const PLUGIN_VERSION = '0.1.12'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'

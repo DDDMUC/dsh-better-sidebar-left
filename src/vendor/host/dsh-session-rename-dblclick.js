@@ -1,6 +1,6 @@
 // dsh-session-rename-dblclick host half (dsh-session-rename-dblclick.js), VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/index.js  (v0.2.8, sha256 9a1263e486e37b58)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-rename-dblclick/index.js  (v0.2.9, sha256 9a1263e486e37b58)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // src/shell.js mounts the copy named after the component, which is why this
