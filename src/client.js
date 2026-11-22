@@ -6756,10 +6756,10 @@ window.__ModuleLoader__.load({
     // whether a second is coming, so the first click is held briefly: if another arrives
     // within HOLD_MS both are swallowed (the product's own dblclick still opens its
     // dialog), otherwise the click is replayed so the session opens as usual.
-    // Fixed at the request's value: half a second is longer than a normal double click,
-    // so the first click of a pair is never replayed. A single click on another row's
-    // title therefore navigates after this delay.
-    const HOLD_MS = 500
+    // Fixed at the request's value (2000ms): any double click, however slow, finishes
+    // inside the hold, so the first click of a pair is never replayed. A single click on
+    // another row's title therefore navigates after this delay.
+    const HOLD_MS = 2000
     let heldClick = null
     let replaying = false
     let lastReplay = null
@@ -9484,7 +9484,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.1.12'
+    const PLUGIN_VERSION = '0.1.13'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
