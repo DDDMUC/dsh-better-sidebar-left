@@ -9923,6 +9923,8 @@ window.__ModuleLoader__.load({
      *   click does nothing" failure this package exists to prevent: the page shows
      *   the failure and the marker carries it.
      */
+    const appliedModules = {}
+
     function applyVendored(ctx, id) {
       try {
         const plugin = vendoredModule(id)
@@ -9930,6 +9932,7 @@ window.__ModuleLoader__.load({
           console.error('[' + NS + '] vendored ' + id + ' has no apply()', plugin)
           return { ok: false, error: 'no apply()' }
         }
+        appliedModules[id] = plugin
         const result = plugin.apply(ctx)
         // A component whose apply() is async must not be able to fail silently.
         if (result !== null && typeof result === 'object' && typeof result.then === 'function') {
@@ -9965,7 +9968,7 @@ window.__ModuleLoader__.load({
       const entry = CONFIG_CARDS.filter((candidate) => candidate.id === id)[0]
       if (entry === undefined) return null
       try {
-        const plugin = vendoredModule(id)
+        const plugin = appliedModules[id] !== undefined ? appliedModules[id] : vendoredModule(id)
         if (plugin === null || plugin === undefined) return null
         let value = plugin
         for (let index = 0; index < entry.path.length; index += 1) {
