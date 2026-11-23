@@ -170,7 +170,7 @@ window.__ModuleLoader__.load({
     // --- styles ----------------------------------------------------------------
 
     const STYLE = [
-      '.dbsl-page{height:100%;min-height:0;overflow-y:auto;box-sizing:border-box;padding:16px 24px 24px}',
+      '.dbsl-page{height:100%;min-height:0;overflow-y:auto;box-sizing:border-box;padding:14px 24px 24px 46px}',
       '.dbsl-h1{font-size:15px;font-weight:600;margin:0 0 2px}',
       '.dbsl-panel{max-width:760px;display:flex;flex-direction:column;gap:10px}',
       '.dbsl-wrap{display:flex;flex-direction:column;gap:10px;font-size:13px;line-height:1.5}',
@@ -437,11 +437,18 @@ window.__ModuleLoader__.load({
 
     // --- the left rail entry ----------------------------------------------------
 
-    /** The rail icon: a panel with a rule and three lines, in currentColor. */
-    function LeftRailIcon() {
+    /**
+     * The rail icon: a panel with a rule and three lines, in currentColor.
+     *
+     * The shell renders this component in more than one place (the rail row and the
+     * page header) and hands it { size, active }, so the size must be taken from the
+     * props - a hardcoded 18 was drawn clipped wherever the shell asked for less.
+     */
+    function LeftRailIcon(props) {
+      const size = props !== null && props !== undefined && Number(props.size) > 0 ? Number(props.size) : 18
       return h(
         'svg',
-        { width: 18, height: 18, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': 'true' },
+        { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': 'true' },
         h('rect', { x: 3.2, y: 4.2, width: 17.6, height: 15.6, rx: 3, stroke: 'currentColor', strokeWidth: 1.6 }),
         h('path', { d: 'M9 4.6v14.8', stroke: 'currentColor', strokeWidth: 1.6 }),
         h('path', { d: 'M12 9h5.4M12 12.4h5.4M12 15.4h3.4', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round' }),
