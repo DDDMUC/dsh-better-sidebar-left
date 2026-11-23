@@ -10181,8 +10181,7 @@ window.__ModuleLoader__.load({
       const body = []
       if (component !== undefined && status !== undefined) body.push(renderRow(status, component, railText, locale, { skipMismatch: true }))
       const Card = vendoredConfigCard(id)
-      if (Card === null) body.push(h('p', { className: 'dbsl-note', key: 'noSettings' }, railText('panelNoSettings')))
-      else body.push(h(Card, { key: 'card-' + id, view: 'full', t: railText }))
+      if (Card !== null) body.push(h(Card, { key: 'card-' + id, view: 'full', t: railText }))
       return body
     }
 
@@ -10219,7 +10218,6 @@ window.__ModuleLoader__.load({
         for (const entry of view.payload.components) reported[entry.id] = entry
         for (const node of railPageOf(tab, reported, locale)) body.push(node)
       }
-      body.push(h('p', { className: 'dbsl-foot', key: 'foot' }, railText('panelFoot')))
       return h('div', { className: 'dbsl-page' }, h('div', { className: 'dbsl-panel' }, body))
     }
     /** This plugin page. Set by apply() so the panel never reaches for a global. */
