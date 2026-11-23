@@ -10164,9 +10164,14 @@ window.__ModuleLoader__.load({
       { id: 'dsh-session-relocate', labelKey: 'panelTabMove' },
     ]
 
+    function availableTabs() {
+      return RAIL_TABS.filter((tab) => vendoredConfigCard(tab.id) !== null)
+    }
+
     function railTabs(active, select) {
       const buttons = []
-      for (const tab of RAIL_TABS) {
+      const tabs = availableTabs()
+      for (const tab of tabs) {
         const on = tab.id === active
         buttons.push(
           h(
@@ -10183,7 +10188,7 @@ window.__ModuleLoader__.load({
           ),
         )
       }
-      return h('div', { className: 'dbsl-tabs', role: 'tablist' }, buttons)
+      return buttons.length === 0 ? null : h('div', { className: 'dbsl-tabs', role: 'tablist' }, buttons)
     }
 
     function railPageOf(id) {
@@ -10192,7 +10197,8 @@ window.__ModuleLoader__.load({
     }
 
     function LeftRailPage() {
-      const [tab, setTab] = react.useState(RAIL_TABS[0].id)
+      const tabs = availableTabs()
+      const [tab, setTab] = react.useState(tabs.length === 0 ? null : tabs[0].id)
       const locale = currentLocale()
       const body = [
         h('h2', { className: 'dbsl-h1', key: 'h1' }, railText('panelHeading')),
