@@ -1,6 +1,6 @@
 // dsh-declutter browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.2, sha256 5abdde4eb94ed7b1)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.3, sha256 fa0977810fe7f2d1)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -450,6 +450,7 @@ export default (require) => {
     const PANEL_ENTRY_LABEL = '隐藏与整理'
     /** Panel id: the URL segment (#/panel/<id>) and the main slot key. */
     const PANEL_ENTRY_ID = 'hide-rows'
+    const PANEL_ENTRY_ENABLED = false
     /** The sidebar draws the row; this slot contributes the icon in front of it. */
     function PanelEntry() {
       return h(
@@ -2046,7 +2047,7 @@ export default (require) => {
         // carries the icon and label, and the main slot with the same key is the
         // page the shell routes #/panel/<id> to. Without the second registration
         // the click falls back to whatever panel was open before.
-        if (ctx.slots && typeof ctx.slots.inject === 'function') {
+        if (PANEL_ENTRY_ENABLED && ctx.slots && typeof ctx.slots.inject === 'function') {
           ctx.effect(() =>
             ctx.slots.inject('sidebar.panellist', () =>
               ctx.slots.register(

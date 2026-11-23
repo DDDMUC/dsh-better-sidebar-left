@@ -7774,6 +7774,7 @@ window.__ModuleLoader__.load({
     const PANEL_ENTRY_LABEL = '隐藏与整理'
     /** Panel id: the URL segment (#/panel/<id>) and the main slot key. */
     const PANEL_ENTRY_ID = 'hide-rows'
+    const PANEL_ENTRY_ENABLED = false
     /** The sidebar draws the row; this slot contributes the icon in front of it. */
     function PanelEntry() {
       return h(
@@ -9370,7 +9371,7 @@ window.__ModuleLoader__.load({
         // carries the icon and label, and the main slot with the same key is the
         // page the shell routes #/panel/<id> to. Without the second registration
         // the click falls back to whatever panel was open before.
-        if (ctx.slots && typeof ctx.slots.inject === 'function') {
+        if (PANEL_ENTRY_ENABLED && ctx.slots && typeof ctx.slots.inject === 'function') {
           ctx.effect(() =>
             ctx.slots.inject('sidebar.panellist', () =>
               ctx.slots.register(
@@ -9490,7 +9491,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.2.2'
+    const PLUGIN_VERSION = '0.2.3'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -9519,11 +9520,6 @@ window.__ModuleLoader__.load({
      * The other four keep their card only when installed standalone;
      * docs/INTEROP.md section 6 says what a component has to export to appear here.
      */
-    const CONFIG_CARDS = [
-      { id: 'dsh-declutter', path: ['__settings', 'SettingsCard'] },
-      { id: 'dsh-delete-session', path: ['__settings', 'SettingsCard'] },
-      { id: 'dsh-session-relocate', path: ['__settings', 'ChildrenSetting'] },
-    ]
 
     /**
      * The cordis services this bundle's apply() needs, as the UNION of what every
@@ -9837,22 +9833,27 @@ window.__ModuleLoader__.load({
         },
         {
           "component": "dsh-declutter",
-          "name": "sidebar.panellist",
-          "id": "hide-rows",
-          "order": 20
-        },
-        {
-          "component": "dsh-declutter",
-          "name": "main",
-          "key": "hide-rows"
-        },
-        {
-          "component": "dsh-declutter",
           "name": "plugins.row.config",
           "key": "dsh-declutter#dsh-declutter"
         }
+      ],
+      "settingsCards": [
+        {
+          "component": "dsh-declutter",
+          "exportPath": "__settings.SettingsCard"
+        },
+        {
+          "component": "dsh-delete-session",
+          "exportPath": "__settings.SettingsCard"
+        },
+        {
+          "component": "dsh-session-relocate",
+          "exportPath": "__settings.ChildrenSetting"
+        }
       ]
     }
+
+    const CONFIG_CARDS = INTEROP.settingsCards.map((card) => ({ id: card.component, path: card.exportPath.split('.') }))
 
     // --- styles ----------------------------------------------------------------
 

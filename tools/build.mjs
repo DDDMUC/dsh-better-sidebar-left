@@ -85,7 +85,8 @@ function interopLiteral() {
     if (slot.order !== undefined) row.order = slot.order
     return row
   })
-  return JSON.stringify({ slots }, null, 2).split('\n').join('\n    ')
+  const settingsCards = INTEROP.settingsCards.map((card) => ({ component: card.component, exportPath: card.exportPath }))
+  return JSON.stringify({ slots, settingsCards }, null, 2).split('\n').join('\n    ')
 }
 
 // The package own browser half is a whole bundle of its own; inside the stitched

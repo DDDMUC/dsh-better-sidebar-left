@@ -15,7 +15,7 @@
 | `dsh-session-counts` | decor | DDDMUC/dsh-session-counts | `counts` |
 | `dsh-declutter` | maintenance | DDDMUC/dsh-declutter | `declutter` |
 
-插件列表里只有本包一行（`dsh-better-sidebar-left` 0.2.2）。五个组件的装载行是
+插件列表里只有本包一行（`dsh-better-sidebar-left` 0.2.3）。五个组件的装载行是
 `dsh-better-sidebar-left/<后缀>`，见 §11 的机制 A / B。
 
 ## 1. 铁律
@@ -74,8 +74,6 @@ loopback 校验留在宿主侧。
 | `dsh-session-counts` | `plugins.row.config` | `key: @local/dsh-session-counts#session-counts` | — |
 | `dsh-declutter` | `conversation.input.overlay` | `id: declutter` | 90 |
 | `dsh-declutter` | `sidebar.footer.action` | `id: sidebar-declutter-collapse` | 10 |
-| `dsh-declutter` | `sidebar.panellist` | `id: hide-rows` | 20 |
-| `dsh-declutter` | `main` | `key: hide-rows` | — |
 | `dsh-declutter` | `plugins.row.config` | `key: dsh-declutter#dsh-declutter` | — |
 
 本包自己的注册只有一条：`plugins.row.config` / `key: dsh-better-sidebar-left#dsh-better-sidebar-left`。
@@ -144,12 +142,14 @@ loopback 校验留在宿主侧。
 `dsh-better-sidebar-left-<后缀>`，那个 key 永远不会被匹配 —— 所以这些卡**不会**出现在本包行上。
 
 能恢复的原因是：组件把自己的卡**导出**给本包渲染（渲染的是组件自己的函数，不是复制品，
-所以两边不会漂移）。当前只有 relocate 导出了（`__settings.ChildrenSetting`），由本包设置页直接渲染；
+所以两边不会漂移）。当前 declutter / delete-session / relocate 三个导出了，由本包设置页直接渲染；
 其余四个的卡只在单独安装时可见。要让某个组件的卡回到本页，组件侧加一行导出，
 再在 `src/sidebar.js` 的 `CONFIG_CARDS` 表里登记即可。
 
 | 组件 | 设置卡 | 聚合后可见 |
 |---|---|---|
+| `dsh-declutter` | `__settings.SettingsCard`（左栏收起、面板显隐与排序、会话菜单） | ✅ 本包设置页 |
+| `dsh-delete-session` | `__settings.SettingsCard`（删除时询问、回收站、子会话） | ✅ 本包设置页 |
 | `dsh-session-relocate` | `__settings.ChildrenSetting`（连同子对话、chip 形态） | ✅ 本包设置页 |
 | `dsh-delete-session` | `AskBeforeDeleteOption`（删除前确认） | ⚠ 需组件导出 |
 | `dsh-session-counts` | `CountsModeCard`（计数口径） | ⚠ 需组件导出 |
@@ -164,7 +164,7 @@ loopback 校验留在宿主侧。
 同 `MENU_STORE_KEY`、同 `STYLE_ATTR`，也注册同样的两个 slot 身份：
 
 - `sidebar.footer.action` / `id: sidebar-declutter-collapse` / order 10
-- `sidebar.panellist` / `id: hide-rows` / order 20
+- `sidebar.panellist` / `id: hide-rows` / order 20（本包 vendor 时 `PANEL_ENTRY_ENABLED=false`，这一行不注册；单独安装的 declutter 仍然注册）
 
 两者同时启用 = 同一份代码跑两遍：slot 身份撞车（I2）+ 两套 MutationObserver 观察同一批行。
 **启用本包时请把独立的 `dsh-sidebar-declutter` 从 `dsh.profile.bundles` 里去掉。**

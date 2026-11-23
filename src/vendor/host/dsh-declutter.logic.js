@@ -1,6 +1,6 @@
 // dsh-declutter host half (dsh-declutter.logic.js), VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/a sibling module  (v0.2.2, sha256 8fb9fbd346230656)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/a sibling module  (v0.2.3, sha256 8fb9fbd346230656)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // src/shell.js mounts the copy named after the component, which is why this

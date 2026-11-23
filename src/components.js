@@ -24,7 +24,7 @@
 export const PLUGIN_ID = 'dsh-better-sidebar-left'
 
 /** Keep in sync with package.json and src/sidebar.js. */
-export const PLUGIN_VERSION = '0.2.2'
+export const PLUGIN_VERSION = '0.2.3'
 
 /**
  * The five components, in the order the user meets them in the sidebar.
@@ -180,8 +180,6 @@ export const COMPONENTS = [
     slots: [
       { name: 'conversation.input.overlay', id: 'declutter', order: 90 },
       { name: 'sidebar.footer.action', id: 'sidebar-declutter-collapse', order: 10 },
-      { name: 'sidebar.panellist', id: 'hide-rows', order: 20 },
-      { name: 'main', key: 'hide-rows' },
       { name: 'plugins.row.config', key: 'dsh-declutter#dsh-declutter' },
     ],
     routes: ['GET /dsh-declutter/state', 'POST /dsh-declutter/report'],
@@ -237,12 +235,14 @@ export const INTEROP = {
     {
       component: 'dsh-declutter',
       conflictsWith: 'dsh-sidebar-declutter',
-      slotIds: ['sidebar-declutter-collapse', 'hide-rows'],
+      slotIds: ['sidebar-declutter-collapse'],
       storageKeys: ['dsh-sidebar-declutter', 'dsh-hide-new-session', 'dsh-sidebar-declutter.menu'],
       resolution: 'disable the standalone dsh-sidebar-declutter bundle while this plugin is enabled',
     },
   ],
   settingsCards: [
+    { component: 'dsh-declutter', exportPath: '__settings.SettingsCard', label: { zh: '收纳与整理', en: 'Declutter' } },
+    { component: 'dsh-delete-session', exportPath: '__settings.SettingsCard', label: { zh: '删除会话', en: 'Delete a session' } },
     { component: 'dsh-session-relocate', exportPath: '__settings.ChildrenSetting', label: { zh: '连同子对话', en: 'Include child conversations' } },
   ],
   /** This plugin's own registrations: one row config seat, nothing else. */

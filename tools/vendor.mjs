@@ -211,6 +211,10 @@ const versions = {}
 const generated = []
 let stale = 0
 
+const BUILD_TIME_REWRITES = {
+  'dsh-declutter': [[/const PANEL_ENTRY_ENABLED = true/, 'const PANEL_ENTRY_ENABLED = false']],
+}
+
 for (const component of COMPONENTS) {
   const relativeClient = CLIENT_PATH[component.id]
   const relativeHost = HOST_PATH[component.id]
@@ -241,7 +245,14 @@ for (const component of COMPONENTS) {
   versions[component.id] = version
 
   // --- the browser half -------------------------------------------------------
-  const clientSource = readFileSync(clientPath, 'utf8')
+  let clientSource = readFileSync(clientPath, 'utf8')
+  for (const [pattern, replacement] of BUILD_TIME_REWRITES[component.id] ?? []) {
+    if (!pattern.test(clientSource)) {
+      console.error(component.id + ': the build-time rewrite ' + pattern + ' does not apply; the component changed shape')
+      process.exit(3)
+    }
+    clientSource = clientSource.replace(pattern, replacement)
+  }
   const clientSha = createHash('sha256').update(clientSource).digest('hex').slice(0, 16)
   const expression = factoryOf(component, clientSource)
   const clientHeader = [

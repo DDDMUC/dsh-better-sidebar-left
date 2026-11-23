@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.2.2'
+    const PLUGIN_VERSION = '0.2.3'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -71,11 +71,6 @@ window.__ModuleLoader__.load({
      * The other four keep their card only when installed standalone;
      * docs/INTEROP.md section 6 says what a component has to export to appear here.
      */
-    const CONFIG_CARDS = [
-      { id: 'dsh-declutter', path: ['__settings', 'SettingsCard'] },
-      { id: 'dsh-delete-session', path: ['__settings', 'SettingsCard'] },
-      { id: 'dsh-session-relocate', path: ['__settings', 'ChildrenSetting'] },
-    ]
 
     /**
      * The cordis services this bundle's apply() needs, as the UNION of what every
@@ -188,6 +183,8 @@ window.__ModuleLoader__.load({
 
     /** The interop allocation, generated the same way. */
     const INTEROP = __INTEROP__
+
+    const CONFIG_CARDS = INTEROP.settingsCards.map((card) => ({ id: card.component, path: card.exportPath.split('.') }))
 
     // --- styles ----------------------------------------------------------------
 
