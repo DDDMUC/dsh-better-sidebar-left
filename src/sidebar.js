@@ -71,7 +71,11 @@ window.__ModuleLoader__.load({
      * The other four keep their card only when installed standalone;
      * docs/INTEROP.md section 6 says what a component has to export to appear here.
      */
-    const CONFIG_CARDS = [{ id: 'dsh-session-relocate', path: ['__settings', 'ChildrenSetting'] }]
+    const CONFIG_CARDS = [
+      { id: 'dsh-declutter', path: ['__settings', 'SettingsCard'] },
+      { id: 'dsh-delete-session', path: ['__settings', 'SettingsCard'] },
+      { id: 'dsh-session-relocate', path: ['__settings', 'ChildrenSetting'] },
+    ]
 
     /**
      * The cordis services this bundle's apply() needs, as the UNION of what every
@@ -515,51 +519,22 @@ window.__ModuleLoader__.load({
       return h('div', { className: 'dbsl-tabs', role: 'tablist' }, buttons)
     }
 
-    function railPageOf(id, reported, locale) {
-      const component = MANIFEST.filter((entry) => entry.id === id)[0]
-      const status = reported[id]
-      const body = []
-      if (component !== undefined && status !== undefined) body.push(renderRow(status, component, railText, locale, { skipMismatch: true }))
+    function railPageOf(id) {
       const Card = vendoredConfigCard(id)
-      if (Card !== null) body.push(h(Card, { key: 'card-' + id, view: 'full', t: railText }))
-      return body
+      return Card === null ? [] : [h(Card, { key: 'card-' + id, view: 'full', t: railText })]
     }
 
     function LeftRailPage() {
-      const [request, setRequest] = react.useState(0)
-      const [view, setView] = react.useState({ status: 'loading' })
       const [tab, setTab] = react.useState(RAIL_TABS[0].id)
-
-      react.useEffect(() => {
-        let live = true
-        setView({ status: 'loading' })
-        readStatus().then((payload) => {
-          if (!live) return
-          if (payload === null) setView({ status: 'failed' })
-          else setView({ status: 'ready', payload })
-        })
-        return () => {
-          live = false
-        }
-      }, [request])
-
       const locale = currentLocale()
       const body = [
         h('h2', { className: 'dbsl-h1', key: 'h1' }, railText('panelHeading')),
         railTabs(tab, setTab),
       ]
-      if (view.status === 'loading') body.push(h('p', { className: 'dbsl-foot', key: 'loading' }, railText('loading')))
-      if (view.status === 'failed') {
-        body.push(h('p', { className: 'dbsl-warn', key: 'failed' }, railText('failed')))
-        body.push(h('button', { className: 'dbsl-btn', key: 'retry', onClick: () => setRequest(request + 1) }, railText('retry')))
-      }
-      if (view.status === 'ready') {
-        const reported = {}
-        for (const entry of view.payload.components) reported[entry.id] = entry
-        for (const node of railPageOf(tab, reported, locale)) body.push(node)
-      }
+      for (const node of railPageOf(tab)) body.push(node)
       return h('div', { className: 'dbsl-page' }, h('div', { className: 'dbsl-panel' }, body))
     }
+
     /** This plugin page. Set by apply() so the panel never reaches for a global. */
     let ownCtx = null
 

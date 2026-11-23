@@ -1,6 +1,6 @@
 // dsh-declutter browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.0, sha256 ca7cc348f8cafb70)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.1, sha256 2ccf84b7eb11056b)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -432,6 +432,8 @@ export default (require) => {
     // sidebar/DOM layer: stylesheet rules, panel stamping and ordering, session-
     // menu hiding, the settings page and its entry in the panel list. It keeps
     // its own storage keys so switches made before the merge survive.
+    let sidebarSettingsCard = null
+
     function mountSidebar(ctx) {
     const React = require('react')
     const h = React.createElement
@@ -2091,6 +2093,7 @@ export default (require) => {
       }
 
       sidebarApply(ctx)
+      sidebarSettingsCard = SettingsCard
     }
     // ==== end sidebar half ===================================================
 
@@ -2139,6 +2142,7 @@ export default (require) => {
     exports.apply = apply
     exports.inject = ['slots', 'locale']
     exports.version = VERSION
+    exports.__settings = { get SettingsCard() { return sidebarSettingsCard } }
     // Exported for the view-side unit tests, which run this file against a
     // minimal DOM stub instead of a browser.
     exports.__test = { sweep, sweepInjectedNodes, adoptNode, readTurn, wantedTurns, surfaceMounted, DeclutterController, NS, VERSION }

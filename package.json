@@ -68,8 +68,8 @@
       "dsh-delete-session": {
         "repo": "https://github.com/DDDMUC/dsh-delete-session",
         "ref": "main",
-        "commit": "ace70523d299b57ab4d86563f99b728ffdc0150f",
-        "version": "0.5.0"
+        "commit": "53671e41695ffcbd8c802f2a4da277a8ead0d82f",
+        "version": "0.5.1"
       },
       "dsh-session-relocate": {
         "repo": "https://github.com/DDDMUC/dsh-session-relocate",
@@ -92,8 +92,8 @@
       "dsh-declutter": {
         "repo": "https://github.com/DDDMUC/dsh-declutter",
         "ref": "main",
-        "commit": "0ae7873dabdc39ddd26ff7a9ea58f04841c8b003",
-        "version": "0.2.0"
+        "commit": "fdfb4ce93ddf72cebf60bd680ff71919c461ab62",
+        "version": "0.2.1"
       }
     },
     "client": {
