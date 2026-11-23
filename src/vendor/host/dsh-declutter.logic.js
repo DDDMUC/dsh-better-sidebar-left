@@ -1,6 +1,6 @@
 // dsh-declutter host half (dsh-declutter.logic.js), VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/a sibling module  (v0.2.3, sha256 8fb9fbd346230656)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/a sibling module  (v0.2.4, sha256 bd9cb9c4c4096086)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // src/shell.js mounts the copy named after the component, which is why this
@@ -51,7 +51,7 @@
 export const PLUGIN_ID = 'dsh-declutter'
 
 /** Version, kept identical to package.json and src/client.js. */
-export const VERSION = '0.2.0'
+export const VERSION = '0.2.4'
 
 /** View namespace. Every injected attribute/element this plugin owns is prefixed with it. */
 export const NS = 'dshdc'
