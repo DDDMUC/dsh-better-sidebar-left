@@ -102,3 +102,64 @@ test('the shipped bundle reaches for no web-only global while loading', () => {
   // body must not touch document/window beyond registering with the loader.
   assert.ok(readText('src/sidebar.js').includes("typeof document === 'undefined'"))
 })
+
+test('the left rail entry registers a rail row and the page behind it', async () => {
+  // The entry is two slot registrations: sidebar.panellist draws the row in the rail,
+  // main is what the shell shows when that row is active. Both must be there, and the
+  // label must be the localized 左栏管理 rather than the package name.
+  const plugin = registered.factory(fakeRequire())
+  const registered$ = []
+  const dictionaries = {}
+  const ctx = {
+    effect(fn) {
+      const dispose = fn()
+      if (typeof dispose === 'function') return dispose
+      return undefined
+    },
+    locale: {
+      register(namespace, copy) {
+        dictionaries[namespace] = copy
+      },
+      bind(namespace) {
+        return (key) => {
+          const copy = dictionaries[namespace] ?? { zh: {} }
+          return copy.zh[key] ?? key
+        }
+      },
+      getLocale() {
+        return { active: 'zh' }
+      },
+    },
+    slots: {
+      inject(names, callback) {
+        return callback()
+      },
+      register(meta, component) {
+        registered$.push({ meta, component })
+        return () => {}
+      },
+    },
+  }
+  const saved = globalThis.fetch
+  globalThis.fetch = () => Promise.resolve({ json: () => Promise.resolve({ ok: true, components: [], summary: { total: 5, mounted: 0 } }) })
+  try {
+    await plugin.apply(ctx)
+  } finally {
+    if (saved === undefined) delete globalThis.fetch
+    else globalThis.fetch = saved
+  }
+
+  const rail = registered$.filter((entry) => entry.meta.name === 'sidebar.panellist')
+  assert.equal(rail.length, 1, 'exactly one rail row')
+  assert.equal(rail[0].meta.id, 'dsh-better-sidebar-left')
+  assert.equal(typeof rail[0].meta.label, 'function', 'the shell re-reads the label after a locale change')
+  assert.equal(rail[0].meta.label(), '左栏管理')
+  assert.equal(plugin.en.panelEntry, 'Left rail')
+  assert.equal(typeof rail[0].component, 'function', 'the row needs an icon component')
+
+  const page = registered$.filter((entry) => entry.meta.name === 'main')
+  assert.equal(page.length, 1, 'the rail row must open a page')
+  assert.equal(page[0].meta.key, 'dsh-better-sidebar-left')
+  assert.equal(typeof page[0].component, 'function')
+  assert.notEqual(page[0].component, plugin.SidebarPanel, 'the rail page is its own surface, not the settings card')
+})
