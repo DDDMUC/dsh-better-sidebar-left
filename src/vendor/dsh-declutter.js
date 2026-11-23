@@ -1,6 +1,6 @@
 // dsh-declutter browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.1, sha256 2ccf84b7eb11056b)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.2, sha256 5abdde4eb94ed7b1)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -44,6 +44,7 @@ export default (require) => {
     // manage `data-dshdc-*`, so the collapsed state survives every re-render.
 
     const CSS = [
+      '[class*="_panelUnpin"]{display:none!important}',
       '[data-dshdc-collapsed="1"] > *:not([data-dshdc-toggle]){display:none!important}',
       '.dshdc-toggle{grid-column:1/-1;display:inline-flex;align-items:center;gap:6px;padding:2px 0;border:0;background:transparent;color:var(--dsw-alias-label-tertiary,#8a8f98);font:inherit;font-size:var(--dsh-content-font-size-secondary,13px);line-height:calc(20px + var(--dsh-content-font-delta-secondary,0px));cursor:pointer;text-align:left}',
       '.dshdc-toggle:hover{color:var(--dsw-alias-label-secondary,#61666d)}',
