@@ -1,6 +1,6 @@
 // dsh-settings-launcher browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.3, sha256 f7d5abf0ea9d7789)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.4, sha256 b56cd301efc9622d)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -598,7 +598,7 @@ export default (require) => {
       if (flags.direct && openSettings === null) {
         console.warn(
           '[dsh-settings-launcher] 拿不到 shortcuts 服务的 registry.invoke，' +
-            '「点击进设置」这次不生效，账号入口保持官方行为。',
+            '「点击进设置」这次不生效，设置入口保持官方行为。',
         )
       }
 

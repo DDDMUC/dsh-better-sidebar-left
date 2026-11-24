@@ -24,7 +24,7 @@
 export const PLUGIN_ID = 'dsh-better-sidebar-left'
 
 /** Keep in sync with package.json and src/sidebar.js. */
-export const PLUGIN_VERSION = '0.3.2'
+export const PLUGIN_VERSION = '0.3.3'
 
 /**
  * The five components, in the order the user meets them in the sidebar.
@@ -198,7 +198,7 @@ export const COMPONENTS = [
     repo: 'https://github.com/DDDMUC/dsh-settings-launcher',
     title: { zh: '设置入口', en: 'Settings entry' },
     pitch: {
-      zh: '侧栏账号入口的两个独立开关：悬浮自动展开原版菜单、点击直达设置；两个都关就是官方原样。',
+      zh: '侧栏设置入口的两个独立开关：悬浮自动展开原版菜单、点击直达设置；两个都关就是官方原样。',
       en: 'Two independent switches for the sidebar account entry: auto-expand the stock menu on hover, and go straight to Settings on click. Both off is the stock behaviour.',
     },
     slots: [{ name: 'plugins.row.config', key: 'dsh-settings-launcher#settings-launcher' }],

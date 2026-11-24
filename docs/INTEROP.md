@@ -16,7 +16,7 @@
 | `dsh-declutter` | maintenance | DDDMUC/dsh-declutter | `declutter` |
 | `dsh-settings-launcher` | maintenance | DDDMUC/dsh-settings-launcher | `launcher` |
 
-插件列表里只有本包一行（`dsh-better-sidebar-left` 0.3.2）。六个组件的装载行是
+插件列表里只有本包一行（`dsh-better-sidebar-left` 0.3.3）。六个组件的装载行是
 `dsh-better-sidebar-left/<后缀>`，见 §11 的机制 A / B。
 
 ## 1. 铁律
@@ -154,7 +154,7 @@ loopback 校验留在宿主侧。
 | `dsh-declutter` | `__settings.SettingsCard`（左栏收起、面板显隐与排序、会话菜单） | ✅ 本包设置页 |
 | `dsh-delete-session` | `__settings.SettingsCard`（删除时询问、回收站、子会话） | ✅ 本包设置页 |
 | `dsh-session-relocate` | `__settings.ChildrenSetting`（连同子对话、chip 形态） | ✅ 本包设置页 |
-| `dsh-settings-launcher` | `__settings.SwitchCard`（账号入口的两个开关） | ✅ 本包设置页 |
+| `dsh-settings-launcher` | `__settings.SwitchCard`（设置入口的两个开关） | ✅ 本包设置页 |
 | `dsh-delete-session` | `AskBeforeDeleteOption`（删除前确认） | ⚠ 需组件导出 |
 | `dsh-session-counts` | `CountsModeCard`（计数口径） | ⚠ 需组件导出 |
 | `dsh-declutter` | `SettingsCard`（规则开关 / 侧栏各项） | ⚠ 需组件导出；但它的侧栏面板入口走

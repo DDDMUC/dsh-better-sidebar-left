@@ -10140,7 +10140,7 @@ window.__ModuleLoader__.load({
       if (flags.direct && openSettings === null) {
         console.warn(
           '[dsh-settings-launcher] 拿不到 shortcuts 服务的 registry.invoke，' +
-            '「点击进设置」这次不生效，账号入口保持官方行为。',
+            '「点击进设置」这次不生效，设置入口保持官方行为。',
         )
       }
 
@@ -10467,7 +10467,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.2'
+    const PLUGIN_VERSION = '0.3.3'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -10698,7 +10698,7 @@ window.__ModuleLoader__.load({
           "en": "Settings entry"
         },
         "pitch": {
-          "zh": "侧栏账号入口的两个独立开关：悬浮自动展开原版菜单、点击直达设置；两个都关就是官方原样。",
+          "zh": "侧栏设置入口的两个独立开关：悬浮自动展开原版菜单、点击直达设置；两个都关就是官方原样。",
           "en": "Two independent switches for the sidebar account entry: auto-expand the stock menu on hover, and go straight to Settings on click. Both off is the stock behaviour."
         }
       }
