@@ -1,6 +1,6 @@
 // dsh-delete-session browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.2, sha256 5601b14cf00f7a30)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.3, sha256 48dc1e8e23ed9c5b)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -1112,6 +1112,16 @@ export default (require) => {
       '.dsdel-field:hover{background:var(--dsdel-bg-hover)}',
       '.dsdel-field:focus-within{outline:2px solid var(--dsdel-ring);outline-offset:1px}',
       '.dsdel-page-hint{margin:0;color:var(--dsdel-label-faint);font-size:12.5px;line-height:19px;letter-spacing:.01em}',
+      '.dsdel-setting{display:flex;align-items:flex-start;gap:12px;padding:2px 0}',
+      '.dsdel-setting-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
+      '.dsdel-setting-title{font-size:13px;line-height:20px;color:var(--dsdel-label)}',
+      '.dsdel-setting-desc{font-size:12px;line-height:18px;color:var(--dsdel-label-faint)}',
+      '.dsdel-switch{position:relative;flex:none;width:38px;height:22px;margin-left:auto;border:0;border-radius:11px;padding:0;cursor:pointer;background:rgba(127,127,127,.4);transition:background .12s ease}',
+      '.dsdel-switch[aria-checked="true"]{background:#4c8dff}',
+      '.dsdel-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s ease}',
+      '.dsdel-switch[aria-checked="true"]::after{left:18px}',
+      '.dsdel-switch:focus-visible{outline:2px solid var(--dsdel-ring);outline-offset:2px}',
+      '@media (prefers-reduced-motion:reduce){.dsdel-switch,.dsdel-switch::after{transition:none}}',
       // One produced file per row: tick on the left, path in the middle, a folder
       // button on the right. The button sits outside the label so a click opens
       // the folder instead of toggling the tick.
@@ -2913,6 +2923,31 @@ export default (require) => {
     // configure arrow once the bundle registers its own row.config entry (key
     // `<bundle package>#<row id>`). The card carries the one setting the dialog
     // also exposes: whether a session delete asks first.
+    /**
+     * One setting the way relocate's page draws it: the title and its explanation on
+     * the left, the control on the right. A checkbox row reads as a form; a switch
+     * with two lines of copy reads as a setting, which is what these are.
+     *
+     * @param options - { key, title, desc, descKey, checked, onChange }.
+     */
+    function settingRow(options) {
+      const checked = options.checked === true
+      return h('div', { key: 'row:' + options.key, className: 'dsdel-setting' },
+        h('div', { key: 'text', className: 'dsdel-setting-text' },
+          h('div', { key: 'title', className: 'dsdel-setting-title' }, options.title),
+          h('div', { key: options.descKey === undefined ? 'desc' : options.descKey, className: 'dsdel-setting-desc' }, options.desc)),
+        h('button', {
+          key: options.key,
+          type: 'button',
+          role: 'switch',
+          className: 'dsdel-switch',
+          'aria-checked': checked ? 'true' : 'false',
+          'aria-label': options.title,
+          onChange: options.onChange,
+          onClick: () => options.onChange(!checked),
+        }))
+    }
+
     function AskBeforeDeleteOption({ view, t: injected }) {
       // Unlike the menu rows and the dialog, this entry is registered without a
       // `locale`, so the host injects no `t` here. Falling back to the
@@ -2949,66 +2984,68 @@ export default (require) => {
       }
 
       const children = [
-        h(primitives.Checkbox, {
+        settingRow({
           key: 'ask',
+          title: translate('pageAsk'),
+          descKey: 'askHint',
+          desc:
+            // Ask mode needs the dialog for its file list, so "delete straight away"
+            // would be a promise this combination does not keep.
+            translate(ask ? 'pageHintAsk' : (!off && !auto ? 'pageHintAutoWithArtifacts' : 'pageHintAuto')),
           checked: ask,
-          label: translate('pageAsk'),
           onChange: (checked) => {
             setAsk(checked === true)
             setSkipConfirm(checked !== true)
           },
         }),
-        h('p', { key: 'askHint', className: 'dsdel-page-hint' },
-          // Ask mode needs the dialog for its file list, so "delete straight away"
-          // would be a promise this combination does not keep.
-          translate(ask ? 'pageHintAsk' : (!off && !auto ? 'pageHintAutoWithArtifacts' : 'pageHintAuto'))),
 
-        h(primitives.Checkbox, {
+        settingRow({
           key: 'recycle',
+          title: translate('pageRecycle'),
+          descKey: 'recycleHint',
+          desc: translate(recycle ? 'pageRecycleOn' : 'pageRecycleOff'),
           checked: recycle,
-          label: translate('pageRecycle'),
           onChange: (checked) => {
             setRecycle(checked === true)
             setRecycleSession(checked === true)
           },
         }),
-        h('p', { key: 'recycleHint', className: 'dsdel-page-hint' },
-          translate(recycle ? 'pageRecycleOn' : 'pageRecycleOff')),
 
-        h(primitives.Checkbox, {
+        settingRow({
           key: 'syncChildren',
+          title: translate('pageSyncChildren'),
+          descKey: 'syncChildrenHint',
+          desc: translate(syncChildrenState ? 'pageSyncChildrenOn' : 'pageSyncChildrenOff'),
           checked: syncChildrenState,
-          label: translate('pageSyncChildren'),
           onChange: (checked) => {
             setSyncChildrenState(checked === true)
             setSyncChildren(checked === true)
           },
         }),
-        h('p', { key: 'syncChildrenHint', className: 'dsdel-page-hint' },
-          translate(syncChildrenState ? 'pageSyncChildrenOn' : 'pageSyncChildrenOff')),
 
-        h(primitives.Checkbox, {
+        settingRow({
           key: 'replaceCurrent',
+          title: translate('pageReplaceCurrent'),
+          descKey: 'replaceCurrentHint',
+          desc: translate(replaceState ? 'pageReplaceCurrentOn' : 'pageReplaceCurrentOff'),
           checked: replaceState,
-          label: translate('pageReplaceCurrent'),
           onChange: (checked) => {
             setReplaceState(checked === true)
             setReplaceCurrent(checked === true)
           },
         }),
-        h('p', { key: 'replaceCurrentHint', className: 'dsdel-page-hint' },
-          translate(replaceState ? 'pageReplaceCurrentOn' : 'pageReplaceCurrentOff')),
 
-        h(primitives.Checkbox, {
+        settingRow({
           key: 'off',
+          title: translate('pageArtifactsOff'),
+          descKey: 'offHint',
+          desc: translate(off ? 'pageHintArtifactsOff' : 'pageHintArtifactsOn'),
           checked: off,
-          label: translate('pageArtifactsOff'),
           onChange: (checked) => {
             setOff(checked === true)
             setArtifactsOff(checked === true)
           },
         }),
-        h('p', { key: 'offHint', className: 'dsdel-page-hint' }, translate(off ? 'pageHintArtifactsOff' : 'pageHintArtifactsOn')),
       ]
 
       // Everything below the master switch only matters while the feature is on;
@@ -3029,16 +3066,17 @@ export default (require) => {
               borderLeft: '2px solid rgba(127,127,127,0.35)',
             },
           },
-            h(primitives.Checkbox, {
+            settingRow({
               key: 'auto',
+              title: translate('pageArtifactsAuto'),
+              descKey: 'autoHint',
+              desc: translate(auto ? 'pageHintArtifactsAuto' : 'pageHintArtifactsAsk'),
               checked: auto,
-              label: translate('pageArtifactsAuto'),
               onChange: (checked) => {
                 setAuto(checked === true)
                 setArtifactsAuto(checked === true)
               },
             }),
-            h('p', { key: 'autoHint', className: 'dsdel-page-hint' }, translate(auto ? 'pageHintArtifactsAuto' : 'pageHintArtifactsAsk')),
             h('div', {
               key: 'scope',
               style: {
@@ -3072,17 +3110,17 @@ export default (require) => {
               }),
             ),
             h('p', { key: 'scopeHint', className: 'dsdel-page-hint' }, translate(scope === 'all' ? 'pageScopeAllHint' : 'pageScopeCreatedHint')),
-            h(primitives.Checkbox, {
+            settingRow({
               key: 'skipGit',
+              title: translate('pageSkipGit'),
+              descKey: 'skipGitHint',
+              desc: translate(skipGit ? 'pageSkipGitOn' : 'pageSkipGitOff'),
               checked: skipGit,
-              label: translate('pageSkipGit'),
               onChange: (checked) => {
                 setSkipGit(checked === true)
                 setSkipGitRepos(checked === true)
               },
             }),
-            h('p', { key: 'skipGitHint', className: 'dsdel-page-hint' },
-              translate(skipGit ? 'pageSkipGitOn' : 'pageSkipGitOff')),
             h('div', { key: 'root', style: { display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '2px' } },
               h('p', { key: 'rootLabel', className: 'dsdel-page-hint' }, translate('pageRootLabel')),
               h('div', { key: 'rootRow', style: { display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' } },
