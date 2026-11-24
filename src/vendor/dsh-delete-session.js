@@ -1,6 +1,6 @@
 // dsh-delete-session browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.3, sha256 48dc1e8e23ed9c5b)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.4, sha256 b7c44bb54ed32163)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -1112,10 +1112,10 @@ export default (require) => {
       '.dsdel-field:hover{background:var(--dsdel-bg-hover)}',
       '.dsdel-field:focus-within{outline:2px solid var(--dsdel-ring);outline-offset:1px}',
       '.dsdel-page-hint{margin:0;color:var(--dsdel-label-faint);font-size:12.5px;line-height:19px;letter-spacing:.01em}',
-      '.dsdel-setting{display:flex;align-items:flex-start;gap:12px;padding:2px 0}',
-      '.dsdel-setting-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
-      '.dsdel-setting-title{font-size:13px;line-height:20px;color:var(--dsdel-label)}',
-      '.dsdel-setting-desc{font-size:12px;line-height:18px;color:var(--dsdel-label-faint)}',
+      '.dsdel-setting{display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
+      '.dsdel-setting-text{flex:1;min-width:0}',
+      '.dsdel-setting-title{font-size:13px;font-weight:600;line-height:20px}',
+      '.dsdel-setting-desc{font-size:12px;line-height:18px;opacity:.7;margin-top:2px}',
       '.dsdel-switch{position:relative;flex:none;width:38px;height:22px;margin-left:auto;border:0;border-radius:11px;padding:0;cursor:pointer;background:rgba(127,127,127,.4);transition:background .12s ease}',
       '.dsdel-switch[aria-checked="true"]{background:#4c8dff}',
       '.dsdel-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s ease}',

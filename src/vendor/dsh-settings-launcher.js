@@ -1,6 +1,6 @@
 // dsh-settings-launcher browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.5, sha256 6d33c0c7c7e62f11)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.6, sha256 871f96d2022650d7)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -138,10 +138,10 @@ export default (require) => {
       'background:var(--dsw-alias-bg-primary,transparent);box-sizing:border-box}',
       '.dsd-title{font-size:14px;color:var(--dsw-alias-label-primary)}',
       '.dsd-sub{font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}',
-      '.dsd-setting{display:flex;align-items:flex-start;gap:12px;padding:2px 0}',
-      '.dsd-setting-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
-      '.dsd-setting-title{font-size:13px;line-height:20px;color:var(--dsw-alias-label-primary)}',
-      '.dsd-setting-desc{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}',
+      '.dsd-setting{display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
+      '.dsd-setting-text{flex:1;min-width:0}',
+      '.dsd-setting-title{font-size:13px;font-weight:600;line-height:20px}',
+      '.dsd-setting-desc{font-size:12px;line-height:18px;opacity:.7;margin-top:2px}',
       '.dsd-switch{position:relative;flex:none;width:38px;height:22px;margin-left:auto;border:0;border-radius:11px;padding:0;cursor:pointer;background:rgba(127,127,127,.4);transition:background .12s ease}',
       '.dsd-switch[aria-checked="true"]{background:#4c8dff}',
       '.dsd-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s ease}',

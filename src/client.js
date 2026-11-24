@@ -1119,10 +1119,10 @@ window.__ModuleLoader__.load({
       '.dsdel-field:hover{background:var(--dsdel-bg-hover)}',
       '.dsdel-field:focus-within{outline:2px solid var(--dsdel-ring);outline-offset:1px}',
       '.dsdel-page-hint{margin:0;color:var(--dsdel-label-faint);font-size:12.5px;line-height:19px;letter-spacing:.01em}',
-      '.dsdel-setting{display:flex;align-items:flex-start;gap:12px;padding:2px 0}',
-      '.dsdel-setting-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
-      '.dsdel-setting-title{font-size:13px;line-height:20px;color:var(--dsdel-label)}',
-      '.dsdel-setting-desc{font-size:12px;line-height:18px;color:var(--dsdel-label-faint)}',
+      '.dsdel-setting{display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
+      '.dsdel-setting-text{flex:1;min-width:0}',
+      '.dsdel-setting-title{font-size:13px;font-weight:600;line-height:20px}',
+      '.dsdel-setting-desc{font-size:12px;line-height:18px;opacity:.7;margin-top:2px}',
       '.dsdel-switch{position:relative;flex:none;width:38px;height:22px;margin-left:auto;border:0;border-radius:11px;padding:0;cursor:pointer;background:rgba(127,127,127,.4);transition:background .12s ease}',
       '.dsdel-switch[aria-checked="true"]{background:#4c8dff}',
       '.dsdel-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s ease}',
@@ -9680,10 +9680,10 @@ window.__ModuleLoader__.load({
       'background:var(--dsw-alias-bg-primary,transparent);box-sizing:border-box}',
       '.dsd-title{font-size:14px;color:var(--dsw-alias-label-primary)}',
       '.dsd-sub{font-size:12px;line-height:1.5;color:var(--dsw-alias-label-tertiary)}',
-      '.dsd-setting{display:flex;align-items:flex-start;gap:12px;padding:2px 0}',
-      '.dsd-setting-text{display:flex;flex-direction:column;gap:2px;min-width:0}',
-      '.dsd-setting-title{font-size:13px;line-height:20px;color:var(--dsw-alias-label-primary)}',
-      '.dsd-setting-desc{font-size:12px;line-height:18px;color:var(--dsw-alias-label-tertiary)}',
+      '.dsd-setting{display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
+      '.dsd-setting-text{flex:1;min-width:0}',
+      '.dsd-setting-title{font-size:13px;font-weight:600;line-height:20px}',
+      '.dsd-setting-desc{font-size:12px;line-height:18px;opacity:.7;margin-top:2px}',
       '.dsd-switch{position:relative;flex:none;width:38px;height:22px;margin-left:auto;border:0;border-radius:11px;padding:0;cursor:pointer;background:rgba(127,127,127,.4);transition:background .12s ease}',
       '.dsd-switch[aria-checked="true"]{background:#4c8dff}',
       '.dsd-switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .15s ease}',
@@ -10458,7 +10458,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.6'
+    const PLUGIN_VERSION = '0.3.7'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
