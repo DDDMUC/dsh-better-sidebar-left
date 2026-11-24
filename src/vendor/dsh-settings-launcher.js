@@ -1,6 +1,6 @@
 // dsh-settings-launcher browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.9, sha256 2bef6f5a979012df)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.5, sha256 2bef6f5a979012df)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this

@@ -1,6 +1,6 @@
 // dsh-session-relocate browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.4, sha256 a4a4b9ccf33237ba)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.5, sha256 a4a4b9ccf33237ba)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this

@@ -24,7 +24,7 @@
 export const PLUGIN_ID = 'dsh-better-sidebar-left'
 
 /** Keep in sync with package.json and src/sidebar.js. */
-export const PLUGIN_VERSION = '0.3.12'
+export const PLUGIN_VERSION = '0.3.2'
 
 /**
  * The five components, in the order the user meets them in the sidebar.

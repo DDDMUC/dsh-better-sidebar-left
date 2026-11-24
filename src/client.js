@@ -7382,7 +7382,7 @@ window.__ModuleLoader__.load({
     const react = require('react')
 
     const NS = 'dsh-declutter'
-    const VERSION = '0.2.6'
+    const VERSION = '0.2.5'
     const ROUTE_PREFIX = '/dsh-declutter'
     // Same cadence the sibling plugins use for transcript polling.
     const REFRESH_INTERVAL_MS = 3000
@@ -10461,7 +10461,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.12'
+    const PLUGIN_VERSION = '0.3.2'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'

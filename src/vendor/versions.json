@@ -1,8 +1,8 @@
 {
-  "dsh-delete-session": "0.5.7",
-  "dsh-session-relocate": "0.3.4",
+  "dsh-delete-session": "0.5.4",
+  "dsh-session-relocate": "0.3.5",
   "dsh-session-rename-dblclick": "0.3.0",
   "dsh-session-counts": "0.0.3",
-  "dsh-declutter": "0.2.6",
-  "dsh-settings-launcher": "0.0.9"
+  "dsh-declutter": "0.2.5",
+  "dsh-settings-launcher": "0.0.5"
 }

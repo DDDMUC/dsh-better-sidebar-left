@@ -1,6 +1,6 @@
 // dsh-declutter browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.6, sha256 73c73d40d1aeafa2)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/client.js  (v0.2.5, sha256 67f56b841837e5d6)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -14,7 +14,7 @@ export default (require) => {
     const react = require('react')
 
     const NS = 'dsh-declutter'
-    const VERSION = '0.2.6'
+    const VERSION = '0.2.5'
     const ROUTE_PREFIX = '/dsh-declutter'
     // Same cadence the sibling plugins use for transcript polling.
     const REFRESH_INTERVAL_MS = 3000
