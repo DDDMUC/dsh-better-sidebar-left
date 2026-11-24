@@ -1,6 +1,6 @@
 {
   "name": "dsh-better-sidebar-left",
-  "version": "0.2.7",
+  "version": "0.3.0",
   "description": "Session management for DeepSeek Harness in one install: delete a session with a risk-checked confirmation, move one across workspaces (menu and drag), rename one by double-clicking its title, show per-workspace session counts, and declutter both the sidebar and the conversation's collapsed turns. Self-contained: the plugin list shows this one row, and the five components are vendored inside it - installing this plugin installs nothing else.",
   "type": "module",
   "main": "src/index.js",
@@ -12,7 +12,8 @@
     "./rename": "./src/shell.js",
     "./counts": "./src/shell.js",
     "./declutter": "./src/shell.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./launcher": "./src/shell.js"
   },
   "files": [
     "src/index.js",
@@ -94,6 +95,12 @@
         "ref": "main",
         "commit": "a75b43301b0bb8525c750711a865a1b182006397",
         "version": "0.2.4"
+      },
+      "dsh-settings-launcher": {
+        "repo": "https://github.com/DDDMUC/dsh-settings-launcher",
+        "ref": "main",
+        "commit": "4abdd9827c5907ec96538459deb0fc222a339667",
+        "version": "0.0.2"
       }
     },
     "client": {

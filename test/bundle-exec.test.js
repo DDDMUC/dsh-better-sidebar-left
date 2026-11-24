@@ -56,7 +56,7 @@ async function withBundle(statusBody, body) {
   }
 }
 
-test('applying the bundle mounts all five components', async () => {
+test('applying the bundle mounts all six components', async () => {
   await withBundle(payload(), async ({ mounted, harness, requests }) => {
     assert.deepEqual(Object.keys(mounted), ALL)
     for (const id of ALL) assert.equal(mounted[id], true, id + ' did not mount: see its apply error above')

@@ -24,7 +24,7 @@
 export const PLUGIN_ID = 'dsh-better-sidebar-left'
 
 /** Keep in sync with package.json and src/sidebar.js. */
-export const PLUGIN_VERSION = '0.2.7'
+export const PLUGIN_VERSION = '0.3.0'
 
 /**
  * The five components, in the order the user meets them in the sidebar.
@@ -189,6 +189,23 @@ export const COMPONENTS = [
       prefixes: ['data-dshdc-rule', 'data-dshdc-turn', 'data-dshdc-toggle', 'data-dshdc-badge', 'data-dshdc-collapsed', 'data-dsh-sidebar-declutter'],
     },
   },
+  {
+    id: 'dsh-settings-launcher',
+    package: 'dsh-settings-launcher',
+    suffix: 'launcher',
+    feature: 'launcher',
+    kind: 'maintenance',
+    repo: 'https://github.com/DDDMUC/dsh-settings-launcher',
+    title: { zh: '账号入口', en: 'Account entry' },
+    pitch: {
+      zh: '侧栏账号入口的两个独立开关：悬浮自动展开原版菜单、点击直达设置；两个都关就是官方原样。',
+      en: 'Two independent switches for the sidebar account entry: auto-expand the stock menu on hover, and go straight to Settings on click. Both off is the stock behaviour.',
+    },
+    slots: [{ name: 'plugins.row.config', key: 'dsh-settings-launcher#settings-launcher' }],
+    routes: [],
+    hostInject: [],
+    dom: { allocated: 'dsd', prefixes: ['data-dsd-style', 'data-dsd-cards', 'dsd-'] },
+  },
 ]
 
 /** Component ids, in manifest order. */
@@ -244,6 +261,7 @@ export const INTEROP = {
     { component: 'dsh-declutter', exportPath: '__settings.SettingsCard', label: { zh: '收纳与整理', en: 'Declutter' } },
     { component: 'dsh-delete-session', exportPath: '__settings.SettingsCard', label: { zh: '删除会话', en: 'Delete a session' } },
     { component: 'dsh-session-relocate', exportPath: '__settings.ChildrenSetting', label: { zh: '连同子对话', en: 'Include child conversations' } },
+    { component: 'dsh-settings-launcher', exportPath: '__settings.SwitchCard', label: { zh: '账号入口', en: 'Account entry' } },
   ],
   /** This plugin's own registrations: one row config seat, nothing else. */
   pluginSlots: [{ name: 'plugins.row.config', key: PLUGIN_ID + '#' + PLUGIN_ID }],

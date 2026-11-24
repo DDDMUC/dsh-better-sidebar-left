@@ -13,13 +13,14 @@ test('this plugin names itself and keeps one version', () => {
   assert.match(PLUGIN_VERSION, /^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$/)
 })
 
-test('this plugin composes exactly the five session components', () => {
+test('this plugin composes exactly the six session components', () => {
   assert.deepEqual(COMPONENT_IDS, [
     'dsh-delete-session',
     'dsh-session-relocate',
     'dsh-session-rename-dblclick',
     'dsh-session-counts',
     'dsh-declutter',
+    'dsh-settings-launcher',
   ])
 })
 

@@ -4,7 +4,7 @@
 # are ordinary packages this plugin composes, not profile bundles, so they have no
 # rows of their own and never appear in that list.
 #
-# Six rows are inserted here:
+# Seven rows are inserted here:
 #
 #   1. this package's own row. Its name is the BARE package name on purpose: the
 #      client-module scanner treats an exact package specifier as a package and
@@ -12,7 +12,7 @@
 #      row the single browser bundle (src/client.js, which carries this plugin's
 #      own half and all five vendored component factories) is served for.
 #
-#   2-6. one row per component, named <this package>/<suffix>. Every one of
+#   2-7. one row per component, named <this package>/<suffix>. Every one of
 #      those names resolves through package.json exports to src/shell.js, and the
 #      shell mounts the component package named in config.plugin. Two properties
 #      ride on that name, both load-bearing:
@@ -67,3 +67,8 @@
       name: 'dsh-better-sidebar-left/declutter'
       config:
         plugin: 'dsh-declutter'
+- insert:
+    - id: dsh-better-sidebar-left-launcher
+      name: 'dsh-better-sidebar-left/launcher'
+      config:
+        plugin: 'dsh-settings-launcher'

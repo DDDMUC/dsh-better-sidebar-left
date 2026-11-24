@@ -59,6 +59,7 @@ const CLIENT_PATH = {
   'dsh-session-relocate': 'lib/client.js',
   'dsh-session-rename-dblclick': 'client.js',
   'dsh-session-counts': 'client.js',
+  'dsh-settings-launcher': 'src/client.js',
   'dsh-declutter': 'src/client.js',
 }
 const HOST_PATH = {
@@ -67,6 +68,7 @@ const HOST_PATH = {
   'dsh-session-rename-dblclick': 'index.js',
   'dsh-session-counts': 'index.js',
   'dsh-declutter': 'src/index.js',
+  'dsh-settings-launcher': 'src/index.js',
 }
 
 const CALL = 'window.__ModuleLoader__.load({'

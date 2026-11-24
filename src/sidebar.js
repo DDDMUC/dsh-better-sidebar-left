@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.2.7'
+    const PLUGIN_VERSION = '0.3.0'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -57,6 +57,7 @@ window.__ModuleLoader__.load({
       'dsh-session-rename-dblclick',
       'dsh-session-counts',
       'dsh-declutter',
+      'dsh-settings-launcher',
     ]
 
     /**
@@ -84,7 +85,7 @@ window.__ModuleLoader__.load({
      * whatever they need has to be declared here - test/sidebar.test.js proves this
      * list covers every component's own inject array.
      */
-    const SERVICES = ['slots', 'locale', 'contextMenus']
+    const SERVICES = ['slots', 'locale', 'contextMenus', 'remote.account']
 
     const h = react.createElement
 
@@ -241,7 +242,7 @@ window.__ModuleLoader__.load({
     // --- mounting the vendored halves -------------------------------------------
 
     function vendoredFactory(id) {
-      // tools/build.mjs declares VENDORED_TABLE with the five stitched factories;
+      // tools/build.mjs declares VENDORED_TABLE with the six stitched factories;
       // running this file on its own (its own unit tests) has none, and mounts
       // nothing, which is exactly the "nothing vendored" case.
       if (typeof VENDORED_TABLE === 'undefined') return null

@@ -3,5 +3,6 @@
   "dsh-session-relocate": "0.3.1",
   "dsh-session-rename-dblclick": "0.3.0",
   "dsh-session-counts": "0.0.3",
-  "dsh-declutter": "0.2.4"
+  "dsh-declutter": "0.2.4",
+  "dsh-settings-launcher": "0.0.2"
 }

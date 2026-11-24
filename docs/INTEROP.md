@@ -5,7 +5,7 @@
 
 ## 0. 参与方
 
-本包聚合五个独立插件。每一个都有各自的仓库、各自的 `cordis.patch.yml`，单独装也是完整可用的插件。
+本包聚合六个独立插件。每一个都有各自的仓库、各自的 `cordis.patch.yml`，单独装也是完整可用的插件。
 
 | 组件 | 类型 | 仓库 | 装载行后缀 |
 |---|---|---|---|
@@ -14,8 +14,9 @@
 | `dsh-session-rename-dblclick` | action | DDDMUC/dsh-session-rename-dblclick | `rename` |
 | `dsh-session-counts` | decor | DDDMUC/dsh-session-counts | `counts` |
 | `dsh-declutter` | maintenance | DDDMUC/dsh-declutter | `declutter` |
+| `dsh-settings-launcher` | maintenance | DDDMUC/dsh-settings-launcher | `launcher` |
 
-插件列表里只有本包一行（`dsh-better-sidebar-left` 0.2.7）。五个组件的装载行是
+插件列表里只有本包一行（`dsh-better-sidebar-left` 0.3.0）。六个组件的装载行是
 `dsh-better-sidebar-left/<后缀>`，见 §11 的机制 A / B。
 
 ## 1. 铁律
@@ -75,6 +76,7 @@ loopback 校验留在宿主侧。
 | `dsh-declutter` | `conversation.input.overlay` | `id: declutter` | 90 |
 | `dsh-declutter` | `sidebar.footer.action` | `id: sidebar-declutter-collapse` | 10 |
 | `dsh-declutter` | `plugins.row.config` | `key: dsh-declutter#dsh-declutter` | — |
+| `dsh-settings-launcher` | `plugins.row.config` | `key: dsh-settings-launcher#settings-launcher` | — |
 
 本包自己的注册只有一条：`plugins.row.config` / `key: dsh-better-sidebar-left#dsh-better-sidebar-left`。
 
@@ -89,6 +91,7 @@ loopback 校验留在宿主侧。
 | `dsh-session-relocate` | `dssr` | `data-dshsm`、`data-dshsm-toast`、`dshsm-` |
 | `dsh-session-rename-dblclick` | `dssn` | `data-dsh-session-rename` |
 | `dsh-session-counts` | `dssc` | `data-dsh-count`、`data-dsh-total`、`data-dsh-session-counts` |
+| `dsh-settings-launcher` | `dsd` | `data-dsd-style`、`data-dsd-cards`、`dsd-` |
 | `dsh-declutter` | `dshdc`（**不改**） | `data-dshdc-*`、`data-dsh-sidebar-declutter` |
 | 本包 | `dbsl` | `data-dsh-better-sidebar-left`、`.dbsl-*` |
 
@@ -142,7 +145,7 @@ loopback 校验留在宿主侧。
 `dsh-better-sidebar-left-<后缀>`，那个 key 永远不会被匹配 —— 所以这些卡**不会**出现在本包行上。
 
 能恢复的原因是：组件把自己的卡**导出**给本包渲染（渲染的是组件自己的函数，不是复制品，
-所以两边不会漂移）。当前 declutter / delete-session / relocate 三个导出了，由本包设置页直接渲染；
+所以两边不会漂移）。当前 declutter / delete-session / relocate / settings-launcher 四个导出了，由本包设置页直接渲染；
 其余四个的卡只在单独安装时可见。要让某个组件的卡回到本页，组件侧加一行导出，
 再在 `src/sidebar.js` 的 `CONFIG_CARDS` 表里登记即可。
 
@@ -151,6 +154,7 @@ loopback 校验留在宿主侧。
 | `dsh-declutter` | `__settings.SettingsCard`（左栏收起、面板显隐与排序、会话菜单） | ✅ 本包设置页 |
 | `dsh-delete-session` | `__settings.SettingsCard`（删除时询问、回收站、子会话） | ✅ 本包设置页 |
 | `dsh-session-relocate` | `__settings.ChildrenSetting`（连同子对话、chip 形态） | ✅ 本包设置页 |
+| `dsh-settings-launcher` | `__settings.SwitchCard`（账号入口的两个开关） | ✅ 本包设置页 |
 | `dsh-delete-session` | `AskBeforeDeleteOption`（删除前确认） | ⚠ 需组件导出 |
 | `dsh-session-counts` | `CountsModeCard`（计数口径） | ⚠ 需组件导出 |
 | `dsh-declutter` | `SettingsCard`（规则开关 / 侧栏各项） | ⚠ 需组件导出；但它的侧栏面板入口走
