@@ -1,6 +1,6 @@
 // dsh-delete-session browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.4, sha256 b7c44bb54ed32163)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.5, sha256 5644aa43594b715d)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -72,7 +72,7 @@ export default (require) => {
       pageHintAutoWithArtifacts: '删除会话仍会弹窗——产出文件要先列清单给你勾选。',
       pageSummaryAsk: '删除前询问',
       pageSummaryAuto: '直接删除',
-      pageArtifactsOff: '不处理产出文件（保持当前行为）',
+      pageArtifactsOff: '不处理产出文件',
       pageHintArtifactsOff: '删除会话只清理对话记录，完全不碰工作目录里的文件。',
       pageHintArtifactsOn: '删除会话时还会处理这个对话在工作目录里碰过的文件。',
       pageArtifactsAuto: '产出文件默认全部进隔离夹',
@@ -188,7 +188,7 @@ export default (require) => {
       pageHintAutoWithArtifacts: 'A delete still opens a dialog, because the produced-file list has to be shown first.',
       pageSummaryAsk: 'Ask before deleting',
       pageSummaryAuto: 'Delete without asking',
-      pageArtifactsOff: 'Leave produced files alone (current behaviour)',
+      pageArtifactsOff: 'Leave produced files alone',
       pageHintArtifactsOff: 'Deleting a session clears its record only and never touches files in the working directory.',
       pageHintArtifactsOn: 'Deleting a session also handles the files this conversation touched in its working directory.',
       pageArtifactsAuto: 'Send produced files straight to quarantine',

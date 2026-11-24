@@ -1,6 +1,6 @@
 // dsh-settings-launcher browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.6, sha256 871f96d2022650d7)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-settings-launcher/src/client.js  (v0.0.7, sha256 3ca1ebf09de59047)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -203,7 +203,7 @@ export default (require) => {
             'div',
             { className: 'dsd-setting-text' },
             h('div', { className: 'dsd-setting-title' }, title),
-            h('div', { className: 'dsd-setting-desc' }, hint),
+            hint === '' || hint === undefined ? null : h('div', { className: 'dsd-setting-desc' }, hint),
           ),
           h('button', {
             type: 'button',
@@ -225,12 +225,12 @@ export default (require) => {
           row(
             FLAG_HOVER,
             '悬浮展开菜单',
-            '指针移入即展开原版菜单（设置 / 意见反馈 / 退出登录），移出收起；点击可固定。',
+            '',
           ),
           row(
             FLAG_DIRECT,
             '点击进设置',
-            '点击直达设置面板；「账号与余额」页同时追加意见反馈与登录/退出登录两张卡片（与菜单内容重复，属预期）。',
+            '',
           ),
           h('span', { className: 'dsd-note' }, flagsSummary(flags)),
         ),

@@ -79,7 +79,7 @@ window.__ModuleLoader__.load({
       pageHintAutoWithArtifacts: '删除会话仍会弹窗——产出文件要先列清单给你勾选。',
       pageSummaryAsk: '删除前询问',
       pageSummaryAuto: '直接删除',
-      pageArtifactsOff: '不处理产出文件（保持当前行为）',
+      pageArtifactsOff: '不处理产出文件',
       pageHintArtifactsOff: '删除会话只清理对话记录，完全不碰工作目录里的文件。',
       pageHintArtifactsOn: '删除会话时还会处理这个对话在工作目录里碰过的文件。',
       pageArtifactsAuto: '产出文件默认全部进隔离夹',
@@ -195,7 +195,7 @@ window.__ModuleLoader__.load({
       pageHintAutoWithArtifacts: 'A delete still opens a dialog, because the produced-file list has to be shown first.',
       pageSummaryAsk: 'Ask before deleting',
       pageSummaryAuto: 'Delete without asking',
-      pageArtifactsOff: 'Leave produced files alone (current behaviour)',
+      pageArtifactsOff: 'Leave produced files alone',
       pageHintArtifactsOff: 'Deleting a session clears its record only and never touches files in the working directory.',
       pageHintArtifactsOn: 'Deleting a session also handles the files this conversation touched in its working directory.',
       pageArtifactsAuto: 'Send produced files straight to quarantine',
@@ -3640,7 +3640,7 @@ window.__ModuleLoader__.load({
       noteReleaseRetries: '（释放重试 {n} 次）',
       noteSampled: '（大会话：抽样校验）',
       childrenSettingTitle: '连同子对话一起移动',
-      childrenSettingDesc: '默认开。移动父对话时，它的子智能体会话（侧边栏里隐藏的 subagent 会话）一起搬到目标工作区；关掉后只搬父对话。',
+      childrenSettingDesc: '默认开。移动父对话时，它的子会话一起搬到目标工作区；关掉后只搬父对话。',
       chipModeTitle: '工作区 chip 什么时候出现',
       chipModeDesc: '「一直出现」常驻在输入框上方；「悬浮在那一行才出现」鼠标移到整行才显示；「只悬浮胶囊才出现」鼠标要正好落在胶囊那一小块；两者都保留占位，不会跳。「不出现」完全不渲染，预设胶囊会自动回到右边。',
       chipModeAlways: '一直出现',
@@ -3696,7 +3696,7 @@ window.__ModuleLoader__.load({
       noteReleaseRetries: ' (release retried {n}×)',
       noteSampled: ' (large session: sampled verify)',
       childrenSettingTitle: 'Move child conversations too',
-      childrenSettingDesc: 'On by default. Moving a conversation also moves its hidden subagent sessions to the target workspace; turn it off to move only the parent conversation.',
+      childrenSettingDesc: 'On by default. Moving a conversation also moves its child sessions to the target workspace; turn it off to move only the parent conversation.',
       chipModeTitle: 'When to show the workspace chip',
       chipModeDesc: '"Always" keeps it above the composer; "On row hover" reveals it when the pointer enters that row; "Only when hovering the chip" needs the pointer on the chip itself. Both keep their space, so nothing jumps. "Never" hides it and the preset chip moves back to the right.',
       chipModeAlways: 'Always',
@@ -9745,7 +9745,7 @@ window.__ModuleLoader__.load({
             'div',
             { className: 'dsd-setting-text' },
             h('div', { className: 'dsd-setting-title' }, title),
-            h('div', { className: 'dsd-setting-desc' }, hint),
+            hint === '' || hint === undefined ? null : h('div', { className: 'dsd-setting-desc' }, hint),
           ),
           h('button', {
             type: 'button',
@@ -9767,12 +9767,12 @@ window.__ModuleLoader__.load({
           row(
             FLAG_HOVER,
             '悬浮展开菜单',
-            '指针移入即展开原版菜单（设置 / 意见反馈 / 退出登录），移出收起；点击可固定。',
+            '',
           ),
           row(
             FLAG_DIRECT,
             '点击进设置',
-            '点击直达设置面板；「账号与余额」页同时追加意见反馈与登录/退出登录两张卡片（与菜单内容重复，属预期）。',
+            '',
           ),
           h('span', { className: 'dsd-note' }, flagsSummary(flags)),
         ),
@@ -10458,7 +10458,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.7'
+    const PLUGIN_VERSION = '0.3.8'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'

@@ -1,6 +1,6 @@
 // dsh-session-relocate browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.1, sha256 8ff2b757f387b404)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.2, sha256 699ee84f141cffd8)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -273,7 +273,7 @@ export default function (require) {
       noteReleaseRetries: '（释放重试 {n} 次）',
       noteSampled: '（大会话：抽样校验）',
       childrenSettingTitle: '连同子对话一起移动',
-      childrenSettingDesc: '默认开。移动父对话时，它的子智能体会话（侧边栏里隐藏的 subagent 会话）一起搬到目标工作区；关掉后只搬父对话。',
+      childrenSettingDesc: '默认开。移动父对话时，它的子会话一起搬到目标工作区；关掉后只搬父对话。',
       chipModeTitle: '工作区 chip 什么时候出现',
       chipModeDesc: '「一直出现」常驻在输入框上方；「悬浮在那一行才出现」鼠标移到整行才显示；「只悬浮胶囊才出现」鼠标要正好落在胶囊那一小块；两者都保留占位，不会跳。「不出现」完全不渲染，预设胶囊会自动回到右边。',
       chipModeAlways: '一直出现',
@@ -329,7 +329,7 @@ export default function (require) {
       noteReleaseRetries: ' (release retried {n}×)',
       noteSampled: ' (large session: sampled verify)',
       childrenSettingTitle: 'Move child conversations too',
-      childrenSettingDesc: 'On by default. Moving a conversation also moves its hidden subagent sessions to the target workspace; turn it off to move only the parent conversation.',
+      childrenSettingDesc: 'On by default. Moving a conversation also moves its child sessions to the target workspace; turn it off to move only the parent conversation.',
       chipModeTitle: 'When to show the workspace chip',
       chipModeDesc: '"Always" keeps it above the composer; "On row hover" reveals it when the pointer enters that row; "Only when hovering the chip" needs the pointer on the chip itself. Both keep their space, so nothing jumps. "Never" hides it and the preset chip moves back to the right.',
       chipModeAlways: 'Always',
