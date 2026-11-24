@@ -1,6 +1,6 @@
 // dsh-declutter host half (dsh-declutter.js), VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/index.js  (v0.2.4, sha256 52a9cea8ada7fc81)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-declutter/src/index.js  (v0.2.5, sha256 52a9cea8ada7fc81)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // src/shell.js mounts the copy named after the component, which is why this

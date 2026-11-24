@@ -1,6 +1,6 @@
 // dsh-session-relocate browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.2, sha256 699ee84f141cffd8)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.3, sha256 87b6ad1f91d5665e)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -101,10 +101,11 @@ export default function (require) {
       '.dshsm-light .dshsm-picker-btn:hover:not(:disabled){background:rgba(0,0,0,.06)}',
       '.dshsm-picker-btn:disabled{opacity:.45;cursor:default}',
       // 插件设置页：连同子对话开关
-      '.dshsm-setting{display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
+      '.dshsm-setting{position:relative;display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
       '.dshsm-setting-text{flex:1;min-width:0}',
       '.dshsm-setting-title{font-size:13px;font-weight:600;line-height:20px}',
-      '.dshsm-setting-desc{font-size:12px;line-height:18px;opacity:.7;margin-top:2px}',
+      '.dshsm-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);opacity:0;pointer-events:none;transition:opacity .12s}',
+      '.dshsm-setting:hover .dshsm-setting-desc{opacity:1}',
       '.dshsm-seg{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:8px;background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));flex:none}',
       '.dshsm-segBtn{border:0;background:0 0;color:var(--dsw-alias-label-secondary,inherit);font:inherit;font-size:12px;line-height:18px;padding:3px 8px;border-radius:6px;cursor:pointer;white-space:nowrap}',
       '.dshsm-segBtn[data-on="true"]{background:var(--dsw-alias-bg-layer-2,#fff);color:var(--dsw-alias-label-primary,inherit)}',
@@ -275,7 +276,7 @@ export default function (require) {
       childrenSettingTitle: '连同子对话一起移动',
       childrenSettingDesc: '默认开。移动父对话时，它的子会话一起搬到目标工作区；关掉后只搬父对话。',
       chipModeTitle: '工作区 chip 什么时候出现',
-      chipModeDesc: '「一直出现」常驻在输入框上方；「悬浮在那一行才出现」鼠标移到整行才显示；「只悬浮胶囊才出现」鼠标要正好落在胶囊那一小块；两者都保留占位，不会跳。「不出现」完全不渲染，预设胶囊会自动回到右边。',
+      chipModeDesc: '「一直出现」常驻在输入框上方；「悬浮在那一行才出现」鼠标移到整行才显示；「只悬浮胶囊才出现」鼠标要正好落在胶囊那一小块；两者都保留占位，不会跳。「不出现」完全不渲染。',
       chipModeAlways: '一直出现',
       chipModeHover: '悬浮在那一行才出现',
       chipModeHoverSelf: '只悬浮胶囊才出现',
@@ -331,7 +332,7 @@ export default function (require) {
       childrenSettingTitle: 'Move child conversations too',
       childrenSettingDesc: 'On by default. Moving a conversation also moves its child sessions to the target workspace; turn it off to move only the parent conversation.',
       chipModeTitle: 'When to show the workspace chip',
-      chipModeDesc: '"Always" keeps it above the composer; "On row hover" reveals it when the pointer enters that row; "Only when hovering the chip" needs the pointer on the chip itself. Both keep their space, so nothing jumps. "Never" hides it and the preset chip moves back to the right.',
+      chipModeDesc: '"Always" keeps it above the composer; "On row hover" reveals it when the pointer enters that row; "Only when hovering the chip" needs the pointer on the chip itself. Both keep their space, so nothing jumps. "Never" hides it.',
       chipModeAlways: 'Always',
       chipModeHover: 'On row hover',
       chipModeHoverSelf: 'Only when hovering the chip',

@@ -1,6 +1,6 @@
 {
   "name": "dsh-better-sidebar-left",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Session management for DeepSeek Harness in one install: delete a session with a risk-checked confirmation, move one across workspaces (menu and drag), rename one by double-clicking its title, show per-workspace session counts, and declutter both the sidebar and the conversation's collapsed turns. Self-contained: the plugin list shows this one row, and the five components are vendored inside it - installing this plugin installs nothing else.",
   "type": "module",
   "main": "src/index.js",
@@ -69,14 +69,14 @@
       "dsh-delete-session": {
         "repo": "https://github.com/DDDMUC/dsh-delete-session",
         "ref": "main",
-        "commit": "30f407b2619e83526d2883009326d7bd3869e764",
-        "version": "0.5.5"
+        "commit": "f888d87c0caf4dca5a1a32de779f366629a8a62a",
+        "version": "0.5.6"
       },
       "dsh-session-relocate": {
         "repo": "https://github.com/DDDMUC/dsh-session-relocate",
         "ref": "main",
-        "commit": "4dd1d8b1afa785c9c81b5bcb24d0c9f3b534711a",
-        "version": "0.3.2"
+        "commit": "ffc1e4ee7486cf4cd8aa813f139d51d054498fd5",
+        "version": "0.3.3"
       },
       "dsh-session-rename-dblclick": {
         "repo": "https://github.com/DDDMUC/dsh-session-rename-dblclick",
@@ -93,8 +93,8 @@
       "dsh-declutter": {
         "repo": "https://github.com/DDDMUC/dsh-declutter",
         "ref": "main",
-        "commit": "a75b43301b0bb8525c750711a865a1b182006397",
-        "version": "0.2.4"
+        "commit": "8595643b5ea179df0cd43a06d74ad2cb7858bbfe",
+        "version": "0.2.5"
       },
       "dsh-settings-launcher": {
         "repo": "https://github.com/DDDMUC/dsh-settings-launcher",
