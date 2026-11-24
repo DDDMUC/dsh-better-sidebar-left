@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { test } from 'node:test'
@@ -35,6 +36,11 @@ test('the mount order is the manifest order', () => {
   assert.deepEqual(plugin.VENDORED, COMPONENT_IDS)
 })
 
+/** Services a component only reads, so the bundle does not have to require them. */
+const OPTIONAL_SERVICES = {
+  'dsh-settings-launcher': ['remote.account'],
+}
+
 test('the browser half injects every service its components need', async () => {
   // The components run inside THIS plugin's context, so a service one of them
   // declares has to be declared here too - otherwise its apply() runs without the
@@ -44,7 +50,12 @@ test('the browser half injects every service its components need', async () => {
   for (const component of COMPONENTS) {
     const module = await import(pathToFileURL(join(root, 'src', 'vendor', component.id + '.js')).href)
     const vendored = module.default(fakeRequire())
+    const source = await readFile(join(root, 'src', 'vendor', component.id + '.js'), 'utf8')
     for (const service of vendored.inject ?? []) {
+      // Services listed here are read through ctx.get() and degrade to nothing when
+      // absent, so this bundle must NOT require them to activate: a host without the
+      // account plugin would otherwise lose every component in the pack.
+      if ((OPTIONAL_SERVICES[component.id] ?? []).includes(service)) continue
       assert.ok(declared.has(service), component.id + ' needs ' + service + ', which this bundle does not inject')
     }
   }

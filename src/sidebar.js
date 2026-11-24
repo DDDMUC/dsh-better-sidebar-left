@@ -85,7 +85,7 @@ window.__ModuleLoader__.load({
      * whatever they need has to be declared here - test/sidebar.test.js proves this
      * list covers every component's own inject array.
      */
-    const SERVICES = ['slots', 'locale', 'contextMenus', 'remote.account']
+    const SERVICES = ['slots', 'locale', 'contextMenus']
 
     const h = react.createElement
 
