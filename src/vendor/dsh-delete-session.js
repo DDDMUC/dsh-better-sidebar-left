@@ -1,6 +1,6 @@
 // dsh-delete-session browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.1, sha256 cb14682c02a882bf)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-delete-session/src/client.js  (v0.5.2, sha256 5601b14cf00f7a30)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -55,7 +55,7 @@ export default (require) => {
       dropHint: '拖到这里删除',
       dropRelease: '松手删除「{name}」',
       dropFallback: '这个对话',
-      starAsk: '⭐ 顺手留颗 Star，作者能高兴一整天',
+      starAsk: '顺手留颗 Star，作者能高兴一整天',
       starCta: '行，给你一颗 Star',
       pageSyncChildrenOn: '删除对话时，把它派生的子代理会话一起删掉。',
       pageSyncChildrenOff: '不勾选时，删除前会列出子会话，由你勾选要删哪些。',
@@ -173,7 +173,7 @@ export default (require) => {
       dropHint: 'Drop here to delete',
       dropRelease: 'Release to delete \'{name}\'',
       dropFallback: 'this conversation',
-      starAsk: '⭐ A star would make the author\'s day',
+      starAsk: 'A star would make the author\'s day',
       starCta: 'Fine — have one',
       pageSyncChildrenOn: 'A delete also removes the subagent sessions it spawned.',
       pageSyncChildrenOff: 'When off, the dialog lists the child sessions and you tick the ones to delete.',
@@ -288,7 +288,7 @@ export default (require) => {
       dropHint: 'Перетащите сюда, чтобы удалить',
       dropRelease: 'Отпустите, чтобы удалить «{name}»',
       dropFallback: 'этот диалог',
-      starAsk: '⭐ Звёздочка на GitHub сделает автору день',
+      starAsk: 'Звёздочка на GitHub сделает автору день',
       starCta: 'Ладно, держи звезду',
       pageSyncChildrenOn: 'Удаление сессии удаляет и порождённые ею сессии субагентов.',
       pageSyncChildrenOff: 'Если выключено, перед удалением появится список дочерних сессий и вы отметите, какие удалить.',
@@ -1123,8 +1123,11 @@ export default (require) => {
       '.dsdel-file-open:hover{background:var(--dsdel-bg);border-color:var(--dsdel-border);color:var(--dsdel-label)}',
       '.dsdel-file-open:focus-visible{outline:2px solid var(--dsdel-ring);outline-offset:1px}',
       '.dsdel-file-remove:hover{background:color-mix(in srgb,var(--dsdel-danger) 12%,transparent);border-color:color-mix(in srgb,var(--dsdel-danger) 40%,transparent);color:var(--dsdel-danger)}',
-      '.dsdel-star{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;font-size:12px;color:var(--dsw-alias-label-tertiary,#8b93a1);padding:2px 2px 0;}',
-      '.dsdel-star-link{color:var(--dsw-alias-brand-primary,#4d76e6);text-decoration:underline;}',
+      '.dsdel-star{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:rgba(255,196,0,.06);color:inherit;text-decoration:none;font-size:12px;line-height:1.4}',
+      '.dsdel-star:hover{background:rgba(255,196,0,.14)}',
+      '.dsdel-star-icon{font-size:14px;line-height:1}',
+      '.dsdel-star-cta{margin-left:auto;color:#8a6d00;font-weight:600}',
+      '@media (prefers-color-scheme: dark){.dsdel-star{border-color:rgba(255,255,255,.12);background:rgba(255,196,0,.08)}.dsdel-star-cta{color:#e8c15a}}',
       '.dsdel-root-input{flex:1 1 220px;min-width:160px;min-height:30px;padding:0 10px;border:1px solid var(--dsw-alias-border-secondary,#d0d0d0);border-radius:6px;background:transparent;color:inherit;font:inherit;font-size:13px}',
       '.dsdel-picker-path{margin:0 0 8px;font-size:12px;line-height:1.6;color:var(--dsw-alias-label-secondary,#666);word-break:break-all}',
       // A wider confirmation dialog: the class reaches it when `Modal` forwards
@@ -3126,15 +3129,16 @@ export default (require) => {
       // A quiet link to the repository, last in the card. It is a nudge, not a
       // setting, so it never competes with the controls above it — and it is a
       // plain anchor, so clicking it opens the page instead of switching tabs here.
-      children.push(h('div', { key: 'star', className: 'dsdel-star' },
-        h('span', { key: 'ask' }, translate('starAsk')),
-        h('a', {
-          key: 'cta',
-          className: 'dsdel-star-link',
-          href: 'https://github.com/DDDMUC/dsh-delete-session',
-          target: '_blank',
-          rel: 'noreferrer',
-        }, translate('starCta'))))
+      children.push(h('a', {
+        key: 'star',
+        className: 'dsdel-star',
+        href: 'https://github.com/DDDMUC/dsh-delete-session',
+        target: '_blank',
+        rel: 'noreferrer',
+      },
+      h('span', { key: 'icon', className: 'dsdel-star-icon', 'aria-hidden': 'true' }, '⭐'),
+      h('span', { key: 'ask' }, translate('starAsk')),
+      h('span', { key: 'cta', className: 'dsdel-star-cta' }, translate('starCta'))))
 
       // Each control owns the nodes that explain it. Grouping them here keeps the
       // markup above flat (a switch and its hint are still two pushes) while the
