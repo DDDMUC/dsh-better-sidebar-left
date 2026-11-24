@@ -74,7 +74,7 @@
       "dsh-session-relocate": {
         "repo": "https://github.com/DDDMUC/dsh-session-relocate",
         "ref": "main",
-        "commit": "b2695f40c4c442c4aa5a4e57294a0f7a6d5c263f",
+        "commit": "e1df983e60598b49499088a69650bb37933f6c9e",
         "version": "0.3.1"
       },
       "dsh-session-rename-dblclick": {

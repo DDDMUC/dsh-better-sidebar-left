@@ -85,6 +85,26 @@ test('a component that exports no stylesheet is left to its own styling', () => 
   }
 })
 
+test('the shipped relocate defaults "move children too" to on', async () => {
+  // The default lives in the component, but what a reader installs is THIS copy.
+  // Pinning it here means vendoring an older relocate (one that defaulted off)
+  // fails the suite instead of silently moving parents only.
+  const module = await import(pathToFileURL(join(root, 'src', 'vendor', 'dsh-session-relocate.js')).href)
+  const teardown = installDom()
+  try {
+    const settings = module.default(fakeRequire()).__settings
+    assert.equal(settings.wantChildren(), true, 'no stored choice must read as on')
+    globalThis.localStorage.setItem('dsh-session-relocate.includeChildren', 'true')
+    assert.equal(settings.wantChildren(), true, 'an explicit on stays on')
+    globalThis.localStorage.setItem('dsh-session-relocate.includeChildren', 'false')
+    assert.equal(settings.wantChildren(), false, 'only an explicit off turns it off')
+    globalThis.localStorage.removeItem('dsh-session-relocate.includeChildren')
+    assert.equal(settings.wantChildren(), true, 'clearing the key falls back to on')
+  } finally {
+    teardown()
+  }
+})
+
 test('both dictionaries are complete and parallel', () => {
   const plugin = registered.factory(fakeRequire())
   const zh = Object.keys(plugin.zh).sort()
