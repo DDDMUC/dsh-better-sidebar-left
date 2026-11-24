@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.4'
+    const PLUGIN_VERSION = '0.3.5'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -128,6 +128,8 @@ window.__ModuleLoader__.load({
       panelTabTidy: '收纳与整理',
       panelTabDelete: '删除会话',
       panelTabMove: '移动会话',
+      starAsk: '顺手留颗 Star，作者能高兴一整天',
+      starCta: '行，给你一颗 Star',
       panelState: '运行状态',
       panelVersion: '版本',
       panelPackage: '包名',
@@ -171,6 +173,8 @@ window.__ModuleLoader__.load({
       panelTabTidy: 'Tidy up',
       panelTabDelete: 'Delete a session',
       panelTabMove: 'Move a session',
+      starAsk: 'A star would make the author\'s day',
+      starCta: 'Fine — have one',
       panelState: 'State',
       panelVersion: 'Version',
       panelPackage: 'Package',
@@ -191,6 +195,11 @@ window.__ModuleLoader__.load({
 
     const STYLE = [
       '.dbsl-page{height:100%;min-height:0;overflow-y:auto;box-sizing:border-box;padding:14px 24px 24px 46px}',
+      '.dbsl-star{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:rgba(255,196,0,.06);color:inherit;text-decoration:none;font-size:12px;line-height:1.4}',
+      '.dbsl-star:hover{background:rgba(255,196,0,.14)}',
+      '.dbsl-starIcon{font-size:14px;line-height:1}',
+      '.dbsl-starCta{margin-left:auto;color:#8a6d00;font-weight:600}',
+      '@media (prefers-color-scheme: dark){.dbsl-star{border-color:rgba(255,255,255,.12);background:rgba(255,196,0,.08)}.dbsl-starCta{color:#e8c15a}}',
       '.dbsl-h1{font-size:15px;font-weight:600;margin:0 0 6px}',
       '.dbsl-tabs{display:flex;align-items:center;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--dsw-alias-border-l2);padding-bottom:0;margin:2px 0 12px}',
       '.dbsl-tab{font:inherit;font-size:13px;color:var(--dsw-alias-label-secondary);background:transparent;border:0;border-bottom:2px solid transparent;padding:6px 10px;margin-bottom:-1px;cursor:pointer;border-radius:6px 6px 0 0}',
@@ -581,9 +590,47 @@ window.__ModuleLoader__.load({
       return buttons.length === 0 ? null : h('div', { className: 'dbsl-tabs', role: 'tablist' }, buttons)
     }
 
+    /** Components whose own card already ends with a star banner. */
+    const BANNER_OWNERS = ['dsh-delete-session', 'dsh-session-relocate']
+
+    /**
+     * The repository of the component behind a tab, for its star banner.
+     * @param id - component id.
+     * @returns the https URL, or null when the manifest has none.
+     */
+    function starHrefOf(id) {
+      const entry = MANIFEST.filter((component) => component.id === id)[0]
+      return entry === undefined || typeof entry.repo !== 'string' ? null : entry.repo
+    }
+
+    /**
+     * The star nudge, for the tabs whose component does not draw one itself.
+     * Two components already end their card with it; adding a second banner there
+     * would be the same request twice, so those are left alone.
+     */
+    function starBannerOf(id) {
+      if (BANNER_OWNERS.indexOf(id) !== -1) return null
+      const href = starHrefOf(id)
+      if (href === null) return null
+      return h('a', {
+        key: 'star-' + id,
+        className: 'dbsl-star',
+        href,
+        target: '_blank',
+        rel: 'noreferrer',
+      },
+      h('span', { key: 'icon', className: 'dbsl-starIcon', 'aria-hidden': 'true' }, '\u2b50'),
+      h('span', { key: 'ask' }, railText('starAsk')),
+      h('span', { key: 'cta', className: 'dbsl-starCta' }, railText('starCta')))
+    }
+
     function railPageOf(id) {
       const Card = vendoredConfigCard(id)
-      return Card === null ? [] : [h(Card, { key: 'card-' + id, view: 'full', t: railText })]
+      if (Card === null) return []
+      const nodes = [h(Card, { key: 'card-' + id, view: 'full', t: railText })]
+      const star = starBannerOf(id)
+      if (star !== null) nodes.push(star)
+      return nodes
     }
 
     function LeftRailPage() {
@@ -728,6 +775,8 @@ window.__ModuleLoader__.load({
     exports.MANIFEST = MANIFEST
     exports.INTEROP = INTEROP
     exports.RAIL_TABS = RAIL_TABS
+    // Test-only entry: the banner is appended by railPageOf, which no test renders.
+    exports.__starBanner = starBannerOf
     exports.VENDORED = VENDORED
     exports.SERVICES = SERVICES
     exports.failures = failures

@@ -129,6 +129,29 @@ test('one tab exists per exported card, in manifest order', () => {
   }
 })
 
+test('the star nudge appears once per tab', () => {
+  // delete-session and relocate end their own card with the banner; the other two
+  // tabs get this plugin's copy, pointing at that component's repository.
+  // createElement has to be real here: the default stub returns null, which is
+  // indistinguishable from 'this tab must not get a banner'.
+  const createElement = (type, props, ...children) => ({ type, props: { ...(props || {}), children: children.length === 1 ? children[0] : children } })
+  const plugin = registered.factory(fakeRequire({ react: { createElement } }))
+  for (const id of ['dsh-delete-session', 'dsh-session-relocate']) {
+    assert.equal(plugin.__starBanner(id), null, id + ' draws its own banner')
+  }
+  for (const component of COMPONENTS) {
+    const banner = plugin.__starBanner(component.id)
+    if (component.id === 'dsh-delete-session' || component.id === 'dsh-session-relocate') continue
+    assert.equal(banner.props.className, 'dbsl-star', component.id + ' gets one banner')
+    assert.equal(banner.props.href, component.repo, 'it must point at that component')
+    assert.equal(banner.props.target, '_blank')
+    const [icon, ask, cta] = banner.props.children
+    assert.equal(icon.props.children, '\u2b50')
+    assert.equal(typeof ask.props.children, 'string')
+    assert.equal(cta.props.className, 'dbsl-starCta')
+  }
+})
+
 test('both dictionaries are complete and parallel', () => {
   const plugin = registered.factory(fakeRequire())
   const zh = Object.keys(plugin.zh).sort()
