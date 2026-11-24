@@ -16,7 +16,7 @@
 | `dsh-declutter` | maintenance | DDDMUC/dsh-declutter | `declutter` |
 | `dsh-settings-launcher` | maintenance | DDDMUC/dsh-settings-launcher | `launcher` |
 
-插件列表里只有本包一行（`dsh-better-sidebar-left` 0.3.5）。六个组件的装载行是
+插件列表里只有本包一行（`dsh-better-sidebar-left` 0.3.6）。六个组件的装载行是
 `dsh-better-sidebar-left/<后缀>`，见 §11 的机制 A / B。
 
 ## 1. 铁律

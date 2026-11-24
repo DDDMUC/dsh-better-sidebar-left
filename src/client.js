@@ -10458,7 +10458,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.5'
+    const PLUGIN_VERSION = '0.3.6'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -10834,6 +10834,10 @@ window.__ModuleLoader__.load({
         {
           "component": "dsh-declutter",
           "exportPath": "__settings.SettingsCard",
+          "tabLabel": {
+            "zh": "收纳与整理",
+            "en": "Tidy up"
+          },
           "label": {
             "zh": "收纳与整理",
             "en": "Declutter"
@@ -10842,6 +10846,10 @@ window.__ModuleLoader__.load({
         {
           "component": "dsh-delete-session",
           "exportPath": "__settings.SettingsCard",
+          "tabLabel": {
+            "zh": "删除会话",
+            "en": "Delete"
+          },
           "label": {
             "zh": "删除会话",
             "en": "Delete a session"
@@ -10850,6 +10858,10 @@ window.__ModuleLoader__.load({
         {
           "component": "dsh-session-relocate",
           "exportPath": "__settings.ChildrenSetting",
+          "tabLabel": {
+            "zh": "移动会话",
+            "en": "Move"
+          },
           "label": {
             "zh": "连同子对话",
             "en": "Include child conversations"
@@ -10858,6 +10870,10 @@ window.__ModuleLoader__.load({
         {
           "component": "dsh-settings-launcher",
           "exportPath": "__settings.SwitchCard",
+          "tabLabel": {
+            "zh": "设置入口",
+            "en": "Settings entry"
+          },
           "label": {
             "zh": "设置入口",
             "en": "Settings entry"
@@ -11232,7 +11248,7 @@ window.__ModuleLoader__.load({
 
     // One tab per component that exports a card, in manifest order: a component
     // that starts exporting one gets a tab without a second place to edit.
-    const RAIL_TABS = INTEROP.settingsCards.map((card) => ({ id: card.component, label: card.label }))
+    const RAIL_TABS = INTEROP.settingsCards.map((card) => ({ id: card.component, label: card.tabLabel || card.label }))
 
     /** The tab's label in the reader's language, from the manifest. */
     function railTabLabel(tab) {

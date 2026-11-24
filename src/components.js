@@ -24,7 +24,7 @@
 export const PLUGIN_ID = 'dsh-better-sidebar-left'
 
 /** Keep in sync with package.json and src/sidebar.js. */
-export const PLUGIN_VERSION = '0.3.5'
+export const PLUGIN_VERSION = '0.3.6'
 
 /**
  * The five components, in the order the user meets them in the sidebar.
@@ -258,10 +258,10 @@ export const INTEROP = {
     },
   ],
   settingsCards: [
-    { component: 'dsh-declutter', exportPath: '__settings.SettingsCard', label: { zh: '收纳与整理', en: 'Declutter' } },
-    { component: 'dsh-delete-session', exportPath: '__settings.SettingsCard', label: { zh: '删除会话', en: 'Delete a session' } },
-    { component: 'dsh-session-relocate', exportPath: '__settings.ChildrenSetting', label: { zh: '连同子对话', en: 'Include child conversations' } },
-    { component: 'dsh-settings-launcher', exportPath: '__settings.SwitchCard', label: { zh: '设置入口', en: 'Settings entry' } },
+    { component: 'dsh-declutter', exportPath: '__settings.SettingsCard', tabLabel: { zh: '收纳与整理', en: 'Tidy up' }, label: { zh: '收纳与整理', en: 'Declutter' } },
+    { component: 'dsh-delete-session', exportPath: '__settings.SettingsCard', tabLabel: { zh: '删除会话', en: 'Delete' }, label: { zh: '删除会话', en: 'Delete a session' } },
+    { component: 'dsh-session-relocate', exportPath: '__settings.ChildrenSetting', tabLabel: { zh: '移动会话', en: 'Move' }, label: { zh: '连同子对话', en: 'Include child conversations' } },
+    { component: 'dsh-settings-launcher', exportPath: '__settings.SwitchCard', tabLabel: { zh: '设置入口', en: 'Settings entry' }, label: { zh: '设置入口', en: 'Settings entry' } },
   ],
   /** This plugin's own registrations: one row config seat, nothing else. */
   pluginSlots: [{ name: 'plugins.row.config', key: PLUGIN_ID + '#' + PLUGIN_ID }],

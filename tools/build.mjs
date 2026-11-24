@@ -85,7 +85,7 @@ function interopLiteral() {
     if (slot.order !== undefined) row.order = slot.order
     return row
   })
-  const settingsCards = INTEROP.settingsCards.map((card) => ({ component: card.component, exportPath: card.exportPath, label: card.label }))
+  const settingsCards = INTEROP.settingsCards.map((card) => ({ component: card.component, exportPath: card.exportPath, tabLabel: card.tabLabel, label: card.label }))
   return JSON.stringify({ slots, settingsCards }, null, 2).split('\n').join('\n    ')
 }
 
