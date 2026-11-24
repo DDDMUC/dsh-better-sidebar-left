@@ -10450,7 +10450,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.0'
+    const PLUGIN_VERSION = '0.3.1'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -10821,19 +10821,35 @@ window.__ModuleLoader__.load({
       "settingsCards": [
         {
           "component": "dsh-declutter",
-          "exportPath": "__settings.SettingsCard"
+          "exportPath": "__settings.SettingsCard",
+          "label": {
+            "zh": "收纳与整理",
+            "en": "Declutter"
+          }
         },
         {
           "component": "dsh-delete-session",
-          "exportPath": "__settings.SettingsCard"
+          "exportPath": "__settings.SettingsCard",
+          "label": {
+            "zh": "删除会话",
+            "en": "Delete a session"
+          }
         },
         {
           "component": "dsh-session-relocate",
-          "exportPath": "__settings.ChildrenSetting"
+          "exportPath": "__settings.ChildrenSetting",
+          "label": {
+            "zh": "连同子对话",
+            "en": "Include child conversations"
+          }
         },
         {
           "component": "dsh-settings-launcher",
-          "exportPath": "__settings.SwitchCard"
+          "exportPath": "__settings.SwitchCard",
+          "label": {
+            "zh": "账号入口",
+            "en": "Account entry"
+          }
         }
       ]
     }
@@ -11197,11 +11213,15 @@ window.__ModuleLoader__.load({
       return railText('panelEntry')
     }
 
-    const RAIL_TABS = [
-      { id: 'dsh-declutter', labelKey: 'panelTabTidy' },
-      { id: 'dsh-delete-session', labelKey: 'panelTabDelete' },
-      { id: 'dsh-session-relocate', labelKey: 'panelTabMove' },
-    ]
+    // One tab per component that exports a card, in manifest order: a component
+    // that starts exporting one gets a tab without a second place to edit.
+    const RAIL_TABS = INTEROP.settingsCards.map((card) => ({ id: card.component, label: card.label }))
+
+    /** The tab's label in the reader's language, from the manifest. */
+    function railTabLabel(tab) {
+      const label = tab.label === undefined || tab.label === null ? null : tab.label[currentLocale()]
+      return typeof label === 'string' && label !== '' ? label : tab.id
+    }
 
     function availableTabs() {
       return RAIL_TABS.filter((tab) => vendoredConfigCard(tab.id) !== null)
@@ -11223,7 +11243,7 @@ window.__ModuleLoader__.load({
               className: on ? 'dbsl-tab dbsl-tabOn' : 'dbsl-tab',
               onClick: () => select(tab.id),
             },
-            railText(tab.labelKey),
+            railTabLabel(tab),
           ),
         )
       }
@@ -11376,6 +11396,7 @@ window.__ModuleLoader__.load({
     exports.applyVendored = applyVendored
     exports.MANIFEST = MANIFEST
     exports.INTEROP = INTEROP
+    exports.RAIL_TABS = RAIL_TABS
     exports.VENDORED = VENDORED
     exports.SERVICES = SERVICES
     exports.failures = failures

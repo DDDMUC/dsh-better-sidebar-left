@@ -116,6 +116,19 @@ test('the shipped relocate defaults "move children too" to on', async () => {
   }
 })
 
+test('one tab exists per exported card, in manifest order', () => {
+  // The tab bar used to be a hardcoded trio, so a sixth component that exported a
+  // card rendered nothing and there was no way to reach it. The list is derived now;
+  // this pins the derivation rather than the three ids it happened to name.
+  const plugin = registered.factory(fakeRequire())
+  const cards = plugin.INTEROP.settingsCards.map((card) => card.component)
+  assert.deepEqual(plugin.RAIL_TABS.map((tab) => tab.id), cards)
+  for (const tab of plugin.RAIL_TABS) {
+    assert.equal(typeof tab.label.zh, 'string', tab.id + ' needs a Chinese label')
+    assert.equal(typeof tab.label.en, 'string', tab.id + ' needs an English label')
+  }
+})
+
 test('both dictionaries are complete and parallel', () => {
   const plugin = registered.factory(fakeRequire())
   const zh = Object.keys(plugin.zh).sort()
