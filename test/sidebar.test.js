@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { test } from 'node:test'
 import { COMPONENTS, COMPONENT_IDS } from '../src/components.js'
-import { fakeRequire, loadBundle, readText, root } from './helpers.js'
+import { fakeRequire, installDom, loadBundle, readText, root } from './helpers.js'
 
 const clientText = readFileSync(join(root, 'src', 'client.js'), 'utf8')
 const registered = loadBundle(clientText)
@@ -49,6 +49,40 @@ test('the browser half injects every service its components need', async () => {
     }
   }
   for (const needed of ['slots', 'locale']) assert.ok(declared.has(needed), 'the studio page itself needs ' + needed)
+})
+
+test('a component stylesheet is injected once, so a disabled row still renders styled', () => {
+  const teardown = installDom()
+  try {
+    const plugin = registered.factory(fakeRequire())
+    const modules = [
+      { __ui: { css: () => '.dshsm-card{color:red}' } },
+      { __ui: { css: () => '.dsst-card{color:blue}' } },
+    ]
+    plugin.__componentStyles('first', modules[0])
+    plugin.__componentStyles('first', modules[0])
+    plugin.__componentStyles('second', modules[1])
+    const tags = document.head.children.filter((node) => String(node.tagName).toUpperCase() === 'STYLE')
+    assert.equal(tags.length, 2, 'one sheet per component, never two for the same one')
+    assert.equal(tags[0].textContent, '.dshsm-card{color:red}')
+    assert.equal(tags[0].getAttribute('data-dsh-better-sidebar-left-css'), 'first')
+    assert.equal(tags[1].getAttribute('data-dsh-better-sidebar-left-css'), 'second')
+  } finally {
+    teardown()
+  }
+})
+
+test('a component that exports no stylesheet is left to its own styling', () => {
+  const teardown = installDom()
+  try {
+    const plugin = registered.factory(fakeRequire())
+    plugin.__componentStyles('plain', { __settings: {} })
+    plugin.__componentStyles('throwing', { __ui: { css: () => { throw new Error('nope') } } })
+    const tags = document.head.children.filter((node) => String(node.tagName).toUpperCase() === 'STYLE')
+    assert.equal(tags.length, 0)
+  } finally {
+    teardown()
+  }
 })
 
 test('both dictionaries are complete and parallel', () => {

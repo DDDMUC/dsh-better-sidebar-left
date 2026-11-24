@@ -42,7 +42,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.2.4'
+    const PLUGIN_VERSION = '0.2.5'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'
@@ -229,6 +229,13 @@ window.__ModuleLoader__.load({
       if (typeof document === 'undefined' || typeof document.querySelector !== 'function') return
       const style = document.querySelector('style[data-dsh-better-sidebar-left]')
       if (style !== null && style.parentNode !== null) style.parentNode.removeChild(style)
+      const cards = typeof document.querySelectorAll === 'function'
+        ? document.querySelectorAll('style[data-dsh-better-sidebar-left-css]')
+        : []
+      for (let index = 0; index < cards.length; index += 1) {
+        if (cards[index].parentNode !== null) cards[index].parentNode.removeChild(cards[index])
+      }
+      injectedCss.clear()
     }
 
     // --- mounting the vendored halves -------------------------------------------
@@ -297,12 +304,57 @@ window.__ModuleLoader__.load({
      * returned is the component's own, so its state, storage keys and copy are the
      * ones its own page uses.
      */
+    /** Component ids whose stylesheet this page has already injected. */
+    const injectedCss = new Set()
+
+    /**
+     * Inject the stylesheet a vendored component ships for its own settings card.
+     *
+     * A component injects its sheet from its apply(), which only runs when its row is
+     * mounted. This page renders the card of a component whose row may be disabled
+     * (the gate says so, and the card is still the place a reader turns the feature
+     * on), so the sheet has to be asked for here - otherwise the card renders as raw
+     * DOM: an invisible switch, unstyled segmented buttons, a link that runs into
+     * its label. Components that export no css() supply their styling another way
+     * (platform primitives) and are left alone.
+     */
+    function injectComponentStyles(id, plugin) {
+      if (typeof document === 'undefined' || typeof document.createElement !== 'function') return
+      const ui = plugin === null || plugin === undefined ? undefined : plugin.__ui
+      if (ui === null || ui === undefined || typeof ui.css !== 'function') return
+      const attribute = 'data-dsh-better-sidebar-left-css'
+      if (injectedCss.has(id) === true) return
+      let css
+      try {
+        css = ui.css()
+      } catch (error) {
+        console.error('[' + NS + '] vendored ' + id + ' stylesheet could not be read:', error)
+        return
+      }
+      if (typeof css !== 'string' || css === '') return
+      // The component injects the very same text from its own apply(); adding a
+      // second copy would double every rule, including the ones with transitions.
+      const existing = typeof document.querySelectorAll === 'function' ? document.querySelectorAll('style') : []
+      for (let index = 0; index < existing.length; index += 1) {
+        if (existing[index].textContent === css) {
+          injectedCss.add(id)
+          return
+        }
+      }
+      const style = document.createElement('style')
+      style.setAttribute(attribute, id)
+      style.textContent = css
+      document.head.appendChild(style)
+      injectedCss.add(id)
+    }
+
     function vendoredConfigCard(id) {
       const entry = CONFIG_CARDS.filter((candidate) => candidate.id === id)[0]
       if (entry === undefined) return null
       try {
         const plugin = appliedModules[id] !== undefined ? appliedModules[id] : vendoredModule(id)
         if (plugin === null || plugin === undefined) return null
+        injectComponentStyles(id, plugin)
         let value = plugin
         for (let index = 0; index < entry.path.length; index += 1) {
           value = value === null || value === undefined ? undefined : value[entry.path[index]]
@@ -658,6 +710,9 @@ window.__ModuleLoader__.load({
     exports.LeftRailPage = LeftRailPage
     exports.LeftRailIcon = LeftRailIcon
     exports.railLabel = railLabel
+    // Test-only entry: the injection runs from vendoredConfigCard, which no test
+    // reaches without a rendered page.
+    exports.__componentStyles = injectComponentStyles
     exports.stateOf = stateOf
     exports.shouldMount = shouldMount
     exports.mountableComponents = mountableComponents
