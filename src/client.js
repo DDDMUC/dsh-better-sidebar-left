@@ -1122,7 +1122,7 @@ window.__ModuleLoader__.load({
       '.dsdel-setting{position:relative;display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
       '.dsdel-setting-text{flex:1;min-width:0}',
       '.dsdel-setting-title{font-size:13px;font-weight:600;line-height:20px}',
-      '.dsdel-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);opacity:0;pointer-events:none;transition:opacity .12s}',
+      '.dsdel-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-primary,#111);opacity:0;pointer-events:none;transition:opacity .12s}',
       '.dsdel-setting:hover .dsdel-setting-desc{opacity:1}',
       '.dsdel-switch{position:relative;flex:none;width:38px;height:22px;margin-left:auto;border:0;border-radius:11px;padding:0;cursor:pointer;background:rgba(127,127,127,.4);transition:background .12s ease}',
       '.dsdel-switch[aria-checked="true"]{background:#4c8dff}',
@@ -3472,7 +3472,7 @@ window.__ModuleLoader__.load({
       '.dshsm-setting{position:relative;display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
       '.dshsm-setting-text{flex:1;min-width:0}',
       '.dshsm-setting-title{font-size:13px;font-weight:600;line-height:20px}',
-      '.dshsm-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);opacity:0;pointer-events:none;transition:opacity .12s}',
+      '.dshsm-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-primary,#111);opacity:0;pointer-events:none;transition:opacity .12s}',
       '.dshsm-setting:hover .dshsm-setting-desc{opacity:1}',
       '.dshsm-seg{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:8px;background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));flex:none}',
       '.dshsm-segBtn{border:0;background:0 0;color:var(--dsw-alias-label-secondary,inherit);font:inherit;font-size:12px;line-height:18px;padding:3px 8px;border-radius:6px;cursor:pointer;white-space:nowrap}',
@@ -7382,7 +7382,7 @@ window.__ModuleLoader__.load({
     const react = require('react')
 
     const NS = 'dsh-declutter'
-    const VERSION = '0.2.5'
+    const VERSION = '0.2.6'
     const ROUTE_PREFIX = '/dsh-declutter'
     // Same cadence the sibling plugins use for transcript polling.
     const REFRESH_INTERVAL_MS = 3000
@@ -8511,7 +8511,7 @@ window.__ModuleLoader__.load({
       '.dhns-sectionHead{position:relative;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}',
       '.dhns-sectionTitle{margin:0;font-size:13px;font-weight:600;',
       'letter-spacing:.02em;color:var(--dsw-alias-label-primary)}',
-      '.dhns-sectionHint{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);opacity:0;pointer-events:none;transition:opacity .12s}',
+      '.dhns-sectionHint{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-primary,#111);opacity:0;pointer-events:none;transition:opacity .12s}',
       '.dhns-sectionHead:hover .dhns-sectionHint{opacity:1}',
       '.dhns-rows{display:flex;flex-direction:column;gap:8px}',
       '.dhns-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}',
@@ -10461,7 +10461,7 @@ window.__ModuleLoader__.load({
     const NS = 'dsh-better-sidebar-left'
 
     /** Keep in sync with package.json and src/components.js. */
-    const PLUGIN_VERSION = '0.3.9'
+    const PLUGIN_VERSION = '0.3.10'
 
     /** Presence marker the live verifier reads. */
     const DEBUG_KEY = '__DSH_BETTER_SIDEBAR_LEFT__'

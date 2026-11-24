@@ -1,6 +1,6 @@
 // dsh-session-relocate browser half, VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.3, sha256 87b6ad1f91d5665e)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/lib/client.js  (v0.3.4, sha256 a4a4b9ccf33237ba)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // The component registers its factory with the host module loader; inside this
@@ -104,7 +104,7 @@ export default function (require) {
       '.dshsm-setting{position:relative;display:flex;align-items:flex-start;gap:16px;padding:12px 0;width:100%}',
       '.dshsm-setting-text{flex:1;min-width:0}',
       '.dshsm-setting-title{font-size:13px;font-weight:600;line-height:20px}',
-      '.dshsm-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-secondary,#666);opacity:0;pointer-events:none;transition:opacity .12s}',
+      '.dshsm-setting-desc{position:absolute;left:0;top:100%;z-index:6;max-width:min(560px,100%);margin-top:6px;padding:8px 10px;border-radius:8px;border:1px solid rgba(0,0,0,.08);background:var(--dsw-alias-bg-layer-2,#fff);box-shadow:0 6px 20px rgba(0,0,0,.10);font-size:12px;line-height:18px;color:var(--dsw-alias-label-primary,#111);opacity:0;pointer-events:none;transition:opacity .12s}',
       '.dshsm-setting:hover .dshsm-setting-desc{opacity:1}',
       '.dshsm-seg{display:inline-flex;align-items:center;gap:2px;padding:2px;border-radius:8px;background:var(--dsw-alias-interactive-bg-hover,rgba(127,127,127,.12));flex:none}',
       '.dshsm-segBtn{border:0;background:0 0;color:var(--dsw-alias-label-secondary,inherit);font:inherit;font-size:12px;line-height:18px;padding:3px 8px;border-radius:6px;cursor:pointer;white-space:nowrap}',

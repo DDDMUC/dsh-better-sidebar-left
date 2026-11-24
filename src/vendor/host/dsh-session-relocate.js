@@ -1,6 +1,6 @@
 // dsh-session-relocate host half (dsh-session-relocate.js), VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/src/plugin.js  (v0.3.3, sha256 4e825a094753e896)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/src/plugin.js  (v0.3.4, sha256 c7dd5e928d847e02)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // src/shell.js mounts the copy named after the component, which is why this
@@ -45,7 +45,7 @@ const DEFAULT_PREFIX = '/api/dsh-session-relocate';
  */
 const PLUGIN_VERSION = (() => {
   try {
-    return "0.3.3";
+    return "0.3.4";
   } catch {
     return '0.0.0-unknown';
   }

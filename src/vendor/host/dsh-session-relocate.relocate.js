@@ -1,6 +1,6 @@
 // dsh-session-relocate host half (dsh-session-relocate.relocate.js), VENDORED by tools/vendor.mjs - DO NOT EDIT.
 //
-// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/a sibling module  (v0.3.3, sha256 713b94c76832f0de)
+// Source: ../dsh-better-sidebar-left-src/components/dsh-session-relocate/a sibling module  (v0.3.4, sha256 713b94c76832f0de)
 // Regenerate with npm run vendor; test/sync.test.js fails when this is stale.
 //
 // src/shell.js mounts the copy named after the component, which is why this
